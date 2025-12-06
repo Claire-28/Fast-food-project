@@ -72,8 +72,36 @@
             </form>
         </div>
         <script>
+            const API_BASE_URL = 'http://127.0.0.1:3019/api';
+
             function showMessage(message) {
                 console.log(message);
+            }
+
+            //funzione per verificare la registrazione del ristorante
+            async function checkRestaurantRegistration(token) {
+                try {
+                    //chiama l'API per vedere se il ristoratore ha già un ristorante
+                    const response = await fetch(`${API_BASE_URL}/restaurants/me`, {
+                        method: 'GET',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        // Ristorante trovato
+                        window.location.href = '/DashboardRistoratore.html';
+                    } else if (response.status === 404) {
+                        //ristorante non trovato (nessun ristorante associato a questo utente)
+                        window.location.href = '/RegisterRestaurant.html';
+                    } else {
+                        //altro errore, reindirizza alla dashboard o home
+                        console.error("Errore verifica ristorante:", await response.json());
+                        window.location.href = '/DashboardRistoratore.html';
+                    }
+                } catch (error) {
+                    console.error('Errore di rete durante la verifica del ristorante:', error);
+                    window.location.href = '/DashboardRistoratore.html'; //fallback
+                }
             }
 
             document.getElementById('loginForm').addEventListener('submit', loginUser);
@@ -103,7 +131,7 @@
 
                         if (userRole === 'Ristoratore') {
                             showMessage('Login ristoratore riuscito! Reindirizzamento alla Dashboard');
-                            window.location.href = '/DashboardRistoratore.html';
+                            checkRestaurantRegistration(token);
                         } else if (userRole === 'Cliente') {
                             showMessage('Login cliente riuscito! Reindirizzamento alla Home Cliente.');
                             window.location.href = '/SearchRestaurants.html'; //reindirizza alla ricerca Ristoranti

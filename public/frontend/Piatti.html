@@ -76,7 +76,10 @@
     </style>
 </head>
 <body>
-    <button onclick="window.location.href = 'dashboard_ristoratore.html';" class="back-button">← Torna alla Dashboard</button>
+    <button onclick="window.location.href = (localStorage.getItem('ruolo') === 'Ristoratore' ? 'DashboardRistoratore.html' : 'SearchRestaurants.html');"
+            class="back-button">
+        ← Torna Indietro
+    </button></button>
     
     <header>
         <h1>Catalogo Piatti Comuni</h1>
@@ -84,6 +87,34 @@
     </header>
 
     <div class="container">
+        <form id="searchForm" class="p-3 mb-4 bg-white rounded shadow-sm">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="nome" class="form-label small">Nome Piatto</label>
+                    <input type="text" class="form-control" id="nome" placeholder="Es. Pasta, Chicken">
+                </div>
+                <div class="col-md-6">
+                    <label for="tipologia" class="form-label small">Categoria / Tipologia</label>
+                    <input type="text" class="form-control" id="tipologia" placeholder="Es. Pasta, Dessert, Beef">
+                </div>
+                <div class="col-md-4">
+                    <label for="prezzo" class="form-label small">Prezzo Max (€)</label>
+                    <input type="number" step="0.01" class="form-control" id="prezzo" placeholder="Es. 15.00">
+                </div>
+                <div class="col-md-4">
+                    <label for="ingredienti" class="form-label small">Contiene Ingrediente (Esatto)</label>
+                    <input type="text" class="form-control" id="ingredienti" placeholder="Es. Garlic">
+                </div>
+                <div class="col-md-4">
+                    <label for="allergie" class="form-label small">NON Contiene Allergene</label>
+                    <input type="text" class="form-control" id="allergie" placeholder="Es. Nut">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary w-100" style="background-color: orangered; border-color: orangered;">Cerca Piatti</button>
+                </div>
+            </div>
+        </form>
+
         <div id="platesContainer" class="plates-grid">
             <div class="loading">Caricamento piatti in corso...</div>
         </div>
@@ -94,6 +125,13 @@
 
         async function fetchData(endpoint, method = 'GET', body = null) {
             const token = localStorage.getItem('token');
+
+            if (!token) {
+                console.warn('Accesso negato. Token mancante.');
+                window.location.href = '/LogIn.html';
+                throw new Error('Autenticazione richiesta');
+            }
+
             const headers = { 
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
@@ -151,23 +189,90 @@
             }
         }
 
+        function renderPlates(meals) {
+            platesContainer.innerHTML = '';
+
+            if (!meals || meals.length === 0) {
+                platesContainer.innerHTML = '<div class="loading">Nessun piatto trovato con i criteri specificati.</div>';
+                return;
+            }
+
+            meals.forEach(meal => {
+                const card = document.createElement('div');
+                card.className = 'plate-card';
+                card.innerHTML = `
+                    <img src="${meal.strMealThumb || 'placeholder.jpg'}" alt="${meal.strMeal}" loading="lazy">
+                    <div class="plate-info">
+                        <h3>${meal.strMeal || meal.nome}</h3>
+                        <p><strong>Categoria:</strong> ${meal.strCategory || meal.categoria || 'N/A'}</p>
+                        <p><strong>Prezzo:</strong> ${meal.prezzo ? meal.prezzo + '€' : 'N/A (Comune)'}</p>
+                        <p>
+                            <strong>ID Piatto Comune:</strong> <span id="id-${meal.mealId}">${meal.mealId}</span>
+                            <button class="copy-button" onclick="copyToClipboard('${meal.mealId}')">Copia ID</button>
+                        </p>
+                        <p class="small text-muted">ID DB: ${meal._id}</p>
+                    </div>
+                `;
+                platesContainer.appendChild(card);
+            });
+        }
+
+        async function loadAndSearchPlates(params = '') {
+            platesContainer.innerHTML = '<div class="loading">Caricamento piatti in corso...</div>';
+
+            try {
+                // Se ci sono parametri di ricerca, usiamo la rotta /search, altrimenti /common
+                const endpoint = params ? `/meals/search?${params}` : '/meals/common';
+
+                const meals = await fetchData(endpoint);
+
+                // Se l'endpoint è /meals/common, i dati sono un array diretto.
+                // Se l'endpoint è /meals/search, i dati sono un array di oggetti Plate dal DB.
+
+                renderPlates(meals);
+
+            } catch (error) {
+                console.error('Errore nel caricamento/ricerca dei piatti:', error);
+                platesContainer.innerHTML = `<div class="loading alert-danger">Errore: ${error.message}. Assicurati che il server sia attivo e che tu sia loggato.</div>`;
+            }
+        }
+
+        searchForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const params = new URLSearchParams();
+
+            const nome = document.getElementById('nome').value.trim();
+            const tipologia = document.getElementById('tipologia').value.trim();
+            const prezzo = document.getElementById('prezzo').value.trim();
+            const ingredienti = document.getElementById('ingredienti').value.trim();
+            const allergie = document.getElementById('allergie').value.trim();
+
+            if (nome) params.append('nome', nome);
+            if (tipologia) params.append('tipologia', tipologia);
+            if (prezzo && !isNaN(parseFloat(prezzo))) params.append('prezzo', prezzo);
+            if (ingredienti) params.append('ingredienti', ingredienti);
+            if (allergie) params.append('allergie', allergie);
+
+            loadAndSearchPlates(params.toString());
+        });
+
         function copyToClipboard(idMeal) {
             const button = event.currentTarget;
             const originalText = button.textContent;
 
             navigator.clipboard.writeText(idMeal).then(() => {
+                const button = event.currentTarget;
+                const originalText = button.textContent;
                 button.textContent = 'Copiato!';
-                button.disabled = true;
-
-                setTimeout(() => {
-                    button.textContent = originalText;
-                    button.disabled = false;
-                }, 2000); //2 secondi
+                setTimeout(() => { button.textContent = originalText; }, 2000);
             }, (err) => {
                 console.error('Errore nella copia: ', err);
-                alert(`Impossibile copiare ID: ${idMeal}`)
-            })
-            // Utilizza l'API moderna per copiare il testo
+                // Sostituzione di alert()
+                console.error(`Impossibile copiare ID: ${idMeal}`);
+            });
+
+            //utilizza l'API per copiare il testo
             navigator.clipboard.writeText(idMeal).then(() => {
                 alert(`ID Piatto ${idMeal} copiato negli appunti!`);
             }, (err) => {
@@ -176,7 +281,7 @@
             });
         }
         
-        document.addEventListener('DOMContentLoaded', loadCommonPlates);
+        document.addEventListener('DOMContentLoaded', loadAndSearchPlates);
     </script>
 </body>
 </html>

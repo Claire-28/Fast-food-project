@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Ristoratore - EAT(W)</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 20px; background-color: #f4f4f9; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { color: orangered; }
+        .dashboard-container { display: flex; gap: 20px; }
+        .sidebar { width: 250px; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .main-content { flex-grow: 1; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section { margin-bottom: 30px; }
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .menu-item { border: 1px solid #ccc; padding: 15px; border-radius: 6px; position: relative; }
+        .menu-item button { margin-top: 10px; padding: 5px 10px; cursor: pointer; }
+        .btn-primary { background-color: orangered; color: white; border: none; }
+        .btn-secondary { background-color: #ccc; color: #333; border: none; }
+        .loading { text-align: center; padding: 20px; }
+        /* Stile semplice per la tabella Ordini */
+        #ordersTable { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        #ordersTable th, #ordersTable td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dashboard Ristoratore</h1>
+        <button onclick="logout()" class="btn-primary">Logout</button>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="sidebar">
+            <div id="restaurantInfo" class="section">
+                <h2>Info Locale</h2>
+                <div id="restaurantData">Caricamento...</div>
+                <button onclick="editRestaurantDetails()" class="btn-secondary">Modifica Dettagli</button>
+            </div>
+            
+            <div class="section">
+                <h2>Statistiche (TODO)</h2>
+                <p>Ordini in attesa: <span id="pendingOrdersCount">0</span></p>
+                <p>Guadagno stimato (oggi): <span id="dailyRevenue">0.00€</span></p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="section">
+                <h2>Gestione Menu 📝</h2>
+                <button onclick="openAddPlateModal()" class="btn-primary" style="margin-bottom: 15px;">Aggiungi Piatto</button>
+                <div id="menuContainer" class="menu-grid">
+                    <div class="loading">Caricamento menu...</div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="section">
+                <h2>Ordini Ricevuti 📦</h2>
+                <table id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>ID Ordine</th>
+                            <th>Cliente (TODO)</th>
+                            <th>Totale</th>
+                            <th>Stato</th>
+                            <th>Azione</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersBody">
+                        <tr><td colspan="5">Caricamento ordini... (TODO: API)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalPlaceholder">
+        <div id="addPlateModal" style="
+            display: none; 
+            position: fixed; 
+            z-index: 100; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4);">
+            
+            <div style="
+                background-color: #fefefe;
+                margin: 15% auto;
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%;
+                max-width: 400px;
+                border-radius: 8px;">
+                
+                <span onclick="closeAddPlateModal()" style="
+                    color: #aaa;
+                    float: right;
+                    font-size: 28px;
+                    font-weight: bold;
+                    cursor: pointer;">&times;</span>
+                
+                <h3>Aggiungi Nuovo Piatto al Menu</h3>
+                
+                <form id="addPlateForm">
+                    <label for="mealIdInput">ID Piatto Comune (idMeal):</label>
+                    <input type="text" id="mealIdInput" name="idMeal" required style="margin-bottom: 10px;">
+                    
+                    <label for="prezzoInput">Prezzo (€):</label>
+                    <input type="number" id="prezzoInput" name="prezzo" step="0.01" min="0" required style="margin-bottom: 20px;">
+                    
+                    <button type="submit" class="btn-primary">Aggiungi Piatto</button>
+                </form>
+                
+                <p id="plateMessage" style="color: red; margin-top: 10px;"></p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:3019/api';
+        let RESTAURANT_ID = null;
+
+        const formatDate = (dateString) => {
+            const options = {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'};
+            return new Date(dateString).toLocaleDateString('it-IT', options);
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'Ordinato': return '#ffc107'; // Giallo
+                case 'In preparazione': return '#007bff'; // Blu
+                case 'In consegna': return '#17a2b8'; // Azzurro
+                case 'Consegnato': return '#28a745'; // Verde
+                case 'Annullato': return '#dc3545'; // Rosso
+                default: return '#f8f9fa';
+            }
+        }
+
+        function createStatusDropdown(orderId, currentStatus) {
+            const statusGeneral = ['Ordinato', 'In preparazione', 'In consegna', 'Consegnato', 'Annullato'];
+            let html = `<select onchange="updateOrderStatusUI('${orderId}', this.value)" style="padding: 5px; border-radius: 4px;">`;
+
+            statusGeneral.forEach(status => {
+                const selected = status === currentStatus ? 'selected' : '';
+                html += `<option value="${status}" ${selected}>${status}</option>`;
+            });
+            html += `</select>`;
+            return html;
+        }
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const ruolo = localStorage.getItem('ruolo');
+            if (!token || ruolo !== 'Ristoratore') {
+                alert('Accesso non autorizzato. Effettuare il login');
+                window.location.href = '/LogIn.html';
+                return;
+            }
+
+            loadRestaurantData(token);
+            loadMenu(token);
+            loadOrders();
+
+            const addPlateForm = document.getElementById('addPlateForm');
+            if (addPlateForm) {
+                addPlateForm.addEventListener('submit', handleAddPlate);
+            }
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('ruolo');
+            window.location.href = '/LogIn.html';
+        }
+
+        async function fetchData(endpoint, method = 'GET', body = null) {
+            const token = localStorage.getItem('token');
+            const headers = { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+
+            const config = { method, headers };
+            if (body) {
+                config.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    console.error(`Errore API ${endpoint}:`, data.error);
+                    throw new Error(data.error || 'Errore nel recupero dati');
+                }
+                return data;
+            } catch (error) {
+                console.error('Errore durante la fetch: ', error);
+                //alert('Errore di comunicazione con il server: ' + error.message);
+                //return null;
+                throw error;
+            }
+        }
+        
+        //carica info ristorante
+        async function loadRestaurantData(token) {
+            const infoDiv = document.getElementById('restaurantData');    
+            infoDiv.innerHTML = 'Caricamento...';
+            
+            try {
+                const data = await fetchData('/restaurants/me');
+                if (data && data.nome) {
+                    RESTAURANT_ID = data._id;
+                    infoDiv.innerHTML = `
+                        <p><strong>Nome:</strong> ${data.nome}</p>
+                        <p><strong>Indirizzo:</strong> ${data.indirizzo}</p>
+                        <p><strong>Telefono:</strong> ${data.telefono}</p>
+                        <p><strong>P. IVA:</strong> ${data.partitaIVA}</p>
+                    `;
+                } else {
+                    infoDiv.innerHTML = '<p style="color:red;">Nessun ristorante registrato <a href="RegisterRistorante.html">Registra ora</a></p>';
+                }
+            } catch (e) {
+                infoDiv.innerHTML = `<p style="color:red;">Errore: ${e.message}</p>`;
+            }
+        }
+
+        //carica menu
+        async function loadMenu(token) {
+            const menuContainer = document.getElementById('menuContainer');
+            menuContainer.innerHTML = '<div class="loading">Caricamento menu...</div>';
+
+            try {
+                const menu = await fetchData('/restaurants/menu');
+
+                if (!menu || menu.length === 0) {
+                    menuContainer.innerHTML = '<p>Il tuo menu è vuoto. Aggiungi il tuo primo piatto!</p>';
+                    return;
+                }
+
+                menuContainer.innerHTML = '';
+                menu.forEach(plate => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'menu-item';
+                    itemDiv.innerHTML = `
+                        <img src="${plate.strMealThumb || 'placeholder.jpg'}" alt="${plate.strMeal}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 4px;">
+                        <h4>${plate.strMeal}</h4>
+                        <p><strong>Prezzo:</strong> ${plate.prezzo}€</p>
+                        <button onclick="editPlate('${plate._id}', ${plate.prezzo})" class="btn-secondary">Modifica</button>
+                        <button onclick="removePlate('${plate._id}')" class="btn-secondary" style="background-color: darkred; color: white;">Rimuovi</button>
+                    `;
+                    menuContainer.appendChild(itemDiv);
+                });
+            } catch (e) {
+                menuContainer.innerHTML = `<p style="color:red;">Errore nel caricamento del menu: ${e.message}</p>`;
+            }
+        }
+
+        async function loadOrders() {
+            const ordersBody = document.getElementById('ordersBody');
+            ordersBody.innerHTML = '<tr><td colspan="5">Caricamento ordini...</td></tr>';
+
+            try {
+                const orders = await fetchData('/orders');
+
+                if (!orders || orders.length === 0) {
+                    ordersBody.innerHTML = '<tr><td colspan="5">Nessun ordine ricevuto.</td></tr>';
+                    document.getElementById('pendingOrdersCount').textContent = 0;
+                    document.getElementById('dailyRevenue').textContent = '0.00€';
+                    return;
+                }
+
+                ordersBody.innerHTML = '';
+                let pendingCount = 0;
+                let dailyRevenue = 0;
+                const today = new Date().toDateString();
+
+                orders.forEach(order => {
+                    if (order.stato === 'Ordinato' || order.stato  === 'In preparazione') {
+                        pendingCount++;
+                    }
+                    if (new Date(order.dataOrdine || order.createdAt).toDateString() === today && order.stato !== 'Annullato') {
+                        dailyRevenue += parseFloat(order.totale);
+                    }
+
+                    ordersBody.innerHTML += `
+                        <tr>
+                            <td>${order._id.substring(0, 8)}...</td>
+                            <td>${order.cliente ? order.cliente.username : 'Cliente Sconosciuto'}</td>
+                            <td>${order.totale.toFixed(2)}€</td>
+                            <td>${createStatusDropdown(order._id, order.stato)}</td>
+                            <td><button onclick="alert('Vedi dettagli ordine ${order._id.substring(0, 8)}')" class="btn-secondary" style="font-size: 0.8em;">Dettagli</button></td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('pendingOrdersCount').textContent = pendingCount;
+                document.getElementById('dailyRevenue').textContent = dailyRevenue.toFixed(2) + '€';
+            } catch (e) {
+                ordersBody.innerHTML = `<tr><td colspan="5" style="color:red;">Errore nel caricamento degli ordini: ${e.message}</td></tr>`;
+            }
+        }
+
+        //funzioni CRUD menu
+        function openAddPlateModal() {
+            document.getElementById('addPlateModal').style.display = 'block';
+            document.getElementById('plateMessage').textContent = '';
+            document.getElementById('addPlateForm').reset();
+        }
+
+        function closeAddPlateModal() {
+            document.getElementById('addPlateModal').style.display = 'none';
+        }
+
+        async function handleAddPlate(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const idMeal = form.idMeal.value.trim();
+            const prezzo = form.prezzo.value;
+            const messageDisplay = document.getElementById('plateMessage');
+
+            if (idMeal === "" || prezzo === "") {
+                messageDisplay.textContent = "ID Piatto e prezzo sono obbligatori";
+                messageDisplay.style.color = 'red';
+                return;
+            }
+
+            messageDisplay.textContent = 'Aggiunta in corso...';
+            messageDisplay.style.color = 'black';
+
+            try {
+                const data = await fetchData('/restaurants/menu', 'POST', { idMeal, prezzo });
+
+                if (data) {
+                    messageDisplay.textContent = `Successso: ${data.message}`;
+                    messageDisplay.style.color = 'green';
+
+                    loadMenu();
+
+                    setTimeout(() => {
+                        closeAddPlateModal();
+                    }, 1500);
+                } else {
+                    messageDisplay.textContent = 'Errore durante la aggiunta del piatto';
+                    messageDisplay.style.color = 'red';
+                }
+            } catch (error) {
+                messageDisplay.textContent = `Errore ${error.message}`;
+                messageDisplay.style.color = 'red';
+            }
+        }
+
+        function editPlate(plateId, currentPrice) {
+            const newPrice = prompt(`Inserisci il nuovo prezzo per il piatto (ID: ${plateId}). Prezzo attuale: ${currentPrice}€`);
+            if (newPrice && !isNaN(parseFloat(newPrice))) {
+                updatePlatePrice(plateId, parseFloat(newPrice));
+            } else if (newPrice) {
+                alert("Prezzo non valido");
+            }
+        }
+
+        async function updatePlatePrice(plateId, newPrice) {
+            try {
+                await fetchData(`/restaurants/menu/${plateId}`, 'PUT', { prezzo: newPrice });
+                alert('Prezzo aggiornato con successo');
+                loadMenu();
+            } catch (e) {
+                alert(`Errore nell'aggiornamento del prezzo: ${e.message}`);
+            }
+        }
+
+        async function removePlate(plateId) {
+            if (confirm('Sei sicuro di voler rimuovere questo piatto dal menu?')) {
+                const success = await fetchData(`/restaurants/menu/${plateId}`, 'DELETE');
+                if (success) {
+                    alert('Piatto rimosso con successo!');
+                    loadMenu();
+                }
+            }
+        }
+
+        async function updateOrderStatusUI(orderId, newStatus) {
+            try {
+                const data = await fetchData(`/orders/${orderId}/status`, 'PUT', {stato: newStatus});
+                console.log(`Ordine ${orderId} aggiornato a: ${newStatus}`, data);
+                loadOrders();
+            } catch (e) {
+                alert(`Errore nell'aggiornamento dello stato dello ordine: ${e.message}`);
+                loadOrders();
+            } 
+        }
+
+        function editRestaurantDetails() {
+
+        }
+    </script>
+</body>
+</html>

@@ -16,9 +16,14 @@ const plateSchema = new mongoose.Schema({
     //misure: [String],
     prezzo: { type: Number, required: true },
     allergie: [String],
-    restaurant: { type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: true},
+    restaurant: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'Restaurant', required: function () {
+            return this.isCommon === false;
+        }
+    },
     isCommon: { type: Boolean, default: false}
 });
 
-plateSchema.index({ restaurant: 1, mealId: 1}, {unique: true});
+plateSchema.index({ restaurant: 1, mealId: 1 }, { unique: true });
+
 module.exports = mongoose.model('Plate', plateSchema);

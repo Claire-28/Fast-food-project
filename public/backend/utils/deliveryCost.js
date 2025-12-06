@@ -27,7 +27,7 @@ function toRad(value) {
 const calculateDeliveryConst = async (ristoranteAddress, clienteAddress) => {
     try {
         const resLocation = await geocodeAddress(ristoranteAddress);
-        const cliLocation = await geocoddeAddress(clienteAddress);
+        const cliLocation = await geocodeAddress(clienteAddress);
 
         //estraggo lat e lon
         const resCoords = {
@@ -44,7 +44,7 @@ const calculateDeliveryConst = async (ristoranteAddress, clienteAddress) => {
         //calcola il costo con minimo una distanza di 1 km e arrotonda all'intero più vicino
         const effectiveDistance = Math.max(1, Math.ceil(distanceKm));
 
-        const totalConst = costoBase + (effectiveDistance * costoPerKm);
+        const totalCost = costoBase + (effectiveDistance * costoPerKm);
 
         console.log(`Distanza calcolata: ${distanceKm.toFixed(2)} km. Costo: ${totalCost.toFixed(2)}€ (Base: ${COSTO_BASE}€ + ${COSTO_PER_KM}€/km)`);
 

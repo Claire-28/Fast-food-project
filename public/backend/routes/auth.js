@@ -82,6 +82,20 @@ router.put('/me',
             .isEmail().withMessage('Email non valida')
             .normalizeEmail(),
 
+            //logica di checkDomain
+        body('email')
+            .optional()
+            .custom((value, { req }) => {
+                if (value) {
+                    const domain = value.split('@')[1];
+                    const allowedDomains = ['gmail.com', 'libero.it', 'outlook.com', 'hotmail.com'];
+                    if (!domain || !allowedDomains.includes(domain)) {
+                        throw new Error('Dominio email non consentito per la modifica');
+                    }
+                }
+                return true;
+            }),
+
         body('password')
             .optional()
             .isStrongPassword({
