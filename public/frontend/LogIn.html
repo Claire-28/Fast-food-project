@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="utf-8">
+    <title>EAT(W) - Log In</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            background-color: #fafafa;
+            font-family: sans-serif;
+            /* align-items: flex-start; */
+        }
+
+        #loginForm{
+            width: 320px;
+            border: 2px solid orangered;
+            border-radius: 10px;
+            padding: 30px; /*lo prende per tutti e quattro*/
+            margin-top: 50px;
+            background-color: #fff;
+            box-sizing: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: orangered;
+            color: white;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: orange;
+        }
+
+        h2{
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+    </head>
+    <body>
+        <div>
+            <form action="api/auth/login" method="post" id="loginForm">
+                <h2>Log In</h2>
+
+                <label for="email">Email</label>
+                <input type="email" placeholder="Email" name="email" required>
+
+                <label for="password">Password</label>
+                <input type="password" placeholder="Password" name="password" required>
+
+                <button type="submit">Log In</button>
+
+                <p style="text-align:center; margin-top:10px;">
+                    <a href="SignUp.html">Non sei ancora registrato? Clicca qui</a>
+                </p>
+
+            </form>
+        </div>
+        <script>
+            function showMessage(message) {
+                console.log(message);
+            }
+
+            document.getElementById('loginForm').addEventListener('submit', loginUser);
+
+            async function loginUser(event) {
+                event.preventDefault();
+
+                const email = document.querySelector('input[name="email"]').value;
+                const password = document.querySelector('input[name="password"]').value;
+                
+                const user = {email, password};
+
+                try{
+                    const response = await fetch('http://127.0.0.1:3019/api/auth/login', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(user)
+                    });
+
+                    const data = await response.json();
+
+                    if(response.ok) {
+                        localStorage.setItem('token', data.token);
+                        localStorage.setItem('ruolo', data.user.ruolo); //memorizza il ruolo
+                        
+                        const userRole = data.user.ruolo;
+
+                        if (userRole === 'Ristoratore') {
+                            showMessage('Login ristoratore riuscito! Reindirizzamento alla Dashboard');
+                            window.location.href = '/DashboardRistoratore.html';
+                        } else if (userRole === 'Cliente') {
+                            showMessage('Login cliente riuscito! Reindirizzamento alla Home Cliente.');
+                            window.location.href = '/SearchRestaurants.html'; //reindirizza alla ricerca Ristoranti
+                        } else {
+                            showMessage('Login riuscito ma ruolo sconosciuto. Reindirizzamento predefinito');
+                            window.location.href = '/HomePage.html';
+                        }
+                    } else {
+                        showMessage('Errore: ' + (data.error || 'Login fallito'));
+                    }
+                } catch (error) {
+                console.error('Errore nel login:', error);
+                showMessage('Errore di connessione al server');
+                }
+            }
+        </script>
+    </body>
+</html>
