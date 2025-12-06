@@ -1,3 +1,5 @@
+require('dotenv').config({ path: require('path').resolve(__dirname, '../../../../.env') });
+
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -5,6 +7,7 @@ const { fileURLToPath } = require('url'); // Importa fileURLToPath per ottenere 
 const { dirname } = require('path'); // Importa dirname
 //const bodyParser = require('body-parser')
 
+const MONGO_URI = process.env.MONGODB_URI;
 
 const app = express();
 const port = 3019;
@@ -24,8 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); // Aggiunta la gestione del corpo JSON
 
 //connessione a mongodb
-mongoose.connect('mongodb+srv://admin:1Qaz2Wsx3Edc@cluster1.ueo49rs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1', {
-}).then(() => {
+mongoose.connect(MONGO_URI).then(() => {
     console.log('MongoDB connection successful');
     loadCommonMeals();
 }).catch(err => {
