@@ -119,6 +119,30 @@
             // loadClientOrders(); 
         }
 
+        //logica di conferma ordine
+        async function confirmOrderReceipt(orderId, tipoConsegna) {
+            const action = tipoConsegna === 'Consegna a domicilio' ? 'ricezione' : 'ritiro';
+
+            if (!window.confirm(`Sei sicuro di voler confermare l'${action} per l'ordine #${orderId.slice(-6)}?`)) {
+                return;
+            }
+
+            const endpoint = `/orders/${orderId}/confirm-receipt`;
+
+            try {
+                // Chiamata alla nuova API
+                const data = await fetchData(endpoint, 'PUT', { tipoConsegna });
+                displayStatusMessage(data.message, 'success');
+
+            } catch (error) {
+                console.error('Errore nella conferma ordine:', error);
+                displayStatusMessage('Errore nella conferma dell\'ordine: ' + error.message, 'danger');
+            }
+
+            // Ricarica gli ordini dopo il tentativo
+            loadClientOrders();
+        }
+
         function renderOrders(orders) {
             const container = document.getElementById('ordersContainer');
             container.innerHTML = '';

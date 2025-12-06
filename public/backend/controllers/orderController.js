@@ -89,6 +89,50 @@ exports.createOrder = async (req, res) =>  {
     }
 };
 
+exports.confirmOrderReceipt = async (req, res) => {
+    const clientId = req.user.id;
+    const orderId = req.params.id;
+    const { tipoConsegna } = req.body; // Aspettati il tipo di consegna per impostare lo stato finale
+
+    if (!tipoConsegna || !['Ritiro', 'Consegna a domicilio'].includes(tipoConsegna)) {
+        return res.status(400).json({ error: 'Tipo di consegna non valido.' });
+    }
+
+    // Determina lo stato finale in base al tipo di consegna
+    const statoFinale = tipoConsegna === 'Ritiro' ? 'Ritirato' : 'Consegnato';
+
+    // Lo stato attuale deve essere 'In Consegna' per la consegna a domicilio, o 'In Preparazione' per il ritiro
+    const statoPermesso = tipoConsegna === 'Ritiro' ? 'In Preparazione' : 'In Consegna';
+
+
+    try {
+        const updatedOrder = await Order.findOneAndUpdate(
+            {
+                _id: orderId,
+                cliente: clientId,
+                stato: statoPermesso // Permetti l'aggiornamento solo se nello stato permesso
+            },
+            { $set: { stato: statoFinale } },
+            { new: true }
+        ).populate('ristorante', 'nome');
+
+        if (!updatedOrder) {
+            // Controlla se l'ordine esiste ma non è nello stato atteso o non appartiene all'utente
+            const existingOrder = await Order.findOne({ _id: orderId, cliente: clientId });
+            if (!existingOrder) {
+                return res.status(404).json({ error: 'Ordine non trovato o non sei autorizzato.' });
+            }
+            // Se l'ordine esiste ma lo stato non è quello atteso
+            return res.status(400).json({ error: `L'ordine è in stato: ${existingOrder.stato}. Deve essere in stato '${statoPermesso}' per la conferma.` });
+        }
+
+        res.status(200).json({ message: `Ordine #${orderId.slice(-6)} confermato come ${statoFinale} dal cliente.`, order: updatedOrder });
+    } catch (error) {
+        console.error('Errore durante la conferma di ricezione dell\'ordine:', error);
+        res.status(500).json({ error: 'Errore interno del server durante la conferma.' });
+    }
+};
+
 exports.updateOrderStatus = async (req, res) => {
     try{
         const orderId = req.params.id;

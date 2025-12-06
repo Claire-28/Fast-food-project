@@ -13,6 +13,9 @@ router.get( '/me', verifyToken, checkRole(['Ristoratore']), restaurantController
 // PUT /api/restaurants/me - Modifica i dati del proprio ristorante 
 router.put('/me', verifyToken, checkRole(['Ristoratore']), restaurantController.updateRestaurant);
 
+//GET /api/restaurants/me/stats - Ottiene le statistiche del ristorante
+router.get('/me/stats', verifyToken, checkRole(['Ristoratore']), restaurantController.getRestaurantStats);
+
 // ROTTE PER CLIENTE/UTENTI LOGGATI (Ricerca/Visualizzazione)
 
 // GET /api/restaurants/search?nome=...&luogo=... - Ricerca dei ristoranti

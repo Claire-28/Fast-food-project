@@ -13,6 +13,9 @@ router.get('/', verifyToken, orderController.getOrders);
 //aggiorna stato degli ordini (solo ristoratore)
 router.put('/:id/status', verifyToken, checkRole(['Ristoratore']), orderController.updateOrderStatus);
 
+//conferma ricezione ordine da parte del cliente
+router.put('/:id/confirm-receipt', verifyToken, checkRole(['Cliente']), orderController.confirmOrderReceipt);
+
 //router.post('/', verifyToken, checkRole(['Cliente']), orderController.createOrder);
 
 //router.get('/restaurant', verifyToken, orderController.getOrders);

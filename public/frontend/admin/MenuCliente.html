@@ -24,6 +24,8 @@
         <div id="restaurantDetails"></div>
         <hr>
         <h2>Menu Disponibile</h2>
+        <!--per mostrare messaggi di stato, incluso errore carrello -->
+        <div id="statusMessage" class="alert d-none"></div>
         <div id="menuContainer" class="menu-grid">
             <p>Caricamento menu...</p>
         </div>
@@ -68,6 +70,14 @@
         const API_BASE_URL = 'http://127.0.0.1:3019/api';
         let CURRENT_RESTAURANT_ID = null;
         let RESTAURANT_DATA = {}; 
+
+        //mostrare i messaggi
+        function displayStatusMessage(message, type) {
+            statusMessageEl.textContent = message;
+            statusMessageEl.className = `alert mt-3 alert-${type}`;
+            statusMessageEl.classList.remove('d-none');
+            setTimeout(() => statusMessageEl.classList.add('d-none'), 5000);
+        }
 
         async function fetchData(endpoint, method = 'GET', body = null) {
             const token = localStorage.getItem('token');
@@ -191,11 +201,18 @@
         function renderCart() {
             const cartItemsDiv = document.getElementById('cartItems');
             const cart = getCart();
+
+            const isDelivery = document.getElementById('tipoConsegna').value === 'Consegna a domicilio';
             
+            const deliveryCostEl = document.getElementById('cartDeliveryCost');
+            const totalFinalEl = document.getElementById('cartTotalFinal');
+
             if (!cart.restaurantId || cart.items.length === 0) {
                 document.getElementById('cartRestaurantName').textContent = 'Carrello vuoto.';
                 cartItemsDiv.innerHTML = '<p>Inizia ad aggiungere piatti al carrello.</p>';
                 document.getElementById('checkoutSection').style.display = 'none';
+                deliveryCostEl.style.display = 'none';
+                totalFinalEl.textContent = 'Totale: 0.00€';
                 return;
             }
 
@@ -308,13 +325,18 @@
                 const response = await fetchData('/orders', 'POST', orderData);
 
                 if (response && response.ordineId) {
-                    alert(`Ordine creato con successo! ID: #${response.ordineId.slice(-6)} Totale: ${response.totale}€. Stato: ${response.stato}`);
-                    localStorage.removeItem('cart'); 
+                    displayStatusMessage(`Ordine creato con successo! ID: #${response.ordineId.slice(-6)}. Totale: ${response.totale}€. Stato: ${response.stato}`, 'success');
+                    localStorage.removeItem('cart');
                     renderCart();
-                    window.location.href = `/home_cliente.html`; // Torna alla home dopo l'ordine
+
+                    // Ritorna alla lista ordini o alla ricerca dopo l'ordine
+                    setTimeout(() => window.location.href = `/ClientOrders.html`, 2000);
                 }
             } catch (e) {
-                alert('Errore durante il checkout: ' + e.message);
+                displayStatusMessage('Errore durante il checkout: ' + e.message, 'danger');
+            } finally {
+                checkoutButton.disabled = false;
+                checkoutButton.textContent = 'Completa Ordine';
             }
         }
 

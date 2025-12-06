@@ -164,6 +164,7 @@
             loadRestaurantData(token);
             loadMenu(token);
             loadOrders();
+            loadStats(token);
 
             const addPlateForm = document.getElementById('addPlateForm');
             if (addPlateForm) {
@@ -203,6 +204,24 @@
                 //alert('Errore di comunicazione con il server: ' + error.message);
                 //return null;
                 throw error;
+            }
+        }
+
+        //carica le statistiche dal backend
+        async function loadStats(token) {
+            document.getElementById('pendingOrdersCount').textContent = 'Caricamento...';
+            document.getElementById('dailyRevenue').textContent = 'Caricamento...';
+
+            try {
+                const stats = await fetchData('/restaurants/me/stats');
+
+                document.getElementById('pendingOrdersCount').textContent = stats.pendingOrdersCount;
+                document.getElementById('dailyRevenue').textContent = `${stats.totalRevenue.toFixed(2)}€`;
+
+            } catch (e) {
+                document.getElementById('pendingOrdersCount').textContent = 'Errore';
+                document.getElementById('dailyRevenue').textContent = 'Errore';
+                console.error('Errore nel caricamento delle statistiche:', e);
             }
         }
         

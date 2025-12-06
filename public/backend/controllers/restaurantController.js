@@ -71,6 +71,65 @@ exports.getMyRestaurant = async (req, res) => {
     }
 };
 
+//Ottieni statistiche del Ristoratore
+exports.getRestaurantStats = async (req, res) => {
+    const proprietarioId = req.user.id;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    try {
+        const ristorante = await Restaurant.findOne({ proprietario: proprietarioId }).select('_id');
+        if (!ristorante) {
+            return res.status(404).json({ error: 'Nessun ristorante associato a questo utente' });
+        }
+        const ristoranteId = ristorante._id;
+
+        const stats = await Order.aggregate([
+            { $match: { ristorante: new mongoose.Types.ObjectId(ristoranteId) } },
+            {
+                $group: {
+                    _id: null,
+                    totalRevenue: {
+                        $sum: {
+                            $cond: [
+                                {
+                                    $and: [
+                                        { $in: ['$stato', ['Consegnato', 'Ritirato']] },
+                                        { $gte: ['$dataOrdine', today] }
+                                    ]
+                                },
+                                '$totale',
+                                0
+                            ]
+                        }
+                    },
+                    pendingOrdersCount: {
+                        $sum: {
+                            $cond: [
+                                { $in: ['$stato', ['Ordinato', 'In Preparazione']] },
+                                1,
+                                0
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    totalRevenue: { $round: ['$totalRevenue', 2] },
+                    pendingOrdersCount: 1
+                }
+            }
+        ]);
+
+        res.status(200).json(stats[0] || { totalRevenue: 0, pendingOrdersCount: 0 });
+    } catch (error) {
+        console.error('Errore nel recupero delle statistiche del ristorante:', error);
+        res.status(500).json({ error: 'Errore interno del server durante il recupero delle statistiche.' });
+    }
+};
+
 // RICERCA RISTORANTI (GET /api/restaurants/search)
 exports.searchRestaurants = async (req, res) => {
     try {
