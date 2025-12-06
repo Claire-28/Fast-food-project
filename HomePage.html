@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benvenuto su EAT(W)</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            const ruolo = localStorage.getItem('ruolo');
+            
+            if (!token) {
+                // Se non loggato, va alla pagina di Login
+                window.location.href = '/LogIn.html';
+            } else if (ruolo === 'Ristoratore') {
+                // Se Ristoratore, va alla Dashboard
+                window.location.href = '/DashboardRistoratore.html';
+            } else {
+                // Se Cliente, va alla pagina di ricerca (SearchRestaurants.html)
+                window.location.href = '/SearchRestaurants.html';
+            }
+        });
+    </script>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; background-color: #f4f4f9; }
+        .loading-message { font-size: 1.5em; color: orangered; }
+    </style>
+</head>
+<body>
+    <div class="loading-message">Caricamento dell'applicazione...</div>
+</body>
+</html>
