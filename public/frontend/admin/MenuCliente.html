@@ -24,8 +24,6 @@
         <div id="restaurantDetails"></div>
         <hr>
         <h2>Menu Disponibile</h2>
-        <!--per mostrare messaggi di stato, incluso errore carrello -->
-        <div id="statusMessage" class="alert d-none"></div>
         <div id="menuContainer" class="menu-grid">
             <p>Caricamento menu...</p>
         </div>
@@ -33,7 +31,7 @@
 
     <div class="cart-section">
         <h2>🛒 Il tuo Carrello</h2>
-        <h3 id="cartRestaurantName">Carrello vuoto.</h3>
+        <h3 id="cartRestaurantName">Carrello vuoto</h3>
         <div id="cartItems"></div>
         <hr>
         <p id="cartSubtotal">Totale parziale: 0.00€</p>
@@ -56,7 +54,7 @@
             <label for="paymentMethod">Metodo di Pagamento:</label>
             <select id="paymentMethod">
                 <option value="Contanti">Contanti alla consegna</option>
-                <option value="Carta">Carta di Credito (TODO)</option>
+                <option value="Carta">Carta di Credito</option>
             </select>
 
             <button id="checkoutButton" class="btn-primary" style="width: 100%; margin-top: 15px;">Completa Ordine</button>
@@ -64,19 +62,29 @@
     </div>
     
     <script>
-        // INCOLLA QUI LO SCRIPT COMPLETO FORNITO NELLA RISPOSTA PRECEDENTE
-        // CON TUTTE LE FUNZIONI (fetchData, getCart, addToCart, renderMenu, handleCheckout, ecc.)
-        
         const API_BASE_URL = 'http://127.0.0.1:3019/api';
         let CURRENT_RESTAURANT_ID = null;
-        let RESTAURANT_DATA = {}; 
+        let RESTAURANT_DATA = {};
+        const messageBox = document.getElementById('messageBox');
 
         //mostrare i messaggi
-        function displayStatusMessage(message, type) {
-            statusMessageEl.textContent = message;
-            statusMessageEl.className = `alert mt-3 alert-${type}`;
-            statusMessageEl.classList.remove('d-none');
-            setTimeout(() => statusMessageEl.classList.add('d-none'), 5000);
+        function displayMessage(message, type) {
+            messageBox.textContent = message;
+            messageBox.style.display = 'block';
+            if (type === 'success') {
+                messageBox.style.backgroundColor = '#d4edda';
+                messageBox.style.color = '#155724';
+                messageBox.style.border = '1px solid #c3e6cb';
+            } else if (type === 'danger') {
+                messageBox.style.backgroundColor = '#f8d7da';
+                messageBox.style.color = '#721c24';
+                messageBox.style.border = '1px solid #f5c6cb';
+            } else {
+                messageBox.style.backgroundColor = '#fff3cd';
+                messageBox.style.color = '#856404';
+                messageBox.style.border = '1px solid #ffeeba';
+            }
+            setTimeout(() => { messageBox.style.display = 'none'; }, 5000);
         }
 
         async function fetchData(endpoint, method = 'GET', body = null) {
@@ -94,6 +102,13 @@
             try {
                 const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
                 const data = await response.json();
+
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    displayMessage("Sessione scaduta o non autorizzata. Effettua nuovamente il login", 'danger');
+                    window.location.href = 'LogIn.html';
+                    return;
+                }
 
                 if (!response.ok) {
                     console.error(`Errore API ${endpoint}:`, data.error);
@@ -121,7 +136,8 @@
             let cart = getCart();
 
             if (cart.restaurantId && cart.restaurantId !== CURRENT_RESTAURANT_ID) {
-                if (!confirm(`Stai cercando di ordinare da un altro ristorante. Vuoi svuotare il carrello e continuare con ${RESTAURANT_DATA.nome}?`)) {
+                const isConfirmed = window.confirm(`Stai cercando di ordinare da un altro ristorante. Vuoi svuotare il carrello e continuare con ${RESTAURANT_DATA.nome}?`);
+                if (!isConfirmed) {
                     return;
                 }
                 cart = { items: [], restaurantId: CURRENT_RESTAURANT_ID, restaurantName: RESTAURANT_DATA.nome };
@@ -146,6 +162,7 @@
 
             saveCart(cart);
             renderCart();
+            displayMessage(`Aggiunto: ${name}`, 'success');
         }
 
         function updateCartQuantity(plateId, change) {
@@ -250,7 +267,11 @@
             const restaurantId = urlParams.get('id');
 
             if (!restaurantId) {
-                alert('ID Ristorante mancante. Tornare alla Home.');
+                displayMessage('ID Ristorante mancante. Tornare alla Ricerca Ristoranti.', 'danger');
+                console.error('ID Ristorante mancante. Reindirizzo.');
+                setTimeout(() => {
+                    window.location.href = '/SearchRestaurants.html';
+                }, 1500);
                 return;
             }
             
@@ -280,7 +301,7 @@
         async function handleCheckout() {
             const cart = getCart();
             if (cart.items.length === 0) {
-                alert('Il carrello è vuoto!');
+                displayMessage('Il carrello è vuoto!', 'warning');
                 return;
             }
             
@@ -288,15 +309,16 @@
             const tipoConsegna = document.getElementById('tipoConsegna').value;
             const paymentMethod = document.getElementById('paymentMethod').value;
             
-            if (!deliveryAddress || !tipoConsegna || !paymentMethod) {
-                alert('Compila tutti i campi di consegna e pagamento.');
+            const isDelivery = tipoConsegna === 'Consegna a domicilio';
+            const deliveryAddress = isDelivery ? deliveryAddressInput.value : 'Ritiro in sede';
+
+            if (isDelivery && !deliveryAddress) {
+                displayMessage('Compila l\'indirizzo di consegna per la consegna a domicilio.', 'warning');
                 return;
             }
 
-            const isDelivery = tipoConsegna === 'Consegna a domicilio';
-
             if (isDelivery && !deliveryAddress) {
-                alert ('Compila lo indirizzo di consegna');
+                displayMessage('Seleziona un metodo di pagamento.', 'warning');
                 return;
             }
 
@@ -304,8 +326,6 @@
                 alert('Seleziona un mmetodo di pagamento');
                 retun;
             }
-
-            const finalCostoConsegna = isDelivery ? costoConsegna : 0;
 
             const orderItems = cart.items.map(item => ({
                 mealId: item.mealId,
@@ -320,6 +340,11 @@
                 paymentMethod: paymentMethod 
             };
 
+            const checkoutButton = document.getElementById('checkoutButton');
+            checkoutButton.disabled = true;
+            checkoutButton.textContent = 'Creazione Ordine...';
+            messageBox.style.display = 'none';
+
             try {
                 // API POST /api/orders
                 const response = await fetchData('/orders', 'POST', orderData);
@@ -330,7 +355,7 @@
                     renderCart();
 
                     // Ritorna alla lista ordini o alla ricerca dopo l'ordine
-                    setTimeout(() => window.location.href = `/ClientOrders.html`, 2000);
+                    setTimeout(() => window.location.href = `/ClientOrders.html`, 1500);
                 }
             } catch (e) {
                 displayStatusMessage('Errore durante il checkout: ' + e.message, 'danger');
@@ -350,29 +375,27 @@
             }
 
             const tipoConsegnaInput = document.getElementById('tipoConsegna');
+            const deliveryAddressGroup = document.getElementById('deliveryAddressGroup');
+            const costoConsegnaGroup = document.getElementById('costoConsegnaGroup');
             const deliveryAddressInput = document.getElementById('deliveryAddress');
-            const costoConsegnaInput = document.getElementById('costoConsegna');
 
             tipoConsegnaInput.addEventListener('change', (e) => {
                 const isDelivery = e.target.value === 'Consegna a domicilio';
 
-                deliveryAddressInput.parentElement.style.display = isDelivery ? 'block' : 'none';
+                deliveryAddressGroup.style.display = isDelivery ? 'block' : 'none';
                 deliveryAddressInput.required = isDelivery;
 
-                costoConsegnaInput.parentElement.style.display = isDelivery ? 'block' : 'none';
-                costoConsegnaInput = idDelivery? '5.00' : '0.00';
-
-                renderCart();
+                // Mostra il campo costo consegna solo come indicazione se è Consegna a domicilio
+                costoConsegnaGroup.style.display = isDelivery ? 'block' : 'none';
+                document.getElementById('costoConsegna').value = isDelivery ? '5.00' : '0.00';
             });
 
-            if (tipoConsegnaInput.value !== 'Consegna a domicilio') {
-                tipoConsegnaInput.dispatchEvent(new Event('change'));
-            }
-            
+            tipoConsegnaInput.dispatchEvent(new Event('change'));
+
             loadRestaurantMenu();
 
             const checkoutButton = document.getElementById('checkoutButton');
-            if(checkoutButton) {
+            if (checkoutButton) {
                 checkoutButton.addEventListener('click', handleCheckout);
             }
         });

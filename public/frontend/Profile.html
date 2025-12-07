@@ -66,10 +66,33 @@
                 <input type="text" class="form-control" id="defaultAddress" name="defaultAddress" placeholder="Via/Piazza, Civico, Città">
             </div>
 
+            <!--campo conferma nuova password -->
+            <div class="mb-3">
+                <label for="confirmNewPassword" class="form-label">Conferma Nuova Password</label>
+                <input type="password" class="form-control" id="confirmNewPassword" placeholder="Conferma la nuova password">
+            </div>
+
+            <!--non obbligatorio compilarlo ma viene salvato-->
+            <h5 class="mt-4">Informazioni di Consegna e Preferenze (Cliente)</h5>
+            <div class="mb-3">
+                <label for="defaultAddress" class="form-label">Indirizzo predefinito (per la consegna)</label>
+                <input type="text" class="form-control" id="defaultAddress" name="defaultAddress" placeholder="Via/Piazza, Civico, Città">
+            </div>
+
+            <div class="mb-3">
+                <label for="notificationPreference" class="form-label">Preferenza Notifiche</label>
+                <select class="form-select" id="notificationPreference" name="notificationPreference">
+                    <option value="Email">Email</option>
+                    <option value="SMS">SMS</option>
+                    <option value="Nessuna">Nessuna</option>
+                </select>
+            </div>
+
+            <!--campo per i dati della carta di credito-->
             <div class="mb-3">
                 <label for="cardNumber" class="form-label">Numero di Carta (Solo ultime 4 cifre)</label>
                 <input type="text" class="form-control" id="cardNumber" name="cardNumber" maxlength="16" placeholder="Solo se vuoi aggiornare i dati">
-                <div class="form-text">Si prega di inserire le 16 cifre complete. Verrà salvato solo l'hash.</div>
+                <div class="form-text">Si prega di inserire le 16 cifre complete.</div>
             </div>
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -98,24 +121,25 @@
         const statusMessage = document.getElementById('statusMessage');
         const profileForm = document.getElementById('profileForm');
         const saveButton = document.getElementById('saveButton');
+        const cardStatusDisplay = document.getElementById('cardStatusDisplay');
 
         function displayMessage(message, type) {
             statusMessage.textContent = message;
             statusMessage.className = `alert mt-3 alert-${type}`;
             statusMessage.classList.remove('d-none');
             errorMessage.classList.add('d-none');
-            setTimeout(() => statusMessage.classList.add('d-none'), 5000);
+            setTimeout(() => statusMessage.classList.add('d-none'), 5000);  //5 secondi
         }
         
         // Funzione per reindirizzare se il token manca
         function redirectToLogin() {
-            alert('Accesso negato. Effettua il login.');
+            // Sostituzione di alert()
+            console.warn('Accesso negato. Effettua il login.');
             window.location.href = 'LogIn.html';
         }
 
-        /**
-         * Funzione principale per caricare i dati dell'utente
-         */
+        // Funzione principale per caricare i dati dell'utente
+         
         async function loadProfileData() {
             const token = localStorage.getItem('token');
             
@@ -142,6 +166,18 @@
                     document.getElementById('username').value = data.username;
                     document.getElementById('email').value = data.email;
                     document.getElementById('ruolo').value = data.ruolo;
+                    document.getElementById('defaultAddress').value = data.defaultAddress || '';
+                    document.getElementById('notificationPreference').value = data.notificationPreference || 'Email';
+
+                    if (data.cardStatus === 'Salvata') {
+                        cardStatusDisplay.textContent = 'Hai già una carta di pagamento salvata (hash esistente). Compila tutti e tre i campi per aggiornarla.';
+                        cardStatusDisplay.classList.remove('d-none');
+                    } else {
+                        cardStatusDisplay.textContent = 'Nessuna carta di pagamento salvata.';
+                        cardStatusDisplay.classList.remove('d-none');
+                        cardStatusDisplay.classList.remove('alert-info');
+                        cardStatusDisplay.classList.add('alert-warning');
+                    }
 
                     document.getElementById('saveButton').disabled = false; // Attiva il bottone per la prossima fase
 
@@ -193,6 +229,7 @@
                 username: document.getElementById('username').value,
                 email: document.getElementById('email').value,
                 defaultAddress: document.getElementById('defaultAddress').value,
+                notificationPreference: document.getElementById('notificationPreference').value
             };
 
             //aggiungi password solo se specificata
@@ -252,26 +289,19 @@
             }
         }
 
-        //blocca l'invio del form per ora, in attesa della funzione PUT
-        profileForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            alert('Funzionalità di salvataggio ancora da implementare (PUT /api/auth/me).');
-        });
-
-
         async function deleteAccount() {
-            if(!confirm('SEI SICURO DI VOLER ELIMINARE IL TUO ACCOUNT? Operazione irreversibile'));
-            return;
+            const isConfirmed = window.confirm('SEI SICURO DI VOLER ELIMINARE IL TUO ACCOUNT? Operazione irreversibile. Premi OK per procedere.');
+            if (!isConfirmed) return;
 
             const token = localStorage.getItem('token');
             if(!token) {
-                alert('Non sei loggato');
+                console.warn('Non sei loggato.');
                 window.location.href = 'LogIn.html';
                 return;
             }
 
             const deleteButton = document.getElementById('deleteButton');
-            deleteButton.addEventListener('click', deleteAccount);
+            
             deleteButton.disabled = true;
             deleteButton.textContent = 'Cancellazione in corso...';
 
@@ -282,7 +312,7 @@
                     displayMessage('Account cancellato con successo, sarai reindirizzato alla pagina di login', 'success');
                     localStorage.removeItem('token');
                     localStorage.removeItem('ruolo');
-                    window.location.href = 'LogIn.html';
+                    setTimeout(() => { window.location.href = 'LogIn.html'; }, 1500); 
                 } else {
                     const data = await response.json();
                     displayMessage('Errore durante la cancellazione: ' + (data.error || 'Si è verificato un errore sconosciuto'), 'danger');

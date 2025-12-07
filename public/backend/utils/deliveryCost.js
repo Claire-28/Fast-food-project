@@ -1,7 +1,7 @@
 const geocodeAddress = require('./geocoder');
 
 const costoBase = 2.00;
-const costoPerKm = 0.50;
+const costoPerKm = 0.20;
 
 // Formula di Haversine per calcolare la distanza tra due coordinate (in km)
 function haversineDistance(coords1, coords2) {

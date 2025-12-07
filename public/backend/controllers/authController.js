@@ -77,17 +77,26 @@ exports.login = async (req, res) => {
 exports.getLoggedInUser = async (req, res) => {
     try {
         const userId = req.user.id;
-        const user = await User.findById(userId).select('username email ruolo -password -__v');
+        const user = await User.findById(userId).select('username email ruolo defaultAddress notificationPreference -password -__v');
 
         if(!user) {
             return res.status(404).json({ error: 'Utente non trovato nel database'});
+        }
+
+        let lastFourDigits = null;
+        const fullUser = await User.findById(userId).select('+cardInfoHash');
+        if (fullUser && fullUser.cardInfoHash) {
+            lastFourDigits = 'Salvata';
         }
 
         return res.status(200).json({
             id: user._id,
             username: user.username,
             email: user.email,
-            ruolo: user.ruolo
+            ruolo: user.ruolo,
+            defaultAddress: user.defaultAddress,
+            notificationPreference: user.notificationPreference,
+            cardStatus: lastFourDigits
         });
     } catch (error) {
         console.error('Errore nel recupero dati utente loggato: ', error);
@@ -157,10 +166,11 @@ exports.updateProfile = async (req, res) => {
                 return res.status(400).json({ error: 'Validazione fallita: la carta e scaduta'});
             }
 
+            //numero di carta criptato
             const fullCardString = `${cardNumber}|${cardExpiry}|${cardCVC}`;
-
             const hashedCardInfo = await bcrypt.hash(fullCardString, 10);
             updateData.cardInfoHash = hashedCardInfo;
+
         } else if ((cardNumber && !cardExpiry) || (cardNumber && !cardCVC) || (cardExpiry && !cardNumber) || (cardCVC && !cardNumber)) {
             return res.status(400).json({error: 'Per aggiornare la carta servono numero, data di scadenza e CVC'});
         }
@@ -173,7 +183,7 @@ exports.updateProfile = async (req, res) => {
             userId,
             { $set: updateData },
             { new: true, runValidators: true }
-        ).select('-password -__v');
+        ).select('-password -__v -cardInfoHash');
 
         if(!updatedUser) {
             return res.status(404).json({ error: 'Utente non trovato'});
@@ -198,7 +208,7 @@ exports.deleteProfile = async (req, res) => {
             await Plate.deleteMany({ restaurant: userId});
             console.log(`Piatti eliminati per Ristorante ${userId}`);
 
-            const restauantDeleteResult = await Restaurant.deleteOne({ owner: userId});
+            const restauantDeleteResult = await Restaurant.deleteOne({ proprietario: userId});
             console.log(`record e ristorante eliminato: ${restauantDeleteResult.deletedCount}`);
         }
 

@@ -18,15 +18,27 @@ exports.createOrder = async (req, res) =>  {
         if (!ristorante) {
             return res.status(404).json({ error: 'Ristorante non trovato'});
         }
+
+        if (tipoConsegna === 'Ritiro') {
+            costoConsegna = 0;
+            req.body.indirizzoConsegna = indirizzoConsegna || 'Ritiro in sede';
+        }
         
         if (tipoConsegna === 'Consegna a domicilio') {
             if (!indirizzoConsegna) {
                 return res.status(400).json({ error: 'Indirizzo di consegna obbligatorio per la consegna a domicilio'});
             }
-            costoConsegna = await calculateDeliveryCost(ristorante.indirizzo, indirizzoConsegna);
+
+            //calcolo costo consegna
+            try {
+                costoConsegna = await calculateDeliveryConst(ristorante.indirizzo, indirizzoConsegna);
+            } catch (error) {
+                console.warn("Errore nel calcolo del costo di consegna con geocoding. Usando costo fisso di 10.00€.");
+                costoConsegna = 10.00; // Fallback in caso di errore di geocoding
+            }
+
         } else {
-            //se il ritiro è in sede il costo non c'è
-            costoConsegna = 0;
+            return res.status(400).json({ error: 'Tipo di consegna non valido.' });
         }
 
         let totaleOrdine = 0;
@@ -66,13 +78,16 @@ exports.createOrder = async (req, res) =>  {
             });
         }
 
-        totaleOrdine += parseFloat(costoConsegna || 0);
+        //il costo consegna va aggiunto solo se il ritiro non è in sede
+        if (tipoConsegna === 'Consegna a domicilio' && costoConsegna > 0) {
+            totaleOrdine += parseFloat(costoConsegna);
+        }
 
         const nuovoOrdine = new Order({
             cliente: clientId,
             ristorante: ristoranteId,
             piatti: piattiOrdine,
-            indirizzoConsegna: indirizzoConsegna,
+            indirizzoConsegna: req.body.indirizzoConsegna, //così se in sede mette il ritiro in sede, altrimenti q
             tipoConsegna: tipoConsegna,
             costoConsegna: costoConsegna,
             paymentMethod: paymentMethod,
@@ -89,7 +104,7 @@ exports.createOrder = async (req, res) =>  {
     }
 };
 
-exports.confirmOrderReceipt = async (req, res) => {
+/*exports.confirmOrderReceipt = async (req, res) => {
     const clientId = req.user.id;
     const orderId = req.params.id;
     const { tipoConsegna } = req.body; // Aspettati il tipo di consegna per impostare lo stato finale
@@ -131,7 +146,7 @@ exports.confirmOrderReceipt = async (req, res) => {
         console.error('Errore durante la conferma di ricezione dell\'ordine:', error);
         res.status(500).json({ error: 'Errore interno del server durante la conferma.' });
     }
-};
+};*/
 
 exports.updateOrderStatus = async (req, res) => {
     try{
