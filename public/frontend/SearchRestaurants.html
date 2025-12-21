@@ -3,191 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EAT(W) - Ricerca Ristoranti</title>
+    <title>Fast Food - Cerca Ristoranti</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Importa il CSS condiviso -->
-    <link rel="stylesheet" href="site_styles.css">
+    <!-- Inclusione dei CSS esterni per mantenere la coerenza -->
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/main.css">
 
     <style>
-        /* Rimuovi la sezione navbar dal CSS interno, poiché useremo il file esterno e il componente JS */
-
-        .intro-text {
-            text-align: center;
-            margin: 40px 0;
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 35px;
+            margin-top: 40px;
         }
 
-        .restaurant-card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 8px;
-            transition: transform 0.2s;
-            cursor: pointer;
+        .restaurant-img {
+            width: 100%;
+            height: 200px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #fff 0%, #eee 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
         }
 
-            .restaurant-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .search-bar-container {
+            background: var(--white);
+            padding: 25px 40px;
+            border-radius: 60px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 20px;
+            margin-bottom: 50px;
+            align-items: center;
+        }
+
+            .search-bar-container input {
+                flex-grow: 1;
+                border: none;
+                background: #f8f8f8;
             }
 
-        /* Aggiunto spazio top per la navbar fissa */
-        .container.mt-4 {
-            margin-top: 10px !important;
+        .status-badge {
+            font-weight: 800;
+            font-size: 13px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background: #e8fcf0;
+            color: #2ecc71;
         }
     </style>
 </head>
 <body>
-    <!-- Placeholder per l'Header/Navbar -->
-    <div id="navbarPlaceholder"></div>
 
-    <!-- Breve introduzione -->
-    <div class="container mt-4">
-        <div class="intro-text">
-            <h2>Benvenuto su EAT(W) - Eat Around The World</h2>
-            <p>Inizia il tuo ordine cercando un ristorante per nome o luogo!</p>
+    <!-- Segnaposto per l'header dinamico -->
+    <div id="header-placeholder"></div>
+
+    <main class="content-container">
+        <div class="section-title">
+            <h2 style="font-size: 3rem;">Trova il tuo <span style="color: #2ecc71;">Gusto🍋</span></h2>
+            <p style="color: var(--text-muted); font-weight: 600;">Esplora i migliori fast food selezionati per te.</p>
         </div>
 
-        <form id="search-form" class="row g-3 mb-4 justify-content-center">
-            <div class="col-md-4">
-                <input type="text" class="form-control" id="restaurant-name" placeholder="Nome del Ristorante (Opzionale)">
+        <!-- Barra di ricerca stilizzata -->
+        <div class="search-bar-container">
+            <input type="text" id="searchInput" placeholder="Quale ristorante cerchi oggi?">
+            <button class="btn-main btn-primary" style="padding: 12px 40px;">Cerca</button>
+        </div>
+
+        <div class="restaurant-grid" id="restaurantGrid">
+            <!-- Card Ristorante 1 -->
+            <div class="card">
+                <div class="restaurant-img">🍔</div>
+                <h3 style="margin-bottom: 10px;">Burger Paradise</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">I panini più succosi della città con ingredienti freschi.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="status-badge">Aperto</span>
+                    <a href="Piatti.html" class="btn-main btn-primary" style="padding: 10px 25px; font-size: 14px;">Vedi Menu</a>
+                </div>
             </div>
-            <div class="col-md-5">
-                <input type="text" class="form-control" id="location-query" placeholder="Città o Indirizzo (Obbligatorio)" required>
+
+            <!-- Card Ristorante 2 -->
+            <div class="card">
+                <div class="restaurant-img">🍕</div>
+                <h3 style="margin-bottom: 10px;">Pizzeria del Corso</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Pizza cotta nel forno a legna secondo la tradizione.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="status-badge">Aperto</span>
+                    <a href="Piatti.html" class="btn-main btn-primary" style="padding: 10px 25px; font-size: 14px;">Vedi Menu</a>
+                </div>
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary-custom w-100">Cerca</button>
+
+            <!-- Card Ristorante 3 -->
+            <div class="card">
+                <div class="restaurant-img">🍦</div>
+                <h3 style="margin-bottom: 10px;">Sweet Dreams</h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Gelati artigianali e dessert che ti faranno sognare.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="status-badge" style="background: #fff0f0; color: #ff7675;">Chiuso</span>
+                    <a href="#" class="btn-main btn-primary" style="padding: 10px 25px; font-size: 14px; opacity: 0.6; pointer-events: none;">Vedi Menu</a>
+                </div>
             </div>
-            <div id="search-message" class="col-md-11 alert alert-info d-none mt-2"></div>
-        </form>
+        </div>
+    </main>
 
-        <section id="search-results" class="row row-cols-1 row-cols-md-3 g-4">
-            <div class="col">
-                <p class="text-muted">Inserisci un luogo e premi cerca per trovare i ristoranti vicino a te.</p>
-            </div>
-        </section>
-    </div>
-
-    <footer class="footer-custom">
-        © 2025 EAT(W) - Eat Around The World.
-    </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="js/header_component.js"></script>
-
-    <script>
-        // Sostituzione delle dipendenze dei moduli con la funzione fetchData
-
-        const API_BASE_URL = 'http://127.0.0.1:3019/api';
-
-        function showMessage(text, isSuccess) {
-            const el = document.getElementById('search-message');
-            el.textContent = text;
-            el.className = `col-md-11 alert ${isSuccess ? 'alert-success' : 'alert-danger'} mt-2`;
-            el.classList.remove('d-none');
-            setTimeout(() => el.classList.add('d-none'), 5000);
-        }
-
-        async function fetchData(endpoint, method = 'GET', body = null) {
-            const token = localStorage.getItem('token');
-            const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            };
-
-            const config = { method, headers };
-            if (body) {
-                config.body = JSON.stringify(body);
-            }
-
-            try {
-                const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-                const data = await response.json();
-
-                if (!response.ok) {
-                    console.error(`Errore API ${endpoint}:`, data.error);
-                    throw new Error(data.error || 'Errore nel recupero dati');
-                }
-                return data;
-            } catch (error) {
-                console.error('Errore durante la fetch: ', error);
-                throw error;
-            }
-        }
-
-        // Funzione per la ricerca dei ristoranti
-        const searchForm = document.getElementById('search-form');
-
-        // Funzione per reindirizzare alla pagina di ricerca con i parametri URL, gestendo anche i parametri dalla homepage
-        function applySearchParams() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const nome = urlParams.get('nome');
-            const luogo = urlParams.get('luogo');
-
-            if (nome) document.getElementById('restaurant-name').value = nome;
-            if (luogo) {
-                document.getElementById('location-query').value = luogo;
-                // Esegue la ricerca se è presente il luogo (potrebbe venire dalla homepage)
-                handleSearch(new Event('submit'));
-            }
-        }
-
-
-        searchForm.addEventListener('submit', handleSearch);
-
-        async function handleSearch(e) {
-            if (e && e.preventDefault) e.preventDefault();
-
-            const nome = document.getElementById('restaurant-name').value;
-            const luogo = document.getElementById('location-query').value;
-            const resultsContainer = document.getElementById('search-results');
-
-            resultsContainer.innerHTML = '<div class="col"><p class="text-info">Ricerca in corso...</p></div>';
-
-            const params = new URLSearchParams();
-            if (nome) params.append('nome', nome);
-            if (luogo) params.append('luogo', luogo);
-
-            if (!luogo) { // Il luogo è obbligatorio
-                resultsContainer.innerHTML = '<div class="col"><p class="text-warning">Inserisci almeno un luogo per la ricerca.</p></div>';
-                return;
-            }
-
-            try {
-                const restaurants = await fetchData(`/restaurants/search?${params.toString()}`);
-
-                resultsContainer.innerHTML = '';
-
-                if (restaurants.length === 0) {
-                    resultsContainer.innerHTML = '<div class="col"><p class="text-muted">Nessun ristorante trovato con questi criteri.</p></div>';
-                    return;
-                }
-
-                restaurants.forEach(rest => {
-                    const card = document.createElement('div');
-                    card.className = 'col';
-                    card.innerHTML = `
-                        <div class="restaurant-card" onclick="window.location.href='MenuCliente.html?id=${rest._id}'">
-                            <h4>${rest.nome}</h4>
-                            <p class="mb-1">${rest.indirizzo}</p>
-                            <p class="text-muted small">Telefono: ${rest.telefono || 'N/D'}</p>
-                            <button class="btn btn-sm btn-primary-custom">Vedi Menu</button>
-                        </div>
-                    `;
-                    resultsContainer.appendChild(card);
-                });
-
-            } catch (error) {
-                resultsContainer.innerHTML = `<div class="col"><p class="text-danger">Errore nella ricerca: ${error.message}</p></div>`;
-                console.error('Errore nella ricerca ristoranti:', error);
-            }
-        }
-
-        // Rimosso setupNavbar per usare header_component.js
-
-        document.addEventListener('DOMContentLoaded', () => {
-            applySearchParams();
-        });
-    </script>
+    <!-- Script per l'header dinamico -->
+    <script src="js/header.js"></script>
 </body>
 </html>
