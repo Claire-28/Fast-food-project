@@ -3,30 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Benvenuto su EAT(W)</title>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token');
-            const ruolo = localStorage.getItem('ruolo');
-            
-            if (!token) {
-                // Se non loggato, va alla pagina di Login
-                window.location.href = '/LogIn.html';
-            } else if (ruolo === 'Ristoratore') {
-                // Se Ristoratore, va alla Dashboard
-                window.location.href = '/DashboardRistoratore.html';
-            } else {
-                // Se Cliente, va alla pagina di ricerca (SearchRestaurants.html)
-                window.location.href = '/SearchRestaurants.html';
-            }
-        });
-    </script>
+    <title>Fast Food - Home</title>
+
+    <!-- CSS dell'header esterno -->
+    <link rel="stylesheet" href="css/header.css">
+
     <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: sans-serif; background-color: #f4f4f9; }
-        .loading-message { font-size: 1.5em; color: orangered; }
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, #f1f2f6 100%);
+            padding: 0 20px;
+        }
+
+            .hero h1 {
+                font-size: 3.5rem;
+                margin-bottom: 10px;
+                color: #2d3436;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+                color: #636e72;
+                max-width: 600px;
+                line-height: 1.6;
+            }
+
+        .cta-button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background-color: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.2);
+            transition: 0.3s;
+        }
+
+            .cta-button:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 15px 25px rgba(255, 107, 107, 0.3);
+            }
     </style>
 </head>
 <body>
-    <div class="loading-message">Caricamento dell'applicazione...</div>
+
+    <!-- Segnaposto per l'header dinamico -->
+    <div id="header-placeholder"></div>
+
+    <main class="hero">
+        <h1>Gusta il momento<span style="color: #ff6b6b;">.</span></h1>
+        <p>I migliori ristoranti della tua città, consegnati dove vuoi tu con un design che non pesa.</p>
+        <a href="SearchRestaurants.html" class="cta-button">Scopri il Menu</a>
+    </main>
+
+    <!-- Script dell'header esterno -->
+    <script src="js/HeaderFunctions.js"></script>
+
 </body>
 </html>

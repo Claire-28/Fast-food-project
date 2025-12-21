@@ -1,0 +1,131 @@
+/* Importazione Font Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
+:root {
+    /* Nuovi colori pastello Giallo e Verde più saturi */
+    --header-gradient: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
+    --white: #ffffff;
+    --text-light: rgba(255, 255, 255, 1);
+    --shadow-color: rgba(150, 251, 196, 0.4);
+}
+
+body {
+    margin: 0;
+    padding-top: 110px;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #fcfcfc;
+}
+
+/* Header Colorato e Fluttuante */
+.main-header {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: 1100px;
+    height: 75px;
+    background: var(--header-gradient);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: 60px; /* Più tondeggiante */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    z-index: 2000;
+    box-shadow: 0 15px 35px var(--shadow-color);
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    box-sizing: border-box;
+    transition: all 0.4s ease;
+}
+
+/* Logo in Bianco e più spesso */
+.header-logo a {
+    text-decoration: none;
+    font-size: 26px;
+    font-weight: 800; /* Più spesso */
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.5px;
+}
+
+/* Navigazione con Testo Bianco e Bold */
+.header-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 15px;
+    margin: 0;
+    padding: 0;
+}
+
+.header-nav li a {
+    text-decoration: none;
+    color: var(--white);
+    font-weight: 700; /* Più spesso */
+    font-size: 15px;
+    padding: 12px 22px;
+    border-radius: 30px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+    /* Hover con bagliore bianco */
+    .header-nav li a:hover {
+        background-color: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+/* Stato Attivo */
+.header-nav a.active {
+    background-color: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Pulsanti stile "Bold & Round" */
+.btn-candy {
+    padding: 12px 30px;
+    border-radius: 40px; /* Molto tondeggiante */
+    font-size: 14px;
+    font-weight: 800; /* Scritta più spessa */
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+/* Pulsante LogIn/SignUp con lo sfondo dell'header (outline bianco) */
+.btn-login {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid var(--white);
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+    .btn-login:hover {
+        transform: translateY(-3px) scale(1.03);
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+    }
+
+.btn-logout {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--white);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+    .btn-logout:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: var(--white);
+    }
+
+/* Effetto scroll */
+.main-header.scrolled {
+    top: 10px;
+    height: 65px;
+    width: 95%;
+    /* Giallo-Verde più intenso allo scroll */
+    background: linear-gradient(135deg, #f1e916 0%, #4ae08d 100%);
+}
