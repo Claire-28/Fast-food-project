@@ -16,7 +16,7 @@ function injectHeader() {
     placeholder.innerHTML = `
         <header class="main-header" id="dynamic-header">
             <div class="header-logo">
-                <a href="HomePage.html">FastFood🍋</a>
+                <a href="HomePage.html">LemonLine🍋</a>
             </div>
             <nav class="header-nav">
                 <ul>

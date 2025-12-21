@@ -2,12 +2,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
 
 :root {
-    --header-gradient: linear-gradient(135deg, #f9f586 0%, #96fbc4 100%);
+    /* Colori originali del branch MAIN */
+    --header-gradient: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
     --white: #ffffff;
     --text-dark: #2d3436;
+    --shadow-color: rgba(150, 251, 196, 0.4);
 }
 
-/* Header Fluttuante con Z-Index molto alto per essere sempre sopra */
+/* IMPORTANTE: Questo padding serve per non far finire il contenuto SOTTO l'header */
+body {
+    margin: 0;
+    padding-top: 110px !important; /* Forza lo spazio per l'header */
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Header del branch MAIN */
 .main-header {
     position: fixed;
     top: 20px;
@@ -24,14 +33,14 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
-    z-index: 9999; /* Massima priorità visiva */
-    box-shadow: 0 15px 35px rgba(150, 251, 196, 0.4);
+    z-index: 9999 !important; /* Deve essere più alto dei blob della home (che sono a 1) */
+    box-shadow: 0 15px 35px var(--shadow-color);
     border: 2px solid rgba(255, 255, 255, 0.4);
     box-sizing: border-box;
     transition: all 0.4s ease;
 }
 
-/* Logo Bianco Spesso */
+/* Logo */
 .header-logo a {
     text-decoration: none;
     font-size: 26px;
@@ -67,7 +76,7 @@
         background-color: rgba(255, 255, 255, 0.3);
     }
 
-/* Pulsante LogIn/SignUp Outline Bianco */
+/* Bottoni Auth (Login/Register) */
 .btn-auth-header {
     padding: 10px 25px;
     border-radius: 40px;
@@ -87,9 +96,10 @@
         transform: scale(1.05);
     }
 
-/* Effetto scroll */
+/* Effetto allo scroll */
 .main-header.scrolled {
     top: 10px;
     height: 65px;
     width: 95%;
+    background: linear-gradient(135deg, #f9f586 0%, #96fbc4 100%);
 }

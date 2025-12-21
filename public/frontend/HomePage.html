@@ -3,23 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Food - Home</title>
+    <title>LemonLime - Home</title>
 
-    <!-- Link ai CSS esterni -->
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/main.css">
+    <!-- Importazione dei file CSS dal branch MAIN -->
+    <link rel="stylesheet" href="css/Header.css">
 
     <style>
-        /* Stili specifici per la Hero Section */
+        /* STILI DALLA HOME PAGE DEL BRANCH HEADER-FIX + COMPATIBILITÀ HEADER */
+
+        /* Reset e Font di base */
+        body {
+            margin: 0;
+            /* Rimuoviamo il padding: 0 per permettere a Header.css di applicare il padding-top: 110px */
+            overflow-x: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #faf9d2; /* Sfondo Giallo Pastello */
+        }
+
+        /* Hero Section */
         .hero {
-            height: 100vh;
+            /* Usiamo min-height per assicurarci che la sezione occupi lo schermo
+               considerando lo spazio occupato dall'header */
+            min-height: calc(100vh - 110px);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            background-color: #faf9d2; /* Sfondo Giallo Pastello */
-            padding: 0 20px;
+            padding: 40px 20px;
             box-sizing: border-box;
             position: relative;
             overflow: hidden;
@@ -27,22 +38,22 @@
 
         .hero-content {
             position: relative;
-            z-index: 2;
+            z-index: 10; /* Sopra i blob */
             max-width: 800px;
             animation: fadeIn 1s ease-out;
         }
 
         .hero h1 {
-            font-size: clamp(2rem, 7vw, 2.8rem); /* Dimensione leggermente più piccola per eleganza */
+            font-size: clamp(2.5rem, 8vw, 4rem);
             margin-bottom: 20px;
             color: #2d3436;
             font-weight: 800;
             letter-spacing: -1.5px;
-            line-height: 1.2;
+            line-height: 1.1;
         }
 
         .hero p {
-            font-size: clamp(1rem, 4vw, 1.15rem);
+            font-size: clamp(1rem, 4vw, 1.25rem);
             color: #4b4b4b;
             max-width: 550px;
             margin: 0 auto 40px auto;
@@ -50,11 +61,11 @@
             font-weight: 600;
         }
 
-        /* Pulsante CTA con gradiente giallo-verde */
+        /* Pulsante CTA */
         .cta-button {
             display: inline-block;
             padding: 18px 45px;
-            background: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
+            background: linear-gradient(135deg, #f9f586 0%, #96fbc4 100%);
             color: #2d3436;
             text-decoration: none;
             border-radius: 60px;
@@ -66,12 +77,11 @@
         }
 
             .cta-button:hover {
-                transform: translateY(-5px) scale(1.03);
+                transform: translateY(-5px) scale(1.05);
                 box-shadow: 0 15px 35px rgba(126, 217, 145, 0.5);
-                filter: brightness(1.02);
             }
 
-        /* Highlight verde menta */
+        /* Highlight */
         .highlight {
             background: linear-gradient(120deg, rgba(150, 251, 196, 0.6) 0%, rgba(150, 251, 196, 0.6) 100%);
             background-repeat: no-repeat;
@@ -81,32 +91,32 @@
             border-radius: 4px;
         }
 
-        /* Elementi decorativi con animazione */
+        /* Blobs Decorativi */
         .decoration {
             position: absolute;
             z-index: 1;
-            opacity: 0.4;
-            filter: blur(80px);
+            opacity: 0.5;
+            filter: blur(70px);
             border-radius: 50%;
             pointer-events: none;
-            animation: float 10s infinite alternate ease-in-out;
+            animation: float 12s infinite alternate ease-in-out;
         }
 
         .blob-1 {
-            width: 400px;
-            height: 400px;
+            width: 450px;
+            height: 450px;
             background: #96fbc4;
             top: -100px;
-            left: -100px;
+            left: -150px;
         }
 
         .blob-2 {
-            width: 350px;
-            height: 350px;
+            width: 400px;
+            height: 400px;
             background: #f1e916;
-            bottom: -80px;
-            right: -80px;
-            animation-delay: -5s;
+            bottom: -50px;
+            right: -100px;
+            animation-delay: -6s;
         }
 
         @keyframes float {
@@ -115,14 +125,14 @@
             }
 
             100% {
-                transform: translate(30px, 40px) scale(1.1);
+                transform: translate(40px, 50px) scale(1.15);
             }
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(30px);
             }
 
             to {
@@ -134,7 +144,7 @@
 </head>
 <body>
 
-    <!-- Segnaposto per l'header dinamico -->
+    <!-- Segnaposto per l'header dinamico (verrà riempito da HeaderFunctions.js) -->
     <div id="header-placeholder"></div>
 
     <!-- Sfondi decorativi -->
@@ -149,8 +159,8 @@
         </div>
     </main>
 
-    <!-- Script per l'header dinamico -->
-    <script src="js/header.js"></script>
+    <!-- Script dal branch MAIN per caricare l'header -->
+    <script src="js/HeaderFunctions.js"></script>
 
 </body>
 </html>
