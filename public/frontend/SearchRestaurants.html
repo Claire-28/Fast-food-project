@@ -240,10 +240,10 @@
 
                 if (!name && !location) {
                     container.innerHTML = `
-                            <div class="empty-state-text">
-                                Inserisci almeno un parametro di ricerca per trovare i ristoranti.
-                            </div>
-                        `;
+                                    <div class="empty-state-text">
+                                        Inserisci almeno un parametro di ricerca per trovare i ristoranti.
+                                    </div>
+                                `;
                     return;
                 }
 
@@ -267,10 +267,10 @@
             function renderResults(data) {
                 if (data.length === 0) {
                     container.innerHTML = `
-                            <div class="empty-state-text">
-                                Nessun ristorante trovato con questi criteri. Prova a cambiare termini! 🍔
-                            </div>
-                        `;
+                                    <div class="empty-state-text">
+                                        Nessun ristorante trovato con questi criteri. Prova a cambiare termini! 🍔
+                                    </div>
+                                `;
                     return;
                 }
 
@@ -281,15 +281,15 @@
                     card.href = `MenuCliente.html?id=${item._id}`;
                     card.className = 'restaurant-card';
                     card.innerHTML = `
-                            <div class="card-image">
-                                <img src="${item.photo || 'https://via.placeholder.com/400x200'}" alt="${item.name}">
-                            </div>
-                            <div class="card-content">
-                                <h3>${item.name}</h3>
-                                <p>📍 ${item.address}</p>
-                                <p>🍴 ${item.cuisineType || 'Fast Food'}</p>
-                            </div>
-                        `;
+                                    <div class="card-image">
+                                        <img src="${item.photo || 'https://via.placeholder.com/400x200'}" alt="${item.name}">
+                                    </div>
+                                    <div class="card-content">
+                                        <h3>${item.name}</h3>
+                                        <p>📍 ${item.address}</p>
+                                        <p>🍴 ${item.cuisineType || 'Fast Food'}</p>
+                                    </div>
+                                `;
                     container.appendChild(card);
                 });
             }
