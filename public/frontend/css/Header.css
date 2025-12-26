@@ -1,4 +1,4 @@
-/* Importazione Font Montserrat */
+﻿/* Importazione Font Montserrat */
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
 
 :root {
@@ -33,7 +33,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0 40px;
-    z-index: 9999 !important; /* Deve essere pi� alto dei blob della home (che sono a 1) */
+    z-index: 9999 !important; /* Deve essere più alto dei blob della home (che sono a 1) */
     box-shadow: 0 15px 35px var(--shadow-color);
     border: 2px solid rgba(255, 255, 255, 0.4);
     box-sizing: border-box;

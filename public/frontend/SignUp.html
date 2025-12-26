@@ -96,7 +96,7 @@
             color: #2d3436;
         }
 
-        .auth-input, .auth-select {
+        .auth-input {
             width: 100%;
             padding: 15px 25px;
             border-radius: 50px;
@@ -109,12 +109,12 @@
             background: white;
         }
 
-            .auth-input:focus, .auth-select:focus {
+            .auth-input:focus {
                 border-color: #7ed991;
                 box-shadow: 0 0 15px rgba(126, 217, 145, 0.2);
             }
 
-        /* Stile per il selettore del ruolo */
+        /* Selettore Ruolo */
         .role-selector {
             display: flex;
             gap: 15px;
@@ -171,6 +171,17 @@
                 box-shadow: 0 12px 25px rgba(126, 217, 145, 0.4);
             }
 
+        /* Messaggi di stato */
+        #status-message {
+            padding: 15px;
+            border-radius: 25px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: none;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
         .auth-footer {
             margin-top: 25px;
             font-weight: 600;
@@ -222,14 +233,16 @@
             <h2>Unisciti a noi! 🍕</h2>
             <p>Crea il tuo profilo e inizia a ordinare.</p>
 
+            <div id="status-message"></div>
+
             <form id="signup-form">
                 <div class="role-selector">
                     <label class="role-option">
-                        <input type="radio" name="role" value="cliente" checked>
+                        <input type="radio" name="ruolo" value="Cliente" checked>
                         <span class="role-label">Sono un Cliente</span>
                     </label>
                     <label class="role-option">
-                        <input type="radio" name="role" value="ristoratore">
+                        <input type="radio" name="ruolo" value="Ristoratore">
                         <span class="role-label">Sono un Ristoratore</span>
                     </label>
                 </div>
@@ -262,7 +275,75 @@
         </div>
     </div>
 
-    <script src="js/HeaderFunctions.js"></script>
     <script src="js/api.js"></script>
+    <script src="js/HeaderFunctions.js"></script>
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const statusMsg = document.getElementById('status-message');
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            statusMsg.style.display = 'none';
+
+            const userData = {
+                username: `${firstName} ${lastName}`.trim(),
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                ruolo: document.querySelector('input[name="ruolo"]:checked').value
+            };
+
+            // Determiniamo la porta corretta dai log (3019)
+            const PORT = 3019;
+            const BASE_URL = `http://127.0.0.1:${PORT}/api`;
+
+            console.log("Tentativo di registrazione...", userData);
+
+            try {
+                // Proviamo a chiamare direttamente l'endpoint per evitare ambiguità con api.js
+                // Se il tuo authController usa exports.signup, la rotta nel backend dovrebbe essere /auth/signup
+                const response = await fetch(`${BASE_URL}/auth/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                // Se riceviamo HTML invece di JSON (causa dell'errore 'Unexpected token <')
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    throw new TypeError("Il server ha risposto con HTML. Verifica che la rotta '/api/auth/signup' esista nel tuo file routes/auth.js");
+                }
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    statusMsg.style.display = 'block';
+                    statusMsg.style.backgroundColor = '#d1f7d6';
+                    statusMsg.style.color = '#155724';
+                    statusMsg.textContent = "Registrazione completata! Reindirizzamento al login...";
+
+                    setTimeout(() => {
+                        window.location.href = 'LogIn.html';
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || result.message || "Errore durante la registrazione");
+                }
+
+            } catch (error) {
+                console.error("Errore registrazione:", error);
+
+                statusMsg.style.display = 'block';
+                statusMsg.style.backgroundColor = '#ff7675';
+                statusMsg.style.color = 'white';
+
+                if (error instanceof TypeError) {
+                    statusMsg.innerHTML = `<strong>Errore di configurazione:</strong><br>${error.message}<br><small>Controlla se nel backend hai scritto router.post('/signup', ...)</small>`;
+                } else {
+                    statusMsg.textContent = error.message;
+                }
+            }
+        });
+    </script>
 </body>
 </html>
