@@ -1,57 +1,93 @@
-﻿
-/*script per l'header*/
-document.addEventListener("DOMContentLoaded", () => {
-    const headerPlaceholder = document.getElementById("header-placeholder");
+﻿/**
+ * HeaderFunctions.js
+ * Gestisce l'iniezione dinamica dell'header e la coerenza visiva dei pulsanti.
+ */
 
-    if (headerPlaceholder) {
-        const token = localStorage.getItem("token");
-        const user = JSON.parse(localStorage.getItem("user") || "null");
-        const currentPath = window.location.pathname;
+document.addEventListener('DOMContentLoaded', () => {
+    initHeader();
+});
 
-        const isActive = (path) => currentPath.includes(path) ? 'active' : '';
+function initHeader() {
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    if (!headerPlaceholder) return;
 
-        const headerHTML = `
-            <header class="main-header" id="dynamic-header">
-                <div class="header-logo">
-                    <a href="HomePage.html">
-                        FastFood🍋
-                    </a>
-                </div>
-                <nav class="header-nav">
-                    <ul>
-                        <li><a href="HomePage.html" class="${isActive('HomePage')}">Home</a></li>
-                        <li><a href="SearchRestaurants.html" class="${isActive('SearchRestaurants')}">Ristoranti</a></li>
-                        ${user && user.role === 'ristoratore' ? `<li><a href="admin/DashboardRistoratore.html">Dashboard</a></li>` : ''}
-                        ${user && user.role === 'cliente' ? `<li><a href="ClientOrders.html" class="${isActive('ClientOrders')}">Ordini</a></li>` : ''}
-                        <li><a href="Profile.html" class="${isActive('Profile')}">Profilo</a></li>
-                    </ul>
-                </nav>
-                <div class="header-auth">
-                    ${token ?
-                `<button class="btn-candy btn-logout" onclick="logout()">Logout</button>` :
-                `<a href="LogIn.html" class="btn-candy btn-login">LogIn/SignUp</a>`
-            }
-                </div>
-            </header>
+    // Recuperiamo i dati dell'utente dal localStorage
+    const token = localStorage.getItem('token');
+    const userString = localStorage.getItem('user');
+    let user = null;
+
+    try {
+        user = userString ? JSON.parse(userString) : null;
+    } catch (e) {
+        console.error("Errore nel parsing dell'utente", e);
+    }
+
+    let authSection = '';
+
+    if (token && user) {
+        // UTENTE LOGGATO
+        const profileLink = user.role === 'ristoratore'
+            ? 'admin/DashboardRistoratore.html'
+            : 'Profile.html';
+
+        authSection = `
+            <div class="header-auth">
+                <a href="${profileLink}" class="header-nav-link" style="margin-right: 15px; color: white; font-weight: 700; text-decoration: none;">Area Personale</a>
+                <button onclick="logout()" class="btn-auth-header">Esci</button>
+            </div>
         `;
+    } else {
+        // UTENTE NON LOGGATO
+        authSection = `
+            <div class="header-auth" style="display: flex; gap: 10px; align-items: center;">
+                <a href="LogIn.html" class="btn-auth-header">Accedi</a>
+                <a href="SignUp.html" class="btn-auth-header">Registrati</a>
+            </div>
+        `;
+    }
 
+    // Iniezione dell'HTML dell'header
+    headerPlaceholder.innerHTML = `
+        <header class="main-header" id="main-header">
+            <div class="header-logo">
+                <a href="HomePage.html">
+                    <span>🍋</span> FastFood
+                </a>
+            </div>
+            
+            <nav class="header-nav">
+                <ul>
+                    <li><a href="HomePage.html">Home</a></li>
+                    <li><a href="SearchRestaurants.html">Ristoranti</a></li>
+                    <li><a href="Piatti.html">Piatti</a></li>
+                </ul>
+            </nav>
 
-        headerPlaceholder.innerHTML = headerHTML;
+            ${authSection}
+        </header>
+    `;
 
-        // Effetto allo scroll per rendere l'header ancora più dinamico
-        window.addEventListener('scroll', () => {
-            const header = document.getElementById('dynamic-header');
+    // Gestione dello scroll
+    const handleScroll = () => {
+        const header = document.getElementById('main-header');
+        if (header) {
             if (window.scrollY > 50) {
                 header.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
             }
-        });
-    }
-});
+        }
+    };
 
-window.logout = function () {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "LogIn.html";
-};
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Controllo iniziale se la pagina è già scrollata
+}
+
+/**
+ * Funzione di Logout
+ */
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'HomePage.html';
+}

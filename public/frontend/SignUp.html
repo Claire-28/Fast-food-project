@@ -1,170 +1,268 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="utf-8">
-    <title>EAT(W) - Sign In</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast Food - Registrati</title>
+
+    <!-- CSS dell'header (Branch Main) -->
+    <link rel="stylesheet" href="css/Header.css">
 
     <style>
+        /* STILE GLOBALE "ROUNDED & BLOCKS" */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
         body {
+            margin: 0;
+            padding-top: 110px;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #faf9d2;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
             display: flex;
             justify-content: center;
-            background-color: #fafafa;
-            font-family: sans-serif;
-            /* align-items: flex-start; */
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 10;
         }
 
-        #sign_in{
-            width: 320px;
-            border: 2px solid orangered;
-            border-radius: 10px;
-            padding: 30px; /*lo prende per tutti e quattro*/
-            margin-top: 50px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        input, select {
+        /* Riquadro di Registrazione */
+        .auth-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            padding: 50px 40px;
+            border-radius: 50px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
             width: 100%;
-            padding: 8px;
-            margin: 5px 0 15px;
-            box-sizing: border-box;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-
-        button {
-            background-color: orangered;
-            color: white;
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: orange;
-        }
-
-        h2{
+            max-width: 550px;
+            border: 2px solid white;
             text-align: center;
+            animation: cardAppear 0.6s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-card h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
+
+        .auth-card p {
+            color: #636e72;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .form-group {
             margin-bottom: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #2d3436;
+        }
+
+        .auth-input, .auth-select {
+            width: 100%;
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: 2px solid #eee;
+            font-family: inherit;
+            font-weight: 600;
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+            background: white;
+        }
+
+            .auth-input:focus, .auth-select:focus {
+                border-color: #7ed991;
+                box-shadow: 0 0 15px rgba(126, 217, 145, 0.2);
+            }
+
+        /* Stile per il selettore del ruolo */
+        .role-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+
+        .role-option {
+            flex: 1;
+            position: relative;
+        }
+
+            .role-option input {
+                position: absolute;
+                opacity: 0;
+                cursor: pointer;
+            }
+
+        .role-label {
+            display: block;
+            padding: 15px;
+            border-radius: 30px;
+            border: 2px solid #eee;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        .role-option input:checked + .role-label {
+            border-color: #7ed991;
+            background: #f0fff4;
+            color: #2d3436;
+            box-shadow: 0 5px 15px rgba(126, 217, 145, 0.2);
+        }
+
+        .btn-auth {
+            width: 100%;
+            padding: 18px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
+            border: none;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(126, 217, 145, 0.3);
+            margin-top: 10px;
+        }
+
+            .btn-auth:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 25px rgba(126, 217, 145, 0.4);
+            }
+
+        .auth-footer {
+            margin-top: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #636e72;
+        }
+
+            .auth-footer a {
+                color: #7ed991;
+                text-decoration: none;
+                font-weight: 800;
+            }
+
+        .decoration {
+            position: fixed;
+            z-index: 1;
+            opacity: 0.4;
+            filter: blur(80px);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            width: 600px;
+            height: 600px;
+            background: #96fbc4;
+            top: -200px;
+            right: -200px;
+        }
+
+        .blob-2 {
+            width: 500px;
+            height: 500px;
+            background: #fcf76d;
+            bottom: -200px;
+            left: -200px;
         }
     </style>
 </head>
-
 <body>
 
-    <div id="header">
+    <div id="header-placeholder"></div>
 
+    <div class="decoration blob-1"></div>
+    <div class="decoration blob-2"></div>
 
+    <div class="container">
+        <div class="auth-card">
+            <h2>Unisciti a noi! 🍕</h2>
+            <p>Crea il tuo profilo e inizia a ordinare.</p>
 
+            <form id="signup-form">
+                <div class="role-selector">
+                    <label class="role-option">
+                        <input type="radio" name="role" value="cliente" checked>
+                        <span class="role-label">Sono un Cliente</span>
+                    </label>
+                    <label class="role-option">
+                        <input type="radio" name="role" value="ristoratore">
+                        <span class="role-label">Sono un Ristoratore</span>
+                    </label>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" class="auth-input" id="firstName" placeholder="Mario" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cognome</label>
+                        <input type="text" class="auth-input" id="lastName" placeholder="Rossi" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Email</label>
+                        <input type="email" class="auth-input" id="email" placeholder="mario.rossi@mail.com" required>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Password</label>
+                        <input type="password" class="auth-input" id="password" placeholder="Almeno 8 caratteri" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-auth">Crea Account</button>
+            </form>
+
+            <div class="auth-footer">
+                Hai già un account? <a href="LogIn.html">Accedi</a>
+            </div>
+        </div>
     </div>
-    <div id="sign_in">
-        <form id="signupForm">
-            <h2>Sign in</h2>
 
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Enter Username" required maxlength="30">
-
-            <label for="email">Email</label>
-            <input type="email" id="email" placeholder="Enter Email" name="email" required>
-
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter Password" required minlength="8" maxlength="20">
-
-            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-
-            <label for="role">Sei un:</label>
-            <select id="role" required>
-                <option value="" disabled selected>Seleziona il tuo ruolo</option>
-                <option value="Cliente">Cliente</option>
-                <option value="Ristoratore">Ristoratore</option>
-            </select>
-
-            <button type="submit">Sign In</button>
-
-            <p style="text-align:center; margin-top:10px;">
-                <a href="LogIn.html">Sei già registrato? Clicca qui</a>
-            </p>
-
-        </form>
-    </div>
-
-    <script>
-        const statusMessage = document.getElementById('statusMessage');
-
-        function displayMessage(message, type) {
-            statusMessage.textContent = message;
-            statusMessage.style.display = 'block';
-            if (type === 'success') {
-                statusMessage.style.backgroundColor = '#d4edda';
-                statusMessage.style.color = '#155724';
-                statusMessage.style.border = '1px solid #c3e6cb';
-            } else if (type === 'danger') {
-                statusMessage.style.backgroundColor = '#f8d7da';
-                statusMessage.style.color = '#721c24';
-                statusMessage.style.border = '1px solid #f5c6cb';
-            } else {
-                statusMessage.style.backgroundColor = '#fff3cd';
-                statusMessage.style.color = '#856404';
-                statusMessage.style.border = '1px solid #ffeeba';
-            }
-            setTimeout(() => { statusMessage.style.display = 'none'; }, 4000); //4 secondi
-        }
-
-        document.getElementById('signupForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            if  (password !== confirmPassword) {
-                alert('Errore: le password non corrispondono');
-                return;
-            }
-
-            const userData = {
-                username: document.getElementById('username').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                ruolo: document.getElementById('role').value
-            };
-
-            const submitButton = document.querySelector('#sign_in button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Registrazione in corso...';
-
-            statusMessage.style.display = 'none';
-
-            try {
-                const response = await fetch('http://127.0.0.1:3019/api/auth/signup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    displayMessage('Registrazione completata! Reindirizzamento al Login.', 'success');
-                    console.log('Risposta server: ', data);
-
-                    //reindirizza al login se avviene con successo
-                    setTimeout(() => {
-                        window.location.href = 'LogIn.html';
-                    }, 1500);
-
-                } else {
-                    displayMessage('Errore: ' + (data.error || 'Registrazione fallita'), 'danger');
-                }
-            } catch (err) {
-                console.error('Errore nella richiesta: ', err);
-                displayMessage('Errore di connessione al server', 'danger');
-            } finally {
-                submitButton.disabled = false;
-                submitButton.textContent = 'Sign In';
-            }
-        });
-    </script>
+    <script src="js/HeaderFunctions.js"></script>
+    <script src="js/api.js"></script>
 </body>
 </html>
