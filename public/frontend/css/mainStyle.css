@@ -1,0 +1,124 @@
+/* Importazione Font Montserrat */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
+:root {
+    /* Gradiente dell'header usato anche per le card principali */
+    --primary-gradient: linear-gradient(135deg, #f9f586 0%, #96fbc4 100%);
+    --bg-color: #faf9d2; /* Il colore richiesto */
+    --text-dark: #2d3436;
+    --text-muted: #636e72;
+    --white: #ffffff;
+    --accent: #2ecc71;
+    --radius-pill: 50px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #faf9d2;
+    color: var(--text-dark);
+    padding-top: 120px; /* Spazio per l'header fisso */
+    transition: background-color 0.3s ease;
+}
+
+/* Container principale */
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 25px 50px 25px;
+}
+
+/* Titoli spessi e tondeggianti */
+h1, h2, h3 {
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+/* Card in stile Header (Gradiente con testo bianco) */
+.card-gradient {
+    background: var(--primary-gradient);
+    color: var(--white);
+    border-radius: 40px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(150, 251, 196, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Card Standard (Bianca) */
+.card {
+    background: var(--white);
+    border-radius: 35px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0,0,0,0.02);
+    transition: transform 0.3s ease;
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+/* Input Stilizzati */
+.form-group {
+    margin-bottom: 25px;
+}
+
+    .form-group label {
+        display: block;
+        font-weight: 800;
+        margin-bottom: 10px;
+        padding-left: 15px;
+    }
+
+input {
+    width: 100%;
+    padding: 18px 25px;
+    border-radius: 30px;
+    border: 2px solid #f1f1f1;
+    background-color: #fcfcfc;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+    input:focus {
+        outline: none;
+        border-color: #96fbc4;
+        box-shadow: 0 0 15px rgba(150, 251, 196, 0.2);
+    }
+
+/* Bottoni Pill */
+.btn-main {
+    display: inline-block;
+    padding: 15px 35px;
+    border-radius: var(--radius-pill);
+    font-weight: 800;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-primary {
+    background: var(--primary-gradient);
+    color: var(--text-dark);
+    box-shadow: 0 8px 20px rgba(150, 251, 196, 0.4);
+}
+
+.btn-white {
+    background-color: var(--white);
+    color: #4ae08d;
+}
+
+    .btn-white:hover {
+        transform: scale(1.05);
+    }
