@@ -1,63 +1,93 @@
-﻿/*script per l'header*/
-function injectHeader() {
-    const placeholder = document.getElementById("header-placeholder");
-    if (!placeholder) {
-        console.error("Errore: Elemento #header-placeholder non trovato!");
-        return;
+﻿/**
+ * HeaderFunctions.js
+ * Gestisce l'iniezione dinamica dell'header e la coerenza visiva dei pulsanti.
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    initHeader();
+});
+
+function initHeader() {
+    const headerPlaceholder = document.getElementById('header-placeholder');
+    if (!headerPlaceholder) return;
+
+    // Recuperiamo i dati dell'utente dal localStorage
+    const token = localStorage.getItem('token');
+    const userString = localStorage.getItem('user');
+    let user = null;
+
+    try {
+        user = userString ? JSON.parse(userString) : null;
+    } catch (e) {
+        console.error("Errore nel parsing dell'utente", e);
     }
 
-    const token = localStorage.getItem("token");
-    const user = JSON.parse(localStorage.getItem("user") || "null");
-    const path = window.location.pathname;
+    let authSection = '';
 
-    // Funzione per gestire lo stato attivo dei link
-    const isActive = (p) => path.includes(p) ? 'active' : '';
+    if (token && user) {
+        // UTENTE LOGGATO
+        const profileLink = user.role === 'ristoratore'
+            ? 'admin/DashboardRistoratore.html'
+            : 'Profile.html';
 
-    placeholder.innerHTML = `
-        <header class="main-header" id="dynamic-header">
-            <div class="header-logo">
-                <a href="HomePage.html">LemonLine🍋</a>
+        authSection = `
+            <div class="header-auth">
+                <a href="${profileLink}" class="header-nav-link" style="margin-right: 15px; color: white; font-weight: 700; text-decoration: none;">Area Personale</a>
+                <button onclick="logout()" class="btn-auth-header">Esci</button>
             </div>
+        `;
+    } else {
+        // UTENTE NON LOGGATO
+        authSection = `
+            <div class="header-auth" style="display: flex; gap: 10px; align-items: center;">
+                <a href="LogIn.html" class="btn-auth-header">Accedi</a>
+                <a href="SignUp.html" class="btn-auth-header">Registrati</a>
+            </div>
+        `;
+    }
+
+    // Iniezione dell'HTML dell'header
+    headerPlaceholder.innerHTML = `
+        <header class="main-header" id="main-header">
+            <div class="header-logo">
+                <a href="HomePage.html">
+                    <span>🍋</span> FastFood
+                </a>
+            </div>
+            
             <nav class="header-nav">
                 <ul>
-                    <li><a href="HomePage.html" class="${isActive('HomePage')}">Home</a></li>
-                    <li><a href="SearchRestaurants.html" class="${isActive('SearchRestaurants')}">Ristoranti</a></li>
-                    ${user?.role === 'ristoratore' ? `<li><a href="admin/DashboardRistoratore.html">Dashboard</a></li>` : ''}
-                    ${user?.role === 'cliente' ? `<li><a href="ClientOrders.html" class="${isActive('ClientOrders')}">Ordini</a></li>` : ''}
-                    <li><a href="Profile.html" class="${isActive('Profile')}">Profilo</a></li>
+                    <li><a href="HomePage.html">Home</a></li>
+                    <li><a href="SearchRestaurants.html">Ristoranti</a></li>
+                    <li><a href="Piatti.html">Piatti</a></li>
                 </ul>
             </nav>
-            <div class="header-auth">
-                ${token ?
-            `<button class="btn-auth-header" onclick="logout()">Logout</button>` :
-            `<a href="LogIn.html" class="btn-auth-header">LogIn/SignUp</a>`
-        }
-            </div>
+
+            ${authSection}
         </header>
     `;
 
-    // Effetto allo scroll
-    window.addEventListener('scroll', () => {
-        const header = document.getElementById('dynamic-header');
+    // Gestione dello scroll
+    const handleScroll = () => {
+        const header = document.getElementById('main-header');
         if (header) {
-            if (window.scrollY > 30) {
+            if (window.scrollY > 50) {
                 header.classList.add('scrolled');
             } else {
                 header.classList.remove('scrolled');
             }
         }
-    });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Controllo iniziale se la pagina è già scrollata
 }
 
-// Avvia l'iniezione al caricamento del DOM
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', injectHeader);
-} else {
-    injectHeader();
+/**
+ * Funzione di Logout
+ */
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'HomePage.html';
 }
-
-window.logout = function () {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "LogIn.html";
-};

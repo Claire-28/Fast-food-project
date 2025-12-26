@@ -3,114 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Food - Cerca Ristoranti</title>
+    <title>Fast Food - Ricerca Ristoranti</title>
 
-    <!-- Inclusione dei CSS esterni per mantenere la coerenza -->
-    <link rel="stylesheet" href="css/header.css">
-    <link rel="stylesheet" href="css/main.css">
+    <!-- CSS dell'header (Branch Main) -->
+    <link rel="stylesheet" href="css/Header.css">
 
     <style>
-        .restaurant-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 35px;
-            margin-top: 40px;
+        /* STILE GLOBALE "ROUNDED & BLOCKS" */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
+        body {
+            margin: 0;
+            padding-top: 110px;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #faf9d2;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .restaurant-img {
-            width: 100%;
-            height: 200px;
-            border-radius: 25px;
-            margin-bottom: 20px;
-            object-fit: cover;
-            background: linear-gradient(135deg, #fff 0%, #eee 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 50px;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
         }
 
-        .search-bar-container {
-            background: var(--white);
-            padding: 25px 40px;
-            border-radius: 60px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+        .page-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #2d3436;
+            margin-bottom: 40px;
+        }
+
+        /* Blocco di Ricerca Arrotondato */
+        .search-section {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 40px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            margin-bottom: 50px;
             display: flex;
             gap: 20px;
-            margin-bottom: 50px;
-            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            border: 2px solid white;
         }
 
-            .search-bar-container input {
-                flex-grow: 1;
-                border: none;
-                background: #f8f8f8;
+        .search-input {
+            padding: 15px 25px;
+            border-radius: 50px;
+            border: 2px solid #eee;
+            font-family: inherit;
+            font-weight: 600;
+            width: 300px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+            .search-input:focus {
+                border-color: #7ed991;
+                box-shadow: 0 0 15px rgba(126, 217, 145, 0.2);
             }
 
-        .status-badge {
+        .btn-search {
+            padding: 15px 35px;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
+            border: none;
             font-weight: 800;
-            font-size: 13px;
-            padding: 5px 15px;
-            border-radius: 20px;
-            background: #e8fcf0;
-            color: #2ecc71;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 8px 20px rgba(126, 217, 145, 0.3);
+        }
+
+            .btn-search:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 25px rgba(126, 217, 145, 0.4);
+            }
+
+        /* Griglia dei Ristoranti */
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            min-height: 200px;
+        }
+
+        /* Card Ristorante */
+        .restaurant-card {
+            background: white;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 2px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            animation: cardAppear 0.5s ease-out forwards;
+        }
+
+        @keyframes cardAppear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-10px);
+            border-color: #7ed991;
+            box-shadow: 0 20px 40px rgba(126, 217, 145, 0.2);
+        }
+
+        .card-image {
+            height: 180px;
+            background: #f1f1f1;
+        }
+
+            .card-image img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+        .card-content {
+            padding: 25px;
+        }
+
+            .card-content h3 {
+                margin: 0 0 10px 0;
+                font-size: 1.4rem;
+                font-weight: 800;
+            }
+
+        /* Messaggio Solo Testo (Senza Riquadro) */
+        .empty-state-text {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #636e72;
+            font-weight: 600;
+            font-size: 1.1rem;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        /* Blobs decorativi */
+        .decoration {
+            position: fixed;
+            z-index: 1;
+            opacity: 0.4;
+            filter: blur(80px);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: #96fbc4;
+            top: -100px;
+            right: -100px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: #fcf76d;
+            bottom: -100px;
+            left: -100px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Segnaposto per l'header dinamico -->
+    <!-- Segnaposto per l'header -->
     <div id="header-placeholder"></div>
 
-    <main class="content-container">
-        <div class="section-title">
-            <h2 style="font-size: 3rem;">Trova il tuo <span style="color: #2ecc71;">Gusto🍋</span></h2>
-            <p style="color: var(--text-muted); font-weight: 600;">Esplora i migliori fast food selezionati per te.</p>
-        </div>
+    <!-- Sfondi decorativi -->
+    <div class="decoration blob-1"></div>
+    <div class="decoration blob-2"></div>
 
-        <!-- Barra di ricerca stilizzata -->
-        <div class="search-bar-container">
-            <input type="text" id="searchInput" placeholder="Quale ristorante cerchi oggi?">
-            <button class="btn-main btn-primary" style="padding: 12px 40px;">Cerca</button>
-        </div>
+    <div class="container">
+        <h1 class="page-title">Trova il tuo <span style="color: #7ed991;">Ristorante</span></h1>
 
-        <div class="restaurant-grid" id="restaurantGrid">
-            <!-- Card Ristorante 1 -->
-            <div class="card">
-                <div class="restaurant-img">🍔</div>
-                <h3 style="margin-bottom: 10px;">Burger Paradise</h3>
-                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">I panini più succosi della città con ingredienti freschi.</p>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span class="status-badge">Aperto</span>
-                    <a href="Piatti.html" class="btn-main btn-primary" style="padding: 10px 25px; font-size: 14px;">Vedi Menu</a>
-                </div>
-            </div>
+        <!-- Sezione Ricerca -->
+        <section class="search-section">
+            <input type="text" class="search-input" id="search-name" placeholder="Nome (es. Burger King)...">
+            <input type="text" class="search-input" id="search-location" placeholder="Città (es. Milano)...">
+            <button class="btn-search" id="search-btn">Cerca Ora 🔍</button>
+        </section>
 
-            <!-- Card Ristorante 2 -->
-            <div class="card">
-                <div class="restaurant-img">🍕</div>
-                <h3 style="margin-bottom: 10px;">Pizzeria del Corso</h3>
-                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Pizza cotta nel forno a legna secondo la tradizione.</p>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span class="status-badge">Aperto</span>
-                    <a href="Piatti.html" class="btn-main btn-primary" style="padding: 10px 25px; font-size: 14px;">Vedi Menu</a>
-                </div>
-            </div>
-
-            <!-- Card Ristorante 3 -->
-            <div class="card">
-                <div class="restaurant-img">🍦</div>
-                <h3 style="margin-bottom: 10px;">Sweet Dreams</h3>
-                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">Gelati artigianali e dessert che ti faranno sognare.</p>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span class="status-badge" style="background: #fff0f0; color: #ff7675;">Chiuso</span>
-                    <a href="#" class="btn-main btn-primary" style="padding: 10px 25px; font-size: 14px; opacity: 0.6; pointer-events: none;">Vedi Menu</a>
-                </div>
+        <!-- Griglia dei Risultati -->
+        <div class="restaurant-grid" id="restaurants-container">
+            <div class="empty-state-text">
+                Digita qualcosa sopra per iniziare la tua ricerca gastronomica! 🍕
             </div>
         </div>
-    </main>
+    </div>
 
-    <!-- Script per l'header dinamico -->
-    <script src="js/header.js"></script>
+    <!-- Script per l'header del branch MAIN -->
+    <script src="js/HeaderFunctions.js"></script>
+    <!-- Script API per recuperare i dati dal backend -->
+    <script src="js/api.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchBtn = document.getElementById('search-btn');
+            const container = document.getElementById('restaurants-container');
+            const nameInput = document.getElementById('search-name');
+            const locInput = document.getElementById('search-location');
+
+            searchBtn.addEventListener('click', async () => {
+                const name = nameInput.value.trim();
+                const location = locInput.value.trim();
+
+                if (!name && !location) {
+                    container.innerHTML = `
+                            <div class="empty-state-text">
+                                Inserisci almeno un parametro di ricerca per trovare i ristoranti.
+                            </div>
+                        `;
+                    return;
+                }
+
+                // Stato di caricamento testuale
+                container.innerHTML = '<div class="empty-state-text">Ricerca in corso... 🔍</div>';
+
+                try {
+                    // Chiamata API reale (da implementare nel backend)
+                    // const results = await api.searchRestaurants(name, location);
+
+                    // Simulazione per la grafica
+                    setTimeout(() => {
+                        renderResults([]);
+                    }, 800);
+
+                } catch (error) {
+                    container.innerHTML = '<div class="empty-state-text">Errore durante la ricerca. Riprova più tardi.</div>';
+                }
+            });
+
+            function renderResults(data) {
+                if (data.length === 0) {
+                    container.innerHTML = `
+                            <div class="empty-state-text">
+                                Nessun ristorante trovato con questi criteri. Prova a cambiare termini! 🍔
+                            </div>
+                        `;
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                data.forEach(item => {
+                    const card = document.createElement('a');
+                    card.href = `MenuCliente.html?id=${item._id}`;
+                    card.className = 'restaurant-card';
+                    card.innerHTML = `
+                            <div class="card-image">
+                                <img src="${item.photo || 'https://via.placeholder.com/400x200'}" alt="${item.name}">
+                            </div>
+                            <div class="card-content">
+                                <h3>${item.name}</h3>
+                                <p>📍 ${item.address}</p>
+                                <p>🍴 ${item.cuisineType || 'Fast Food'}</p>
+                            </div>
+                        `;
+                    container.appendChild(card);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
