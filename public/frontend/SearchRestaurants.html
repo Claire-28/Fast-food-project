@@ -3,297 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Food - Ricerca Ristoranti</title>
-
-    <!-- CSS dell'header (Branch Main) -->
+    <title>Cerca Ristoranti</title>
     <link rel="stylesheet" href="css/Header.css">
-
     <style>
-        /* STILE GLOBALE "ROUNDED & BLOCKS" */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
-
         body {
-            margin: 0;
-            padding-top: 110px;
             font-family: 'Montserrat', sans-serif;
-            background-color: #faf9d2;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            background: #faf9d2;
+            padding-top: 100px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
-            position: relative;
-            z-index: 10;
         }
 
-        .page-title {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #2d3436;
-            margin-bottom: 40px;
-        }
-
-        /* Blocco di Ricerca Arrotondato */
-        .search-section {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 40px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
-            margin-bottom: 50px;
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
             display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            border: 2px solid white;
+            gap: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
         }
 
-        .search-input {
-            padding: 15px 25px;
-            border-radius: 50px;
-            border: 2px solid #eee;
-            font-family: inherit;
-            font-weight: 600;
-            width: 300px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-            .search-input:focus {
-                border-color: #7ed991;
-                box-shadow: 0 0 15px rgba(126, 217, 145, 0.2);
+            .search-box input {
+                flex: 1;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
             }
 
         .btn-search {
-            padding: 15px 35px;
-            border-radius: 50px;
-            background: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
+            padding: 12px 25px;
+            background: #7ed991;
+            color: white;
             border: none;
-            font-weight: 800;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 8px 20px rgba(126, 217, 145, 0.3);
+            font-weight: bold;
         }
 
-            .btn-search:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 12px 25px rgba(126, 217, 145, 0.4);
-            }
-
-        /* Griglia dei Ristoranti */
-        .restaurant-grid {
+        .rest-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 30px;
-            min-height: 200px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
         }
 
-        /* Card Ristorante */
-        .restaurant-card {
+        .rest-card {
             background: white;
-            border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 2px solid transparent;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-            animation: cardAppear 0.5s ease-out forwards;
-        }
-
-        @keyframes cardAppear {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .restaurant-card:hover {
-            transform: translateY(-10px);
-            border-color: #7ed991;
-            box-shadow: 0 20px 40px rgba(126, 217, 145, 0.2);
-        }
-
-        .card-image {
-            height: 180px;
-            background: #f1f1f1;
-        }
-
-            .card-image img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-        .card-content {
-            padding: 25px;
-        }
-
-            .card-content h3 {
-                margin: 0 0 10px 0;
-                font-size: 1.4rem;
-                font-weight: 800;
-            }
-
-        /* Messaggio Solo Testo (Senza Riquadro) */
-        .empty-state-text {
-            grid-column: 1 / -1;
+            border-radius: 12px;
+            padding: 15px;
             text-align: center;
-            padding: 40px;
-            color: #636e72;
-            font-weight: 600;
-            font-size: 1.1rem;
-            animation: fadeIn 0.8s ease-in;
+            transition: transform 0.2s;
         }
 
-        /* Blobs decorativi */
-        .decoration {
-            position: fixed;
-            z-index: 1;
-            opacity: 0.4;
-            filter: blur(80px);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .blob-1 {
-            width: 500px;
-            height: 500px;
-            background: #96fbc4;
-            top: -100px;
-            right: -100px;
-        }
-
-        .blob-2 {
-            width: 400px;
-            height: 400px;
-            background: #fcf76d;
-            bottom: -100px;
-            left: -100px;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
+            .rest-card:hover {
+                transform: translateY(-5px);
             }
 
-            to {
-                opacity: 1;
-            }
+        .rest-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-
-    <!-- Segnaposto per l'header -->
     <div id="header-placeholder"></div>
 
-    <!-- Sfondi decorativi -->
-    <div class="decoration blob-1"></div>
-    <div class="decoration blob-2"></div>
-
     <div class="container">
-        <h1 class="page-title">Trova il tuo <span style="color: #7ed991;">Ristorante</span></h1>
+        <h1>Trova il tuo Ristorante 🍔</h1>
 
-        <!-- Sezione Ricerca -->
-        <section class="search-section">
-            <input type="text" class="search-input" id="search-name" placeholder="Nome (es. Burger King)...">
-            <input type="text" class="search-input" id="search-location" placeholder="Città (es. Milano)...">
-            <button class="btn-search" id="search-btn">Cerca Ora 🔍</button>
-        </section>
+        <div class="search-box">
+            <input type="text" id="searchName" placeholder="Nome ristorante...">
+            <input type="text" id="searchPlace" placeholder="Città o Via...">
+            <button class="btn-search" onclick="searchRestaurants()">Cerca</button>
+        </div>
 
-        <!-- Griglia dei Risultati -->
-        <div class="restaurant-grid" id="restaurants-container">
-            <div class="empty-state-text">
-                Digita qualcosa sopra per iniziare la tua ricerca gastronomica! 🍕
-            </div>
+        <div id="results" class="rest-grid">
+            <p style="grid-column: 1/-1; text-align: center;">Inserisci i filtri per cercare.</p>
         </div>
     </div>
 
-    <!-- Script per l'header del branch MAIN -->
-    <script src="js/HeaderFunctions.js"></script>
-    <!-- Script API per recuperare i dati dal backend -->
     <script src="js/api.js"></script>
-
+    <script src="js/HeaderFunctions.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const searchBtn = document.getElementById('search-btn');
-            const container = document.getElementById('restaurants-container');
-            const nameInput = document.getElementById('search-name');
-            const locInput = document.getElementById('search-location');
+        // Dati simulati per dimostrazione (In un progetto reale, fetch da /api/restaurants)
+        const mockRestaurants = [
+            { id: 1, name: "Burger King", city: "Milano", img: "https://via.placeholder.com/300?text=Burger+King" },
+            { id: 2, name: "La Pizzeria Napoli", city: "Roma", img: "https://via.placeholder.com/300?text=Pizzeria" },
+            { id: 3, name: "Sushi Wok", city: "Milano", img: "https://via.placeholder.com/300?text=Sushi" },
+            { id: 4, name: "McDonalds", city: "Torino", img: "https://via.placeholder.com/300?text=McDonalds" }
+        ];
 
-            searchBtn.addEventListener('click', async () => {
-                const name = nameInput.value.trim();
-                const location = locInput.value.trim();
+        async function searchRestaurants() {
+            const name = document.getElementById('searchName').value.toLowerCase();
+            const place = document.getElementById('searchPlace').value.toLowerCase();
+            const container = document.getElementById('results');
 
-                if (!name && !location) {
-                    container.innerHTML = `
-                                    <div class="empty-state-text">
-                                        Inserisci almeno un parametro di ricerca per trovare i ristoranti.
-                                    </div>
-                                `;
-                    return;
-                }
+            container.innerHTML = '<p>Ricerca in corso...</p>';
 
-                // Stato di caricamento testuale
-                container.innerHTML = '<div class="empty-state-text">Ricerca in corso... 🔍</div>';
-
-                try {
-                    // Chiamata API reale (da implementare nel backend)
-                    // const results = await api.searchRestaurants(name, location);
-
-                    // Simulazione per la grafica
-                    setTimeout(() => {
-                        renderResults([]);
-                    }, 800);
-
-                } catch (error) {
-                    container.innerHTML = '<div class="empty-state-text">Errore durante la ricerca. Riprova più tardi.</div>';
-                }
+            // Simulazione filtro
+            // API Reale: await API.get(`/restaurants?name=${name}&city=${place}`);
+            const results = mockRestaurants.filter(r => {
+                const matchName = name ? r.name.toLowerCase().includes(name) : true;
+                const matchPlace = place ? r.city.toLowerCase().includes(place) : true;
+                return matchName && matchPlace;
             });
 
-            function renderResults(data) {
-                if (data.length === 0) {
-                    container.innerHTML = `
-                                    <div class="empty-state-text">
-                                        Nessun ristorante trovato con questi criteri. Prova a cambiare termini! 🍔
-                                    </div>
-                                `;
-                    return;
-                }
-
-                container.innerHTML = '';
-
-                data.forEach(item => {
-                    const card = document.createElement('a');
-                    card.href = `MenuCliente.html?id=${item._id}`;
-                    card.className = 'restaurant-card';
-                    card.innerHTML = `
-                                    <div class="card-image">
-                                        <img src="${item.photo || 'https://via.placeholder.com/400x200'}" alt="${item.name}">
-                                    </div>
-                                    <div class="card-content">
-                                        <h3>${item.name}</h3>
-                                        <p>📍 ${item.address}</p>
-                                        <p>🍴 ${item.cuisineType || 'Fast Food'}</p>
-                                    </div>
-                                `;
-                    container.appendChild(card);
-                });
+            container.innerHTML = '';
+            if(results.length === 0) {
+                container.innerHTML = '<p>Nessun ristorante trovato.</p>';
+                return;
             }
-        });
+
+            results.forEach(r => {
+                container.innerHTML += `
+                    <div class="rest-card">
+                        <img src="${r.img}" class="rest-img">
+                        <h3>${r.name}</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> ${r.city}</p>
+                        <button style="margin-top:10px; padding:8px 15px; background:#eee; border:none; border-radius:5px; cursor:pointer;" onclick="location.href='Piatti.html'">Vedi Menu</button>
+                    </div>
+                `;
+            });
+        }
+
+        // Carica tutti all'avvio
+        document.addEventListener('DOMContentLoaded', searchRestaurants);
     </script>
 </body>
 </html>

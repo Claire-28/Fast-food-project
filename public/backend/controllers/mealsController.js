@@ -1,59 +1,62 @@
-const fs = require('fs');
-const path = require('path');
+const Plate = require('../models/plate');
 
-exports.getAllMeals = (req, res) => {
+// Recupera tutti i piatti con filtri opzionali
+const getMeals = async (req, res) => {
     try {
-        const dataPath = path.join(__dirname, '../data/meals.json');
-        const data = fs.readFileSync(dataPath, 'utf8');
-        let meals = JSON.parse(data);
-
-        // --- FILTRAGGIO DATI ---
         const { nome, tipologia, ingredienti, allergie } = req.query;
+        let query = {};
 
-        // 1. Filtro per Nome
+        // Filtro per Nome (case insensitive)
         if (nome) {
-            meals = meals.filter(meal => 
-                meal.strMeal.toLowerCase().includes(nome.toLowerCase())
-            );
+            query.strMeal = { $regex: nome, $options: 'i' };
         }
 
-        // 2. Filtro per Categoria (Tipologia)
+        // Filtro per Categoria
         if (tipologia) {
-            meals = meals.filter(meal => 
-                meal.strCategory && meal.strCategory.toLowerCase().includes(tipologia.toLowerCase())
-            );
+            query.strCategory = { $regex: tipologia, $options: 'i' };
         }
 
-        // 3. Filtro per Ingredienti (Cerca nell'array o nelle stringhe)
+        // Filtro per Ingredienti (cerca nell'array o stringa)
         if (ingredienti) {
-            const searchIng = ingredienti.toLowerCase();
-            meals = meals.filter(meal => {
-                // Se esiste un array 'ingredients'
-                if (meal.ingredients && Array.isArray(meal.ingredients)) {
-                    return meal.ingredients.some(ing => ing.toLowerCase().includes(searchIng));
-                }
-                // Fallback: cerca in strIngredient1, strIngredient2...
-                // (Logica semplificata: controlliamo se la stringa JSON grezza contiene l'ingrediente)
-                return JSON.stringify(meal).toLowerCase().includes(searchIng);
-            });
+            // Assumiamo che ingredienti sia un array nel DB, usiamo $in o $regex su un campo array
+            query.ingredients = { $regex: ingredienti, $options: 'i' };
         }
 
-        // 4. Filtro per Esclusione Allergeni (opzionale, se presente nel JSON)
+        // Filtro per Allergeni
         if (allergie) {
-            const excludeAllergen = allergie.toLowerCase();
-            meals = meals.filter(meal => {
-                // Se il piatto ha una lista allergeni, escludilo se contiene quello cercato
-                if (meal.allergens) {
-                    return !meal.allergens.toLowerCase().includes(excludeAllergen);
-                }
-                return true; // Se non ha info, lo teniamo
-            });
+            // Nota: verifica se nel tuo DB il campo si chiama 'allergens' o 'allergie'
+            // Basandoci sul codice precedente del frontend sembra essere 'allergens'
+            query.allergens = { $nin: [new RegExp(allergie, 'i')] }; // Esempio: Escludi piatti con questo allergene
+            // Oppure se vuoi CERCARE piatti con allergeni (ma di solito si filtrano via):
+            // query.allergens = { $regex: allergie, $options: 'i' };
         }
 
+        const meals = await Plate.find(query);
         res.status(200).json(meals);
-
     } catch (error) {
-        console.error("Errore lettura meals.json:", error);
-        res.status(500).json({ message: "Impossibile recuperare il menu." });
+        console.error("Errore nel recupero piatti:", error);
+        res.status(500).json({ message: error.message });
     }
+};
+
+// Recupera singolo piatto per ID
+const getMealById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const meal = await Plate.findOne({ idMeal: id });
+        
+        if (!meal) {
+            return res.status(404).json({ message: 'Piatto non trovato' });
+        }
+        
+        res.status(200).json(meal);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// ESPORTAZIONE CORRETTA
+module.exports = {
+    getMeals,
+    getMealById
 };
