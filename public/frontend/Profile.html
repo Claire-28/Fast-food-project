@@ -14,19 +14,17 @@
             color: #333;
         }
 
-        /* CONTENITORE: Larghezza adattiva (95%) con un massimo molto ampio (1400px) */
         .container {
             width: 50%;
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
-            box-sizing: border-box; /* Assicura che padding non sballi la larghezza */
+            box-sizing: border-box;
         }
 
         .profile-card {
             background: white;
             border-radius: 20px;
-            /* IMPORTANTE: Padding ripristinato a 40px per dare aria al contenuto */
             padding: 40px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             text-align: center;
@@ -69,7 +67,6 @@
             text-align: left;
             border-top: 1px solid #eee;
             padding-top: 30px;
-            /* LARGHEZZA FORM: Occupa tutto lo spazio disponibile fino a 1000px */
             width: 100%;
             max-width: 1000px;
             margin-left: auto;
@@ -90,7 +87,7 @@
 
             .form-group input {
                 width: 100%;
-                padding: 18px; /* Input grandi e comodi */
+                padding: 18px;
                 border: 1px solid #ddd;
                 border-radius: 10px;
                 box-sizing: border-box;
@@ -105,6 +102,44 @@
                     box-shadow: 0 0 0 3px rgba(126, 217, 145, 0.2);
                 }
 
+        /* --- STILI CARTA DI CREDITO MODIFICATI (2 Righe) --- */
+        .credit-card-container {
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .credit-card-grid {
+            display: grid;
+            /* Impostiamo 2 colonne uguali */
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+            /* Il primo elemento (Numero Carta) occupa 2 colonne (tutta la riga) */
+            .credit-card-grid .form-group:nth-child(1) {
+                grid-column: span 2;
+            }
+
+            .credit-card-grid .form-group {
+                width: 100%;
+                margin-bottom: 0;
+            }
+
+        @media (max-width: 768px) {
+            .credit-card-grid {
+                grid-template-columns: 1fr; /* Una colonna su mobile */
+            }
+                /* Su mobile resetto lo span così si impilano tutti normalmente */
+                .credit-card-grid .form-group:nth-child(1) {
+                    grid-column: span 1;
+                }
+
+                .credit-card-grid .form-group {
+                    margin-bottom: 20px;
+                }
+        }
+
         .btn {
             width: 100%;
             padding: 18px;
@@ -114,7 +149,7 @@
             font-size: 1.2rem;
             cursor: pointer;
             transition: 0.3s;
-            margin-top: 20px;
+            margin-top: 30px;
         }
 
         .btn-primary {
@@ -179,6 +214,27 @@
                     <label>Nuova Password</label>
                     <input type="password" id="edit-password" placeholder="Lascia vuoto per mantenere la password attuale">
                 </div>
+
+                <!-- NUOVA SEZIONE: Carta di Credito -->
+                <h3 style="margin-bottom: 25px; margin-top: 40px; color: #444; font-size: 1.5rem;">Metodo di Pagamento 💳</h3>
+
+                <div class="credit-card-container">
+                    <div class="credit-card-grid">
+                        <div class="form-group">
+                            <label>Numero Carta</label>
+                            <input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19">
+                        </div>
+                        <div class="form-group">
+                            <label>Scadenza</label>
+                            <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5">
+                        </div>
+                        <div class="form-group">
+                            <label>CVV</label>
+                            <input type="password" id="card-cvv" placeholder="123" maxlength="3">
+                        </div>
+                    </div>
+                </div>
+
                 <button class="btn btn-primary" onclick="updateProfile()">Salva Modifiche</button>
                 <div id="update-msg" class="message"></div>
             </div>
@@ -210,7 +266,13 @@
                     document.getElementById('display-email').textContent = user.email;
                     document.getElementById('display-role').textContent = user.role;
                     document.getElementById('avatar-initial').textContent = (user.name || 'U').charAt(0).toUpperCase();
+
                     document.getElementById('edit-name').value = user.name || '';
+
+                    if (user.paymentInfo) {
+                        document.getElementById('card-number').value = user.paymentInfo.cardNumber || '';
+                        document.getElementById('card-expiry').value = user.paymentInfo.expiry || '';
+                    }
                 }
             } catch (error) {
                 console.error("Errore caricamento profilo", error);
@@ -220,6 +282,10 @@
         async function updateProfile() {
             const newName = document.getElementById('edit-name').value;
             const newPassword = document.getElementById('edit-password').value;
+
+            const cardNumber = document.getElementById('card-number').value;
+            const cardExpiry = document.getElementById('card-expiry').value;
+
             const msgBox = document.getElementById('update-msg');
 
             const payload = {
@@ -229,15 +295,20 @@
 
             try {
                 console.log("Aggiornamento inviato:", payload);
+
                 if (typeof API !== 'undefined') {
                     const currentUser = API.getUser();
                     if(currentUser) {
                         currentUser.name = newName;
+                        currentUser.paymentInfo = {
+                            cardNumber: cardNumber,
+                            expiry: cardExpiry
+                        };
                         localStorage.setItem('user', JSON.stringify(currentUser));
                     }
                 }
 
-                msgBox.textContent = "Profilo aggiornato con successo!";
+                msgBox.textContent = "Profilo e metodo di pagamento aggiornati!";
                 msgBox.className = "message success";
                 msgBox.style.display = "block";
 
@@ -254,7 +325,6 @@
                 return;
             }
             try {
-                console.log("Richiesta eliminazione account inviata.");
                 if (typeof API !== 'undefined') API.logout();
                 alert("Account eliminato. Verrai reindirizzato alla Home.");
                 window.location.href = 'HomePage.html';
@@ -262,6 +332,33 @@
                 alert("Impossibile eliminare l'account: " + error.message);
             }
         }
+
+        document.getElementById('card-number').addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
+        });
+
+        document.getElementById('card-expiry').addEventListener('input', function (e) {
+            var input = e.target.value;
+            if (/\D\/$/.test(input)) input = input.substr(0, input.length - 3);
+            var values = input.split('/').map(function(v) {
+                return v.replace(/\D/g, '')
+            });
+            if (values[0]) values[0] = checkValue(values[0], 12);
+            if (values[1]) values[1] = checkValue(values[1], 99);
+            var output = values.map(function(v, i) {
+                return v.length == 2 && i < 1 ? v + '/' : v;
+            });
+            e.target.value = output.join('').substr(0, 5);
+        });
+
+        function checkValue(str, max) {
+            if (str.charAt(0) !== '0' || str == '00') {
+                var num = parseInt(str);
+                if (isNaN(num) || num <= 0 || num > max) num = 1;
+                str = num > parseInt(max.toString().charAt(0)) && num.toString().length == 1 ? '0' + num : num.toString();
+            };
+            return str;
+        };
     </script>
 </body>
 </html>
