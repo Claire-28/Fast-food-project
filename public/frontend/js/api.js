@@ -1,102 +1,94 @@
-/**
- * api.js - Configurazione centralizzata per le chiamate al backend LemonLime.
- * Gestisce automaticamente i token, i reindirizzamenti in caso di sessione scaduta
- * e la pulizia dei dati.
- */
+// public/frontend/js/api.js
+const BASE_URL = 'http://localhost:3019/api'; 
 
-const BASE_URL = 'http://localhost:3019/api';
+const API = {
+    // --- AUTENTICAZIONE ---
 
-/**
- * Funzione core per le chiamate API.
- * Gestisce l'iniezione del Token JWT e gli errori di rete/autenticazione.
- */
-async function callApi(endpoint, method = 'GET', data = null) {
-    const url = `${BASE_URL}${endpoint}`;
-    const token = localStorage.getItem('token');
-
-    const headers = {
-        'Content-Type': 'application/json'
-    };
-
-    // Inserisce il token di autorizzazione se presente
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const config = {
-        method,
-        headers,
-    };
-
-    try {
-        const response = await fetch(url, config);
-
-        // Gestione Sessione Scaduta (401 Unauthorized)
-        if (response.status === 401) {
-            console.warn("Sessione scaduta o non autorizzata. Reindirizzamento al login...");
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-
-            if (!window.location.pathname.includes('LogIn.html')) {
-                window.location.href = 'LogIn.html';
-            }
-            return null;
-        }
-
-    try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-        const data = await response.json();
-
-        // Gestione errori restituiti dal backend (es. 400 Bad Request / 401 Wrong Password)
-        // Modificato per leggere sia .error che .message in base alla risposta del server
-        if (!response.ok) {
-            const errorMsg = responseData.error || responseData.message || `Errore API: ${response.status}`;
-            console.error('Dettaglio Errore Backend:', responseData);
-            throw new Error(errorMsg);
-        }
-
-        return data;
-    } catch (error) {
-        console.error('Errore nella chiamata API:', error.message);
-        throw error;
-    }
-}
-
-/**
- * Esportazione delle funzioni globali per l'uso negli HTML.
- * Nota: Il confronto della password (bcrypt) avviene lato server.
- * Il frontend si occupa di inviare il payload corretto.
- */
-window.api = {
-    BASE_URL,
-
-    // Funzione generica per chiamate custom
-    callApi,
-
-    // Autenticazione: Login
-    // Utilizza la logica di confronto bcrypt definita nel backend
     login: async (email, password) => {
-        return await callApi('/auth/login', 'POST', { email, password });
+        try {
+            const response = await fetch(`${BASE_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                return { success: true, user: data.user };
+            } else {
+                return { success: false, message: data.message };
+            }
+        } catch (error) {
+            console.error("API Login Error:", error);
+            return { success: false, message: "Errore di connessione al server" };
+        }
     },
 
-    // Autenticazione: Registrazione
-    register: async (userData) => {
-        return await callApi('/auth/register', 'POST', userData);
+    // AGGIORNATO: Ora accetta anche il ruolo
+    register: async (name, email, password, role = 'cliente') => {
+        try {
+            const response = await fetch(`${BASE_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                // Inviamo anche il ruolo scelto
+                body: JSON.stringify({ name, email, password, role })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                return { success: true };
+            } else {
+                return { success: false, message: data.message };
+            }
+        } catch (error) {
+            console.error("API Register Error:", error);
+            return { success: false, message: "Errore di connessione al server" };
+        }
     },
 
-    // Ricerca Ristoranti
-    searchRestaurants: (query) => {
-        const params = new URLSearchParams(query).toString();
-        return callApi(`/restaurants/search?${params}`);
+    logout: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'LogIn.html';
     },
 
-    // Dettagli Ristorante
-    getRestaurantDetails: (id) => {
-        return callApi(`/restaurants/${id}`);
+    getAuthHeaders: () => {
+        const token = localStorage.getItem('token');
+        return {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        };
+    },
+    
+    isLoggedIn: () => {
+        return !!localStorage.getItem('token');
     },
 
-    // Recupero Piatti Generale
-    getMeals: () => {
-        return callApi('/meals');
+    getUser: () => {
+        const userStr = localStorage.getItem('user');
+        return userStr ? JSON.parse(userStr) : null;
+    },
+
+    // --- PIATTI & MENU ---
+    getMeals: async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${BASE_URL}/meals`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if (!response.ok) throw new Error("Errore nel recupero dei piatti");
+            return await response.json();
+        } catch (error) {
+            console.error("API GetMeals Error:", error);
+            return [];
+        }
     }
 };

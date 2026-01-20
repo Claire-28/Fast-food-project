@@ -9,8 +9,8 @@ const verifyToken = require('../middlewares/verifyToken');
 const checkEmailDomain = require('../middlewares/checkemailDomain');
 
 // Rotta per la registrazione
-// POST /api/auth/signup
-router.post('/signup', checkEmailDomain, authController.signup);
+// POST /api/auth/register
+router.post('/register', authController.register);
 
 // Rotta per il login
 // POST /api/auth/login

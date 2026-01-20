@@ -4,98 +4,88 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LemonLime - Registrati</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/header.css">
 
-    <link rel="stylesheet" href="css/Header.css">
-
+    <!-- Riutilizzo lo stesso stile del Login per coerenza -->
     <style>
-        /* STILE GLOBALE "ROUNDED & BLOCKS" */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+        :root {
+            --bg-color: #faf9d2;
+            --text-dark: #2d3436;
+            --primary-gradient: linear-gradient(135deg, #f9f586 0%, #96fbc4 100%);
+            --shadow-color: rgba(126, 217, 145, 0.4);
+        }
 
         body {
-            margin: 0;
-            padding-top: 110px;
             font-family: 'Montserrat', sans-serif;
-            background-color: #faf9d2;
-            min-height: 100vh;
-            overflow-x: hidden;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding-top: 80px;
             display: flex;
             flex-direction: column;
-        }
-
-        .container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
             align-items: center;
-            padding: 40px 20px;
-            position: relative;
-            z-index: 10;
+            min-height: 100vh;
         }
 
-        /* Riquadro di Registrazione */
+        .decoration {
+            position: fixed;
+            z-index: -1;
+            filter: blur(80px);
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: #96fbc4;
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 350px;
+            height: 350px;
+            background: #fcf76d;
+            bottom: -50px;
+            right: -50px;
+        }
+
         .auth-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(15px);
-            padding: 50px 40px;
-            border-radius: 50px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 550px;
-            border: 2px solid white;
+            padding: 40px;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            width: 90%;
+            max-width: 400px;
+            border: 2px solid rgba(255,255,255,0.8);
             text-align: center;
-            animation: cardAppear 0.6s ease-out;
+            margin-top: 20px;
+            margin-bottom: 40px;
         }
 
-        @keyframes cardAppear {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
+            .auth-card h2 {
+                margin-top: 0;
+                color: var(--text-dark);
+                font-weight: 800;
             }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .auth-card h2 {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #2d3436;
-            margin-bottom: 10px;
-        }
-
-        .auth-card p {
-            color: #636e72;
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            text-align: left;
-        }
 
         .form-group {
-            margin-bottom: 20px;
+            text-align: left;
+            margin-bottom: 15px;
         }
 
-        .full-width {
-            grid-column: 1 / -1;
-        }
+            .form-group label {
+                display: block;
+                margin-left: 15px;
+                margin-bottom: 5px;
+                font-weight: 700;
+                color: #636e72;
+                font-size: 0.85rem;
+            }
 
-        .form-group label {
-            display: block;
-            margin-left: 20px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #2d3436;
-        }
-
-        .auth-input {
+        .auth-input, select {
             width: 100%;
             padding: 15px 25px;
             border-radius: 50px;
@@ -104,248 +94,143 @@
             font-weight: 600;
             box-sizing: border-box;
             outline: none;
-            transition: 0.3s;
             background: white;
         }
 
-            .auth-input:focus {
+            .auth-input:focus, select:focus {
                 border-color: #7ed991;
-                box-shadow: 0 0 15px rgba(126, 217, 145, 0.2);
             }
-
-        /* Selettore Ruolo */
-        .role-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-            justify-content: center;
-        }
-
-        .role-option {
-            flex: 1;
-            position: relative;
-        }
-
-            .role-option input {
-                position: absolute;
-                opacity: 0;
-                cursor: pointer;
-            }
-
-        .role-label {
-            display: block;
-            padding: 15px;
-            border-radius: 30px;
-            border: 2px solid #eee;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.3s;
-            background: white;
-            font-size: 0.9rem;
-        }
-
-        .role-option input:checked + .role-label {
-            border-color: #7ed991;
-            background: #f0fff4;
-            color: #2d3436;
-            box-shadow: 0 5px 15px rgba(126, 217, 145, 0.2);
-        }
 
         .btn-auth {
             width: 100%;
             padding: 18px;
             border-radius: 50px;
-            background: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
+            background: var(--primary-gradient);
             border: none;
             font-weight: 800;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 8px 20px rgba(126, 217, 145, 0.3);
+            color: var(--text-dark);
+            text-transform: uppercase;
+            box-shadow: 0 8px 20px var(--shadow-color);
             margin-top: 10px;
         }
 
             .btn-auth:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 12px 25px rgba(126, 217, 145, 0.4);
             }
 
-        /* Messaggi di stato */
-        #status-message {
-            padding: 15px;
-            border-radius: 25px;
-            margin-bottom: 20px;
-            font-weight: 700;
+        #error-message {
             display: none;
-            text-align: center;
+            background-color: #ffeaa7;
+            color: #d63031;
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            font-weight: 600;
             font-size: 0.9rem;
+            border: 1px solid #fdcb6e;
         }
 
         .auth-footer {
             margin-top: 25px;
-            font-weight: 600;
             font-size: 0.9rem;
-            color: #636e72;
         }
 
             .auth-footer a {
-                color: #7ed991;
-                text-decoration: none;
-                font-weight: 800;
+                color: #00b894;
+                text-decoration: underline;
+                font-weight: 700;
             }
-
-        .decoration {
-            position: fixed;
-            z-index: 1;
-            opacity: 0.4;
-            filter: blur(80px);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .blob-1 {
-            width: 600px;
-            height: 600px;
-            background: #96fbc4;
-            top: -200px;
-            right: -200px;
-        }
-
-        .blob-2 {
-            width: 500px;
-            height: 500px;
-            background: #fcf76d;
-            bottom: -200px;
-            left: -200px;
-        }
     </style>
 </head>
 <body>
 
-    <!-- SEGNAPOSTO HEADER -->
     <div id="header-placeholder"></div>
 
-    <div class="auth-container">
-        <form id="signupForm" class="auth-form">
-            <h2>Unisciti a noi</h2>
-
-            <div id="messageBox" class="message-box"></div>
-
-            <div id="status-message"></div>
+    <div class="auth-card">
+        <h2>Unisciti a noi! 🍋</h2>
+            <p>Crea il tuo account in pochi secondi.</p>
+            
+            <div id="error-message">Errore nella registrazione</div>
 
             <form id="signup-form">
-                <div class="role-selector">
-                    <label class="role-option">
-                        <input type="radio" name="ruolo" value="Cliente" checked>
-                        <span class="role-label">Sono un Cliente</span>
-                    </label>
-                    <label class="role-option">
-                        <input type="radio" name="ruolo" value="Ristoratore">
-                        <span class="role-label">Sono un Ristoratore</span>
-                    </label>
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" class="auth-input" id="name" placeholder="Mario Rossi" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="auth-input" id="email" placeholder="esempio@mail.com" required>
                 </div>
 
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="latua@email.com" required>
-            </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="auth-input" id="password" placeholder="Minimo 8 caratteri" required minlength="8" maxlength="20">
+                </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Minimo 8 caratteri" required minlength="8" maxlength="20">
-            </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Conferma Password</label>
+                    <input type="password" class="auth-input" id="confirmPassword" placeholder="Ripeti la password" required>
+                </div>
 
-            <div class="form-group">
-                <label for="confirmPassword">Conferma Password</label>
-                <input type="password" id="confirmPassword" placeholder="Ripeti la password" required>
-            </div>
+                <div class="form-group">
+                    <label>Chi sei?</label>
+                    <select id="role">
+                        <option value="Cliente">Cliente (Voglio ordinare)</option>
+                        <option value="Ristoratore">Ristoratore (Gestisco un locale)</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="role">Sei un:</label>
-                <select id="role" required>
-                    <option value="" disabled selected>Seleziona il tuo ruolo</option>
-                    <option value="Cliente">Cliente (Voglio mangiare)</option>
-                    <option value="Ristoratore">Ristoratore (Voglio vendere)</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn-primary">Registrati 🍋</button>
+                <button type="submit" class="btn-auth">Registrati</button>
+            </form>
 
             <div class="auth-footer">
-                <p>Hai già un account? <a href="LogIn.html">Accedi qui</a></p>
+                Hai già un account? <a href="LogIn.html">Accedi</a>
             </div>
-        </form>
     </div>
 
     <script src="js/api.js"></script>
     <script src="js/HeaderFunctions.js"></script>
+    
     <script>
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const role = document.getElementById('role').value;
+            const errorDiv = document.getElementById('error-message');
 
-            const statusMsg = document.getElementById('status-message');
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
+            // Reset errori
+            errorDiv.style.display = 'none';
 
-            statusMsg.style.display = 'none';
-
-            const userData = {
-                username: `${firstName} ${lastName}`.trim(),
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                ruolo: document.querySelector('input[name="ruolo"]:checked').value
-            };
-
-            // Determiniamo la porta corretta dai log (3019)
-            const PORT = 3019;
-            const BASE_URL = `http://127.0.0.1:${PORT}/api`;
-
-            console.log("Tentativo di registrazione...", userData);
+            // Controllo se le password coincidono
+            if (password !== confirmPassword) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = "Le password non coincidono. Riprova.";
+                return; // Ferma l'invio
+            }
 
             try {
-                // Proviamo a chiamare direttamente l'endpoint per evitare ambiguità con api.js
-                // Se il tuo authController usa exports.signup, la rotta nel backend dovrebbe essere /auth/signup
-                const response = await fetch(`${BASE_URL}/auth/signup`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
-                });
-
-                // Se riceviamo HTML invece di JSON (causa dell'errore 'Unexpected token <')
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new TypeError("Il server ha risposto con HTML. Verifica che la rotta '/api/auth/signup' esista nel tuo file routes/auth.js");
-                }
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    statusMsg.style.display = 'block';
-                    statusMsg.style.backgroundColor = '#d1f7d6';
-                    statusMsg.style.color = '#155724';
-                    statusMsg.textContent = "Registrazione completata! Reindirizzamento al login...";
-
-                    setTimeout(() => {
-                        window.location.href = 'LogIn.html';
-                    }, 2000);
+                const result = await API.register(name, email, password);
+                
+                if (result.success) {
+                    alert('Registrazione avvenuta con successo! Effettua il login.');
+                    window.location.href = 'LogIn.html';
                 } else {
-                    throw new Error(result.error || result.message || "Errore durante la registrazione");
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = result.message || "Errore durante la registrazione";
                 }
-
             } catch (error) {
-                console.error("Errore registrazione:", error);
-
-                statusMsg.style.display = 'block';
-                statusMsg.style.backgroundColor = '#ff7675';
-                statusMsg.style.color = 'white';
-
-                if (error instanceof TypeError) {
-                    statusMsg.innerHTML = `<strong>Errore di configurazione:</strong><br>${error.message}<br><small>Controlla se nel backend hai scritto router.post('/signup', ...)</small>`;
-                } else {
-                    statusMsg.textContent = error.message;
-                }
+                console.error(error);
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = "Errore di connessione al server.";
             }
         });
     </script>
 </body>
+</html>
 </html>

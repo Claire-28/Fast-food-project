@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LemonLime - Accedi</title>
+    <title>Fast Food - Accedi</title>
 
-    <!-- CSS: Carica prima Header, poi mainStyle -->
+    <!-- CSS dell'header (Assicurati che il percorso sia corretto) -->
     <link rel="stylesheet" href="css/Header.css">
-    <link rel="stylesheet" href="css/mainStyle.css">
-</head>
-<body>
 
-    <!-- SEGNAPOSTO HEADER -->
-    <div id="header-placeholder"></div>
+    <style>
+        /* STILE GLOBALE "ROUNDED & BLOCKS" COERENTE */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
 
-    <div class="auth-container">
-        <form id="loginForm" class="auth-form">
-            <h2>Accedi</h2>
+        body {
+            margin: 0;
+            padding-top: 110px; /* Spazio per l'header */
+            font-family: 'Montserrat', sans-serif;
+            background-color: #faf9d2; /* Colore di sfondo coerente */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
 
-            <div id="messageBox" class="message-box"></div>
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
 
         /* Riquadro di Login Arrotondato */
         .auth-card {
@@ -34,31 +47,37 @@
             animation: cardAppear 0.6s ease-out;
         }
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Inserisci la password" required>
-            </div>
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-            <button type="submit" class="btn-primary">Log In 🍋</button>
+        .auth-card h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d3436;
+            margin-bottom: 10px;
+        }
 
-            <div class="auth-footer">
-                <p>Non sei ancora registrato? <a href="SignUp.html">Crea un account</a></p>
-            </div>
-        </form>
-    </div>
-
-    <!-- SCRIPT -->
-    <script src="js/api.js"></script>
-    <script src="js/HeaderFunctions.js"></script> <!-- Carica l'header -->
+        .auth-card p {
+            color: #636e72;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
 
         .form-group {
             margin-bottom: 20px;
             text-align: left;
         }
 
-            const messageBox = document.getElementById('messageBox');
-            messageBox.style.display = 'none';
-            messageBox.className = 'message-box';
+        .form-group label {
+            display: block;
+            margin-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #2d3436;
+        }
 
         .auth-input {
             width: 100%;
@@ -72,11 +91,12 @@
             transition: 0.3s;
         }
 
-            .auth-input:focus {
-                border-color: #7ed991;
-                box-shadow: 0 0 15px rgba(126, 217, 145, 0.2);
-            }
+        .auth-input:focus {
+            border-color: #7ed991;
+            box-shadow: 0 0 15px rgba(126, 217, 145, 0.2);
+        }
 
+        /* Bottone a gradiente */
         .btn-auth {
             width: 100%;
             padding: 18px;
@@ -89,30 +109,36 @@
             transition: 0.3s;
             box-shadow: 0 8px 20px rgba(126, 217, 145, 0.3);
             margin-top: 10px;
+            color: #2d3436;
         }
 
-            .btn-auth:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 12px 25px rgba(126, 217, 145, 0.4);
-            }
+        .btn-auth:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px rgba(126, 217, 145, 0.4);
+        }
 
-            try {
-                const data = await apiRequest('/auth/login', 'POST', { email, password });
+        .auth-footer {
+            margin-top: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #636e72;
+        }
 
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('ruolo', data.user.ruolo);
-                localStorage.setItem('userId', data.user.id);
+        .auth-footer a {
+            color: #7ed991;
+            text-decoration: none;
+            font-weight: 800;
+        }
 
         /* Messaggio di Errore */
         #error-message {
-            background-color: #ff7675;
-            color: white;
+            color: #e74c3c;
+            background: #fadbd8;
             padding: 10px;
             border-radius: 20px;
-            margin-bottom: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            display: none;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            display: none; /* Nascosto di default */
         }
 
         /* Blobs decorativi */
@@ -125,28 +151,13 @@
             pointer-events: none;
         }
 
-                setTimeout(() => {
-                    const userRole = data.user.ruolo;
-                    if (userRole === 'Ristoratore') {
-                        window.location.href = 'admin/DashboardRistoratore.html';
-                    } else if (userRole === 'Cliente') {
-                        window.location.href = 'SearchRestaurants.html';
-                    } else {
-                        window.location.href = 'HomePage.html';
-                    }
-                }, 1000);
-
-        .blob-2 {
-            width: 400px;
-            height: 400px;
-            background: #fcf76d;
-            bottom: -100px;
-            right: -100px;
-        }
+        .blob-1 { width: 500px; height: 500px; background: #96fbc4; top: -100px; left: -100px; }
+        .blob-2 { width: 400px; height: 400px; background: #fcf76d; bottom: -100px; right: -100px; }
     </style>
 </head>
 <body>
 
+    <!-- Placeholder per l'Header dinamico -->
     <div id="header-placeholder"></div>
 
     <div class="decoration blob-1"></div>
@@ -157,8 +168,7 @@
             <h2>Bentornato! 🍋</h2>
             <p>Accedi per gustare i tuoi piatti preferiti.</p>
 
-            <!-- Box Errore -->
-            <div id="error-message"></div>
+            <div id="error-message">Credenziali non valide</div>
 
             <form id="login-form">
                 <div class="form-group">
@@ -179,48 +189,34 @@
         </div>
     </div>
 
-    <script src="js/HeaderFunctions.js"></script>
+    <!-- Script Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/HeaderFunctions.js"></script> <!-- Assumendo che tu abbia questo file -->
+    
     <script>
+        // Logica specifica per la pagina di Login
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('error-message');
 
-            // Reset errori
-            errorDiv.style.display = 'none';
-
             try {
-                // Chiamata al tuo backend locale
-                const response = await fetch('http://localhost:3019/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    // Successo! Salviamo i dati
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-
-                    // Reindirizzamento intelligente
-                    if (data.user.role === 'ristoratore') {
-                        window.location.href = 'admin/DashboardRistoratore.html';
-                    } else {
-                        window.location.href = 'HomePage.html';
-                    }
+                // Usa la funzione login definita in api.js
+                const result = await API.login(email, password);
+                
+                if (result.success) {
+                    // Redirect alla home o dashboard
+                    window.location.href = 'HomePage.html';
                 } else {
-                    // Errore dal server
-                    errorDiv.textContent = data.message || 'Email o password errati';
                     errorDiv.style.display = 'block';
+                    errorDiv.textContent = result.message || "Errore durante il login";
                 }
             } catch (error) {
-                console.error('Errore login:', error);
-                errorDiv.textContent = 'Server non raggiungibile. Controlla che il backend sia avviato.';
+                console.error(error);
                 errorDiv.style.display = 'block';
+                errorDiv.textContent = "Errore di connessione al server.";
             }
         });
     </script>
