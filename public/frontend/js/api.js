@@ -74,21 +74,28 @@ const API = {
     },
 
     // --- PIATTI & MENU ---
-    getMeals: async () => {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`${BASE_URL}/meals`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` 
-                }
-            });
-            if (!response.ok) throw new Error("Errore nel recupero dei piatti");
-            return await response.json();
-        } catch (error) {
-            console.error("API GetMeals Error:", error);
-            return [];
+    // Funzione generica per supportare il tuo codice "apiRequest"
+    request: async (endpoint, method = 'GET', body = null) => {
+        const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
+        const headers = API.getAuthHeaders();
+        const config = { method, headers };
+        if (body) config.body = JSON.stringify(body);
+
+        const response = await fetch(url, config);
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || 'Errore nella richiesta');
         }
+        return await response.json();
+    },
+
+    // Funzione specifica per ottenere i piatti con filtri
+    getMeals: async (filters = {}) => {
+        // Converte oggetto filtri in query string (es. ?nome=Pizza&tipologia=Main)
+        const params = new URLSearchParams(filters).toString();
+        return await API.request(`/meals?${params}`, 'GET');
     }
 };
+
+// Esportiamo una funzione globale per compatibilità col tuo vecchio codice HTML
+window.apiRequest = API.request;

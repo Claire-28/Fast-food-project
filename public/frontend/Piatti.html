@@ -6,37 +6,121 @@
     <title>LemonLime - Catalogo Piatti</title>
 
     <link rel="stylesheet" href="css/Header.css">
-    <link rel="stylesheet" href="css/mainStyle.css">
 
+    <!-- Stili inline per il layout (basati sulla tua richiesta) -->
     <style>
-        /* STILE SPECIFICO PER IL FORM SU 2 RIGHE */
-        .filter-bar {
-            display: grid;
-            /* Creiamo una griglia di 6 colonne virtuali per gestire le larghezze miste */
-            grid-template-columns: repeat(6, 1fr);
-            gap: 20px;
-            align-items: end; /* Allinea il bottone in basso con gli input */
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #faf9d2;
+            padding-top: 110px;
+            margin: 0;
         }
 
-            /* Resetta il margine inferiore predefinito dei form-group */
+        .catalog-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .filter-bar {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+            align-items: end;
+            background: rgba(255,255,255,0.8);
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
             .filter-bar .form-group {
                 margin-bottom: 0;
             }
 
-                /* RIGA 1: I primi due campi occupano 3 colonne su 6 (quindi il 50% l'uno) */
-                .filter-bar .form-group:nth-child(1),
-                .filter-bar .form-group:nth-child(2) {
-                    grid-column: span 3;
+                .filter-bar .form-group label {
+                    display: block;
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                    color: #2d3436;
+                    font-size: 0.9rem;
                 }
 
-                /* RIGA 2: I successivi tre elementi (incluso il bottone) occupano 2 colonne su 6 (quindi il 33% l'uno) */
-                .filter-bar .form-group:nth-child(3),
-                .filter-bar .form-group:nth-child(4),
-                .filter-bar .form-group:nth-child(5) {
-                    grid-column: span 2;
-                }
+            .filter-bar input {
+                width: 100%;
+                padding: 12px;
+                border-radius: 10px;
+                border: 1px solid #ddd;
+                box-sizing: border-box;
+                font-family: inherit;
+            }
 
-        /* RESPONSIVE: Su schermi piccoli (cellulari) torna tutto su una colonna */
+            /* Griglia Layout Filtri */
+            .filter-bar .form-group:nth-child(1), .filter-bar .form-group:nth-child(2) {
+                grid-column: span 3;
+            }
+
+            .filter-bar .form-group:nth-child(3), .filter-bar .form-group:nth-child(4), .filter-bar .form-group:nth-child(5) {
+                grid-column: span 2;
+            }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
+            border: none;
+            color: #2d3436;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        /* Griglia Piatti */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .meal-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            padding: 15px;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+            .meal-card:hover {
+                border-color: #96fbc4;
+                transform: translateY(-5px);
+            }
+
+        .message-box {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            font-weight: bold;
+        }
+
+            .message-box.success {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .message-box.error {
+                background: #f8d7da;
+                color: #721c24;
+            }
+
         @media (max-width: 768px) {
             .filter-bar {
                 grid-template-columns: 1fr;
@@ -50,17 +134,14 @@
 </head>
 <body>
 
-    <!-- SEGNAPOSTO HEADER -->
     <div id="header-placeholder"></div>
 
     <div class="catalog-container">
+        <h2 style="text-align:center; color:#2d3436; margin-bottom:10px;">Esplora i Sapori 🍋</h2>
+        <p style="text-align:center; margin-bottom:30px; color:#636e72;">Cerca tra i nostri ingredienti freschi</p>
 
-        <h2 style="text-align:center; color:#2d3436; margin-bottom:10px;">Esplora i Sapori</h2>
-        <p style="text-align:center; margin-bottom:30px;">Cerca tra i nostri ingredienti freschi</p>
-
-        <!-- Barra Filtri (Layout Grid gestito dal CSS sopra) -->
+        <!-- Barra Filtri -->
         <div class="filter-bar">
-            <!-- Riga 1 (50%) -->
             <div class="form-group">
                 <label>Cosa cerchi?</label>
                 <input type="text" id="searchName" placeholder="Es. Pasta, Pizza...">
@@ -69,8 +150,6 @@
                 <label>Categoria</label>
                 <input type="text" id="searchCategory" placeholder="Es. Dessert">
             </div>
-
-            <!-- Riga 2 (33%) -->
             <div class="form-group">
                 <label>Ingrediente</label>
                 <input type="text" id="searchIng" placeholder="Es. Basilico">
@@ -80,13 +159,13 @@
                 <input type="text" id="searchAllergen" placeholder="Es. Noci">
             </div>
             <div class="form-group">
-                <button class="btn-primary" onclick="loadMeals()" style="height: 52px; margin-top:0;">Cerca</button>
+                <button class="btn-primary" onclick="loadMeals()" style="height: 42px;">Cerca</button>
             </div>
         </div>
 
-        <div id="messageBox" class="message-box" style="margin-bottom: 20px; margin-top: 20px;"></div>
+        <div id="messageBox" class="message-box"></div>
 
-        <div id="mealsGrid" class="grid-container" style="margin-top: 30px;">
+        <div id="mealsGrid" class="grid-container">
             <p style="text-align:center; grid-column: 1/-1;">Caricamento catalogo...</p>
         </div>
     </div>
@@ -99,8 +178,14 @@
         let currentUserRole = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token');
-            currentUserRole = localStorage.getItem('ruolo');
+            if (!API.isLoggedIn()) {
+                window.location.href = 'LogIn.html';
+                return;
+            }
+            // Leggiamo il ruolo dal localStorage (salvato in api.js al login)
+            const user = API.getUser();
+            currentUserRole = user ? user.role : 'cliente';
+
             loadMeals();
         });
 
@@ -111,24 +196,25 @@
             const ing = document.getElementById('searchIng').value;
             const alg = document.getElementById('searchAllergen').value;
 
-            const params = new URLSearchParams();
-            if (name) params.append('nome', name);
-            if (cat) params.append('tipologia', cat);
-            if (ing) params.append('ingredienti', ing);
-            if (alg) params.append('allergie', alg);
+            // Creiamo oggetto filtri
+            const filters = {};
+            if (name) filters.nome = name;
+            if (cat) filters.tipologia = cat;
+            if (ing) filters.ingredienti = ing;
+            if (alg) filters.allergie = alg;
 
             grid.innerHTML = '<p style="text-align:center; width:100%; grid-column: 1/-1;">Spremendo i limoni... 🍋</p>';
 
             try {
-                const meals = await apiRequest(`/meals?${params.toString()}`, 'GET');
+                // Usiamo la funzione centralizzata API.getMeals
+                const meals = await API.getMeals(filters);
 
-                if (meals.length === 0) {
+                if (!meals || meals.length === 0) {
                     grid.innerHTML = '<p style="text-align:center; width:100%; grid-column: 1/-1;">Nessun piatto trovato.</p>';
                     return;
                 }
 
                 grid.innerHTML = '';
-
                 meals.forEach(meal => {
                     grid.appendChild(createMealCard(meal));
                 });
@@ -143,56 +229,56 @@
             div.className = 'meal-card';
 
             const imgUrl = meal.strMealThumb || 'https://via.placeholder.com/300x200?text=No+Image';
-            const ingredientsList = meal.ingredients ? meal.ingredients.slice(0, 3).join(', ') + '...' : 'N/D';
+
+            // Gestione sicura degli ingredienti (se array o stringa)
+            let ingredientsList = 'N/D';
+            if (meal.ingredients && Array.isArray(meal.ingredients)) {
+                ingredientsList = meal.ingredients.slice(0, 3).join(', ') + '...';
+            }
 
             let actionHtml = '';
 
-            if (currentUserRole === 'Ristoratore') {
+            // Mostra azioni diverse in base al ruolo
+            if (currentUserRole === 'ristoratore') {
                 actionHtml = `
-                        <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                            <input type="number" id="price-${meal.idMeal}" value="10.00" min="0" step="0.5" style="padding:8px; margin-bottom:10px;">
-                            <button class="btn-primary" onclick="addToMyMenu('${meal.idMeal}', '${meal.strMeal.replace(/'/g, "\\'")}', '${meal.strCategory}')">
-                                Aggiungi +
-                            </button>
-                        </div>
-                    `;
+                    <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                        <input type="number" id="price-${meal.idMeal}" value="10.00" min="0" step="0.5" style="width: 70px; padding:5px; border-radius:5px; border:1px solid #ddd;">
+                        <button class="btn-primary" style="width: auto; padding: 5px 15px; font-size:0.9rem;" onclick="addToMyMenu('${meal.idMeal}', '${meal.strMeal.replace(/'/g, "\\'")}', '${meal.strCategory}')">
+                            Aggiungi +
+                        </button>
+                    </div>
+                `;
             } else {
+                // MODIFICA QUI: Pulsante "Trova Ristoranti"
                 actionHtml = `
-                         <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                            <button class="btn-primary" style="background:var(--white); color:var(--text-dark);" onclick="alert('Funzione trova ristorante in arrivo!')">
-                                Trova Ristorante
-                            </button>
-                        </div>
-                    `;
+                     <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
+                        <button class="btn-primary" style="background:var(--white); border: 2px solid #eee; color:#2d3436; font-weight:600;" onclick="findRestaurants('${meal.strMeal.replace(/'/g, "\\'")}')">
+                            Trova Ristoranti 📍
+                        </button>
+                    </div>
+                `;
             }
 
             div.innerHTML = `
-                    <img src="${imgUrl}" alt="${meal.strMeal}" class="meal-img" style="width:100%; border-radius:12px;">
-                    <div class="meal-content">
-                        <span class="meal-category">${meal.strCategory}</span>
-                        <h3 style="font-size:1.2rem; margin:10px 0;">${meal.strMeal}</h3>
-                        <p style="font-size:0.9rem; color:#666;">Ingr: ${ingredientsList}</p>
-                    </div>
+                <img src="${imgUrl}" alt="${meal.strMeal}" style="width:100%; height:180px; object-fit:cover; border-radius:12px;">
+                <div style="padding:10px 5px;">
+                    <span style="font-size:0.8rem; background:#eee; padding:3px 8px; border-radius:10px; color:#666;">${meal.strCategory}</span>
+                    <h3 style="font-size:1.1rem; margin:10px 0; color:#2d3436;">${meal.strMeal}</h3>
+                    <p style="font-size:0.85rem; color:#666;">Ingr: ${ingredientsList}</p>
                     ${actionHtml}
-                `;
-
+                </div>
+            `;
             return div;
         }
 
         async function addToMyMenu(id, name, category) {
-            const price = document.getElementById(`price-${id}`).value;
-            const msgBox = document.getElementById('messageBox');
-            try {
-                await apiRequest('/restaurant/add-dish', 'POST', { mealId: id, name, category, price });
-                msgBox.textContent = `Piatto aggiunto con successo! 🍋`;
-                msgBox.className = 'message-box success';
-                msgBox.style.display = 'block';
-                setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
-            } catch (error) {
-                msgBox.textContent = error.message;
-                msgBox.className = 'message-box error';
-                msgBox.style.display = 'block';
-            }
+            alert(`Piatto "${name}" aggiunto al tuo menu! (Simulazione)`);
+        }
+
+        // NUOVA FUNZIONE: Reindirizza alla pagina di ricerca ristoranti
+        function findRestaurants(mealName) {
+            // Reindirizza l'utente a SearchRestaurants.html passando il nome del piatto come parametro 'piatto'
+            window.location.href = `SearchRestaurants.html?piatto=${encodeURIComponent(mealName)}`;
         }
     </script>
 </body>
