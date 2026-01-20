@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettaglio Piatto - LemonLime</title>
+    <link rel="stylesheet" href="css/Header.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #faf9d2; /* Giallo limone chiaro coerente */
+            padding-top: 110px;
+            margin: 0;
+            color: #2d3436;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Pulsante Indietro */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #636e72;
+            font-weight: 600;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+        }
+
+            .btn-back:hover {
+                color: #2d3436;
+            }
+
+            .btn-back i {
+                margin-right: 8px;
+            }
+
+        /* Card Principale */
+        .detail-card {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media(min-width: 768px) {
+            .detail-card {
+                flex-direction: row;
+            }
+        }
+
+        /* Sezione Immagine */
+        .image-section {
+            flex: 1;
+            background-color: #eee;
+            min-height: 300px;
+            position: relative;
+        }
+
+        .meal-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        /* Sezione Info */
+        .info-section {
+            flex: 1.2;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .category-badge {
+            background: #7ed991; /* Verde lime */
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            align-self: flex-start;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .meal-title {
+            font-size: 2.5rem;
+            margin: 0;
+            line-height: 1.2;
+            color: #2d3436;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: #2d3436;
+            border-bottom: 2px solid #fcf76d;
+            display: inline-block;
+            padding-bottom: 3px;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tag {
+            padding: 5px 12px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .tag-simple {
+            background-color: #dfe6e9;
+            color: #2d3436;
+        }
+
+        .description {
+            line-height: 1.8;
+            color: #636e72;
+            font-size: 1rem;
+            white-space: pre-line; /* Mantiene i ritorni a capo */
+        }
+
+        /* Ingredienti Lista */
+        .ingredients-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #f1f2f6;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+            .ingredients-list li {
+                padding: 10px 15px;
+                border-bottom: 1px solid #f1f2f6;
+                display: flex;
+                justify-content: space-between;
+                font-size: 0.95rem;
+            }
+
+                .ingredients-list li:last-child {
+                    border-bottom: none;
+                }
+
+                .ingredients-list li:nth-child(even) {
+                    background-color: #fafafa;
+                }
+
+        .measure-text {
+            font-weight: 600;
+            color: #e17055;
+        }
+
+        /* Metadati Tecnici */
+        .technical-data {
+            font-size: 0.75rem;
+            color: #b2bec3;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #f1f2f6;
+            font-family: monospace;
+        }
+
+            .technical-data p {
+                margin: 2px 0;
+            }
+
+        /* Azioni */
+        .actions {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #f1f2f6;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 15px;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            min-width: 200px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
+            color: #2d3436;
+        }
+
+        .btn-youtube {
+            background-color: #ff7675;
+            color: white;
+        }
+
+            .btn-primary:hover, .btn-youtube:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+    </style>
+    <!-- Font Awesome per le icone -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <div class="container">
+        <a href="Piatti.html" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Torna al Menu
+        </a>
+
+        <!-- Contenitore dinamico -->
+        <div id="detail-container">
+            <p style="text-align: center;">Caricamento dettagli...</p>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/HeaderFunctions.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Ottieni ID dall'URL
+            const params = new URLSearchParams(window.location.search);
+            const mealId = params.get('id');
+
+            if (!mealId) {
+                document.getElementById('detail-container').innerHTML = '<h2 style="text-align:center">Piatto non specificato (ID mancante).</h2>';
+                return;
+            }
+
+            try {
+                // 2. Recupera i dati del piatto
+                // In un'applicazione reale faresti fetch(`/api/meals/${mealId}`)
+                // Qui simuliamo recuperando tutti e filtrando
+                const allMeals = await API.getMeals({});
+                const meal = allMeals.find(m => m.idMeal === mealId);
+
+                if (meal) {
+                    renderDetail(meal);
+                } else {
+                    document.getElementById('detail-container').innerHTML = '<h2 style="text-align:center">Piatto non trovato nel database.</h2>';
+                }
+
+            } catch (error) {
+                console.error("Errore:", error);
+                document.getElementById('detail-container').innerHTML = '<h2 style="text-align:center; color:red">Errore nel caricamento.</h2>';
+            }
+        });
+
+        function renderDetail(meal) {
+            const container = document.getElementById('detail-container');
+
+            // --- Elaborazione Campi ---
+
+            // Immagine
+            const imgUrl = meal.strMealThumb || 'https://via.placeholder.com/600x600?text=No+Image';
+
+            // Istruzioni (Priorità a strInstructions, fallback su description)
+            // Sostituiamo \r\n con <br> per la formattazione
+            let instructions = meal.strInstructions || meal.description || 'Nessuna istruzione disponibile.';
+            instructions = instructions.replace(/\r\n/g, '\n').replace(/\n/g, '<br><br>');
+
+            // Tags (strTags è una stringa separata da virgole es: "Tart,Baking")
+            let tagsHtml = '';
+            if (meal.strTags) {
+                const tags = meal.strTags.split(',');
+                tagsHtml = `<div class="tags-container" style="margin-bottom:15px;">
+                    ${tags.map(t => `<span class="tag tag-simple">#${t.trim()}</span>`).join('')}
+                </div>`;
+            }
+
+            // Ingredienti e Misure combinati
+            let ingredientsHtml = '<p style="color:#999; font-style:italic;">Ingredienti non specificati.</p>';
+            if (meal.ingredients && Array.isArray(meal.ingredients) && meal.ingredients.length > 0) {
+                ingredientsHtml = '<ul class="ingredients-list">';
+                meal.ingredients.forEach((ing, index) => {
+                    if (ing && ing.trim() !== "") {
+                        // Prendi la misura corrispondente se esiste
+                        const measure = (meal.measures && meal.measures[index]) ? meal.measures[index] : '';
+                        ingredientsHtml += `
+                            <li>
+                                <span>${ing}</span>
+                                <span class="measure-text">${measure}</span>
+                            </li>
+                        `;
+                    }
+                });
+                ingredientsHtml += '</ul>';
+            }
+
+            // Link YouTube
+            let youtubeButton = '';
+            if (meal.strYoutube) {
+                youtubeButton = `
+                    <a href="${meal.strYoutube}" target="_blank" class="btn-action btn-youtube">
+                        <i class="fab fa-youtube"></i> Guarda Video Ricetta
+                    </a>
+                `;
+            }
+
+            // Link Fonte (Source)
+            let sourceLink = '';
+            if (meal.strSource) {
+                sourceLink = `<p style="margin-top:10px; font-size:0.9rem;"><a href="${meal.strSource}" target="_blank" style="color:#636e72;">Fonte Originale <i class="fas fa-external-link-alt"></i></a></p>`;
+            }
+
+            // Metadati Tecnici (tutti i campi extra richiesti)
+            const technicalInfo = `
+                <div class="technical-data">
+                    <p><strong>ID:</strong> ${meal.idMeal}</p>
+                    <p><strong>Alternativo:</strong> ${meal.strMealAlternate || 'N/A'}</p>
+                    <p><strong>Data Modifica:</strong> ${meal.dateModified || 'N/A'}</p>
+                    <p><strong>Creative Commons:</strong> ${meal.strCreativeCommonsConfirmed || 'N/A'}</p>
+                    <p><strong>Fonte Immagine:</strong> ${meal.strImageSource || 'N/A'}</p>
+                </div>
+            `;
+
+            // --- Generazione HTML Finale ---
+            container.innerHTML = `
+                <div class="detail-card">
+                    <!-- Colonna Sinistra: Immagine -->
+                    <div class="image-section">
+                        <img src="${imgUrl}" alt="${meal.strMeal}" class="meal-img">
+                    </div>
+
+                    <!-- Colonna Destra: Informazioni -->
+                    <div class="info-section">
+                        <div style="display:flex; justify-content:space-between; align-items: flex-start;">
+                            <div>
+                                <span class="category-badge">${meal.strCategory}</span>
+                                ${meal.strArea ? `<span style="margin-left:10px; color:#636e72; font-weight:600; font-size:0.9rem;"><i class="fas fa-globe"></i> ${meal.strArea}</span>` : ''}
+                            </div>
+                        </div>
+
+                        <h1 class="meal-title">${meal.strMeal}</h1>
+                        ${tagsHtml}
+
+                        <!-- Sezione Istruzioni -->
+                        <div>
+                            <div class="section-title">Istruzioni</div>
+                            <div class="description">${instructions}</div>
+                        </div>
+
+                        <!-- Sezione Ingredienti -->
+                        <div>
+                            <div class="section-title">Ingredienti & Dosi</div>
+                            ${ingredientsHtml}
+                        </div>
+
+                        <!-- Link Fonte -->
+                        ${sourceLink}
+
+                        <!-- Sezione Tecnica (Footer interno) -->
+                        ${technicalInfo}
+
+                        <!-- Pulsanti Azione -->
+                        <div class="actions">
+                            ${youtubeButton}
+                            <button class="btn-action btn-primary" onclick="findRestaurants('${meal.strMeal.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-map-marker-alt"></i> Trova Ristoranti
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function findRestaurants(mealName) {
+            window.location.href = `SearchRestaurants.html?piatto=${encodeURIComponent(mealName)}`;
+        }
+    </script>
+</body>
+</html>

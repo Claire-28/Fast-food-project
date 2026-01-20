@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" href="css/Header.css">
 
-    <!-- Stili inline per il layout (basati sulla tua richiesta) -->
+    <!-- Stili inline per il layout -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
 
@@ -96,11 +96,22 @@
             padding: 15px;
             border: 2px solid transparent;
             transition: 0.3s;
+            position: relative;
         }
 
             .meal-card:hover {
                 border-color: #96fbc4;
                 transform: translateY(-5px);
+            }
+
+        /* Classe per elementi cliccabili che portano al dettaglio */
+        .clickable-detail {
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+            .clickable-detail:hover {
+                opacity: 0.8;
             }
 
         .message-box {
@@ -138,7 +149,7 @@
 
     <div class="catalog-container">
         <h2 style="text-align:center; color:#2d3436; margin-bottom:10px;">Esplora i Sapori 🍋</h2>
-        <p style="text-align:center; margin-bottom:30px; color:#636e72;">Cerca tra i nostri ingredienti freschi</p>
+        <p style="text-align:center; margin-bottom:30px; color:#636e72;">Clicca su un piatto per vedere i dettagli</p>
 
         <!-- Barra Filtri -->
         <div class="filter-bar">
@@ -249,7 +260,6 @@
                     </div>
                 `;
             } else {
-                // MODIFICA QUI: Pulsante "Trova Ristoranti"
                 actionHtml = `
                      <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
                         <button class="btn-primary" style="background:var(--white); border: 2px solid #eee; color:#2d3436; font-weight:600;" onclick="findRestaurants('${meal.strMeal.replace(/'/g, "\\'")}')">
@@ -259,11 +269,12 @@
                 `;
             }
 
+            // Aggiungiamo onclick all'immagine e al titolo per andare al dettaglio
             div.innerHTML = `
-                <img src="${imgUrl}" alt="${meal.strMeal}" style="width:100%; height:180px; object-fit:cover; border-radius:12px;">
+                <img src="${imgUrl}" alt="${meal.strMeal}" class="clickable-detail" onclick="openDetail('${meal.idMeal}')" style="width:100%; height:180px; object-fit:cover; border-radius:12px;">
                 <div style="padding:10px 5px;">
                     <span style="font-size:0.8rem; background:#eee; padding:3px 8px; border-radius:10px; color:#666;">${meal.strCategory}</span>
-                    <h3 style="font-size:1.1rem; margin:10px 0; color:#2d3436;">${meal.strMeal}</h3>
+                    <h3 class="clickable-detail" onclick="openDetail('${meal.idMeal}')" style="font-size:1.1rem; margin:10px 0; color:#2d3436;">${meal.strMeal}</h3>
                     <p style="font-size:0.85rem; color:#666;">Ingr: ${ingredientsList}</p>
                     ${actionHtml}
                 </div>
@@ -271,13 +282,16 @@
             return div;
         }
 
+        // Funzione per aprire la pagina di dettaglio
+        function openDetail(id) {
+            window.location.href = `DettaglioPiatto.html?id=${id}`;
+        }
+
         async function addToMyMenu(id, name, category) {
             alert(`Piatto "${name}" aggiunto al tuo menu! (Simulazione)`);
         }
 
-        // NUOVA FUNZIONE: Reindirizza alla pagina di ricerca ristoranti
         function findRestaurants(mealName) {
-            // Reindirizza l'utente a SearchRestaurants.html passando il nome del piatto come parametro 'piatto'
             window.location.href = `SearchRestaurants.html?piatto=${encodeURIComponent(mealName)}`;
         }
     </script>
