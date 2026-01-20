@@ -1,130 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const checkDomain = require('../middlewares/checkemailDomain');
-const { body, validationResult } = require('express-validator');
+
+// Middleware opzionale per proteggere le rotte
 const verifyToken = require('../middlewares/verifyToken');
 
-router.post('/signup',
-    [
-        body('username')
-        .trim()
-        .notEmpty().withMessage('Username obbligatorio')
-        .isLength({ min: 3, max: 30}).withMessage('Lo username deve avere minimo 3 caratteri e massimo 30')
-        .escape(), //per injection HTML
+// Middleware per il controllo del dominio
+const checkEmailDomain = require('../middlewares/checkemailDomain');
 
-        body('email')
-        .isEmail().withMessage('Email non valida')
-        .normalizeEmail(),
+// Rotta per la registrazione
+// POST /api/auth/signup
+router.post('/signup', checkEmailDomain, authController.signup);
 
-        body('password')
-        .isStrongPassword({
-            minLength: 8,
-            minLowercase: 1,
-            minUppercase: 1,
-            minNumbers: 1,
-            minSymbols: 1,
-        })
-        .withMessage('La password deve contenere almeno 8 caratteri, una lettera minuscola e una maiuscola, un numero e un simbolo'),
+// Rotta per il login
+// POST /api/auth/login
+router.post('/login', authController.login);
 
-        body('confirmPassword')
-        .custom((value, { req }) => {
-            if (value != req.body.password) {
-                throw new Error('Le password non coincidono');
-            }
-            return true;
-        }),
+// Rotta per il logout
+// GET /api/auth/logout
+// L'errore "undefined callback" succedeva probabilmente qui se authController.logout non esisteva
+router.get('/logout', authController.logout);
 
-        body('ruolo')
-        .isIn(['Cliente', 'Ristoratore'])
-        .withMessage('Ruolo non valido'),
-    ],
-
-    checkDomain,
-    
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()){
-            return res.status(400).json({ error: errors.array()[0].msg});
-        }
-        next();
-    },
-
-    authController.signup);
-
-router.post('/login',
-    [
-        body('email')
-        .isEmail().withMessage('Email non valida')
-        .normalizeEmail(),
-
-        body('password')
-        .notEmpty().withMessage('Password obbligatoria'),
-    ],
-
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if(!errors.isEmpty()){
-            return res.status(400).json({ error: errors.array()[0].msg});
-        }
-        next();
-    },
-
-authController.login);
-
-router.get('/me', verifyToken, authController.getLoggedInUser);
-
-router.put('/me', 
-    verifyToken,
-    [
-        body('email')
-            .optional()
-            .isEmail().withMessage('Email non valida')
-            .normalizeEmail(),
-
-            //logica di checkDomain
-        body('email')
-            .optional()
-            .custom((value, { req }) => {
-                if (value) {
-                    const domain = value.split('@')[1];
-                    const allowedDomains = ['gmail.com', 'libero.it', 'outlook.com', 'hotmail.com'];
-                    if (!domain || !allowedDomains.includes(domain)) {
-                        throw new Error('Dominio email non consentito per la modifica');
-                    }
-                }
-                return true;
-            }),
-
-        body('password')
-            .optional()
-            .isStrongPassword({
-                minLength: 8,
-                minLowercase: 1,
-                minUppercase: 1,
-                minNumbers: 1,
-                minSymbols: 1
-            })
-            .withMessage('La nuova password deve contenere almeno 8 caratteri, una lettera minuscola e una maiuscola, un numero e un simbolo'),
-
-        body('username')
-            .optional()
-            .trim()
-            .notEmpty().withMessage('Username obbligatorio')
-            .isLength({ min: 3, max: 30}).withMessage('Lo username deve avere minimo 3 caratteri e massimo 30')
-            .escape(),
-    ],
-
-    (req, res, next) => {
-        const errors = validationResult(req);
-        if(!errors.isEmpty()) {
-            return res.status(400).json({ error: errors.array()[0].msg });
-        }
-        next();
-    },
-    authController.updateProfile
-);
-
-router.delete('/me', verifyToken, authController.deleteProfile);
+// Esempio di rotta protetta per ottenere i dati dell'utente loggato
+// GET /api/auth/me
+// router.get('/me', verifyToken, authController.getMe);
 
 module.exports = router;

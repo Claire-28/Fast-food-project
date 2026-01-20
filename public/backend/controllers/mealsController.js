@@ -1,56 +1,75 @@
-const mealsData = require('../data/meals');
-const Plate = require('../models/plate');
+const fs = require('fs');
+const path = require('path');
 
-exports.getCommonMeals = (req, res) => {
-    try {
-        res.status(200).json(mealsData);
-    } catch (error) {
-        consoleerror('Errore nel recupero della lista comune dei piatti: ', error.message);
-        res.status(500).json({error: 'Errore interno del server nel recupero della lista dei piatti comune'});
-    }
-}
+// Percorso corretto al file JSON
+const mealsFilePath = path.join(__dirname, '../data/meals.json');
 
-exports.getAllPlates = async (req, res) => {
-    try {
-        const plates  = await Plate.find().select('-__v');
-        res.status(200).json(plates);
-    } catch (error) {
-        console.error('Errore nel recupero dei piatti dal database: ', error.message);
-        res.status(500).json({error: 'Errore interno del server'});
-    }
-}
+// Unica funzione per ottenere tutti i piatti o filtrarli
+exports.getAllMeals = (req, res) => {
+    fs.readFile(mealsFilePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error("Errore lettura meals.json:", err);
+            return res.status(500).json({ error: 'Errore nel caricamento dei piatti' });
+        }
 
-exports.searchMeals = async (req, res) => {
-    const {tipologia, nome, prezzo, ingredienti, allergie} = req.query;
-    const query = {};
+        try {
+            let meals = JSON.parse(data);
 
-    if (tipologia) {
-        query.categoria = { $regex: tipologia, $options: 'i'};
-    }
+            // Parametri query dal frontend (es. ?nome=Pizza&tipologia=Dessert)
+            const { nome, tipologia, ingredienti, allergie } = req.query;
 
-    if (nome) {
-        query.nome = { $regex: nome, $options: 'i'};
-    }
+            // 1. Filtro Nome
+            if (nome) {
+                meals = meals.filter(m =>
+                    m.strMeal.toLowerCase().includes(nome.toLowerCase())
+                );
+            }
 
-    if (prezzo && !isNaN(prezzo)) {
-        query.prezzo = { $lte: parseFloat(prezzo)}; //prezzo minore o uguale al valore della variabile prezzo
-    }
+            // 2. Filtro Categoria
+            if (tipologia) {
+                meals = meals.filter(m =>
+                    m.strCategory && m.strCategory.toLowerCase().includes(tipologia.toLowerCase())
+                );
+            }
 
-    //contiene almeno l'ingrediente specificato
-    if (ingredienti) {
-        query.ingredienti = { $regex: ingredienti, $options: 'i'};
-    }
+            // 3. Filtro Ingredienti
+            if (ingredienti) {
+                const searchIng = ingredienti.toLowerCase();
+                meals = meals.filter(m =>
+                    m.ingredients && m.ingredients.some(ing => ing.toLowerCase().includes(searchIng))
+                );
+            }
 
-    //non deve contenere l'allergene
-    if (allergie) {
-        query.allergie =  { $nin: [new RegExp(allergie, 'i')]}; //nin = not in
-    }
+            // 4. Filtro Allergie (Esclusione)
+            if (allergie) {
+                const searchAllergen = allergie.toLowerCase();
+                meals = meals.filter(m => {
+                    if (!m.ingredients) return true;
+                    // Mantiene il piatto solo se NESSUN ingrediente contiene la parola dell'allergene
+                    return !m.ingredients.some(ing => ing.toLowerCase().includes(searchAllergen));
+                });
+            }
 
-    try {
-        const meals = await Plate.find(query).select('-__v');
-        res.status(200).json(meals);
-    } catch (error) {
-        console.error('Errore nella ricerca dei piatti:', error.message);
-        res.status(500).json({ message: 'Errore nella ricerca dei piatti', error: error.message});
-    }
+            // Ordine alfabetico
+            meals.sort((a, b) => a.strMeal.localeCompare(b.strMeal));
+
+            res.status(200).json(meals);
+
+        } catch (parseError) {
+            console.error("Errore parsing JSON:", parseError);
+            res.status(500).json({ error: 'Dati dei piatti non validi' });
+        }
+    });
+};
+
+// Funzione per singolo piatto
+exports.getMealById = (req, res) => {
+    const { id } = req.params;
+    fs.readFile(mealsFilePath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Errore server' });
+        const meals = JSON.parse(data);
+        const meal = meals.find(m => m.idMeal === id);
+        if (!meal) return res.status(404).json({ error: 'Piatto non trovato' });
+        res.json(meal);
+    });
 };

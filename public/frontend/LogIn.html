@@ -1,37 +1,24 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Food - Accedi</title>
+    <title>LemonLime - Accedi</title>
 
-    <!-- CSS dell'header (Branch Main) -->
+    <!-- CSS: Carica prima Header, poi mainStyle -->
     <link rel="stylesheet" href="css/Header.css">
+    <link rel="stylesheet" href="css/mainStyle.css">
+</head>
+<body>
 
-    <style>
-        /* STILE GLOBALE "ROUNDED & BLOCKS" */
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+    <!-- SEGNAPOSTO HEADER -->
+    <div id="header-placeholder"></div>
 
-        body {
-            margin: 0;
-            padding-top: 110px;
-            font-family: 'Montserrat', sans-serif;
-            background-color: #faf9d2;
-            min-height: 100vh;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+    <div class="auth-container">
+        <form id="loginForm" class="auth-form">
+            <h2>Accedi</h2>
 
-        .container {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            position: relative;
-            z-index: 10;
-        }
+            <div id="messageBox" class="message-box"></div>
 
         /* Riquadro di Login Arrotondato */
         .auth-card {
@@ -47,44 +34,31 @@
             animation: cardAppear 0.6s ease-out;
         }
 
-        @keyframes cardAppear {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Inserisci la password" required>
+            </div>
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+            <button type="submit" class="btn-primary">Log In 🍋</button>
 
-        .auth-card h2 {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #2d3436;
-            margin-bottom: 10px;
-        }
+            <div class="auth-footer">
+                <p>Non sei ancora registrato? <a href="SignUp.html">Crea un account</a></p>
+            </div>
+        </form>
+    </div>
 
-        .auth-card p {
-            color: #636e72;
-            margin-bottom: 30px;
-            font-weight: 600;
-        }
+    <!-- SCRIPT -->
+    <script src="js/api.js"></script>
+    <script src="js/HeaderFunctions.js"></script> <!-- Carica l'header -->
 
         .form-group {
             margin-bottom: 20px;
             text-align: left;
         }
 
-            .form-group label {
-                display: block;
-                margin-left: 20px;
-                margin-bottom: 8px;
-                font-size: 0.9rem;
-                font-weight: 700;
-                color: #2d3436;
-            }
+            const messageBox = document.getElementById('messageBox');
+            messageBox.style.display = 'none';
+            messageBox.className = 'message-box';
 
         .auth-input {
             width: 100%;
@@ -122,18 +96,12 @@
                 box-shadow: 0 12px 25px rgba(126, 217, 145, 0.4);
             }
 
-        .auth-footer {
-            margin-top: 25px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: #636e72;
-        }
+            try {
+                const data = await apiRequest('/auth/login', 'POST', { email, password });
 
-            .auth-footer a {
-                color: #7ed991;
-                text-decoration: none;
-                font-weight: 800;
-            }
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('ruolo', data.user.ruolo);
+                localStorage.setItem('userId', data.user.id);
 
         /* Messaggio di Errore */
         #error-message {
@@ -157,13 +125,16 @@
             pointer-events: none;
         }
 
-        .blob-1 {
-            width: 500px;
-            height: 500px;
-            background: #96fbc4;
-            top: -100px;
-            left: -100px;
-        }
+                setTimeout(() => {
+                    const userRole = data.user.ruolo;
+                    if (userRole === 'Ristoratore') {
+                        window.location.href = 'admin/DashboardRistoratore.html';
+                    } else if (userRole === 'Cliente') {
+                        window.location.href = 'SearchRestaurants.html';
+                    } else {
+                        window.location.href = 'HomePage.html';
+                    }
+                }, 1000);
 
         .blob-2 {
             width: 400px;

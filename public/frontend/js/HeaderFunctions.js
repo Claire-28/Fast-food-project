@@ -1,93 +1,91 @@
-﻿/**
- * HeaderFunctions.js
- * Gestisce l'iniezione dinamica dell'header e la coerenza visiva dei pulsanti.
- */
-
-document.addEventListener('DOMContentLoaded', () => {
-    initHeader();
+﻿document.addEventListener("DOMContentLoaded", () => {
+    loadHeader();
 });
 
-function initHeader() {
-    const headerPlaceholder = document.getElementById('header-placeholder');
-    if (!headerPlaceholder) return;
+function loadHeader() {
+    const placeholder = document.getElementById("header-placeholder");
+    if (!placeholder) return;
 
-    // Recuperiamo i dati dell'utente dal localStorage
-    const token = localStorage.getItem('token');
-    const userString = localStorage.getItem('user');
-    let user = null;
+    // Determina se siamo in una sottocartella (es. admin/) per aggiustare i link
+    const path = window.location.pathname;
+    const isSubFolder = path.includes('/admin/');
+    const basePath = isSubFolder ? '../' : '';
 
-    try {
-        user = userString ? JSON.parse(userString) : null;
-    } catch (e) {
-        console.error("Errore nel parsing dell'utente", e);
-    }
+    const headerHTML = `
+    <header class="main-header" id="mainHeader">
+        <div class="header-logo">
+            <a href="${basePath}HomePage.html">
+                🍋 LemonLime
+            </a>
+        </div>
+        
+        <nav class="header-nav">
+            <ul>
+                <li><a href="${basePath}HomePage.html">Home</a></li>
+                <li><a href="${basePath}SearchRestaurants.html">Ristoranti</a></li>
+                <li><a href="${basePath}Piatti.html">Piatti</a></li>
+            </ul>
+        </nav>
 
-    let authSection = '';
-
-    if (token && user) {
-        // UTENTE LOGGATO
-        const profileLink = user.role === 'ristoratore'
-            ? 'admin/DashboardRistoratore.html'
-            : 'Profile.html';
-
-        authSection = `
-            <div class="header-auth">
-                <a href="${profileLink}" class="header-nav-link" style="margin-right: 15px; color: white; font-weight: 700; text-decoration: none;">Area Personale</a>
-                <button onclick="logout()" class="btn-auth-header">Esci</button>
-            </div>
-        `;
-    } else {
-        // UTENTE NON LOGGATO
-        authSection = `
-            <div class="header-auth" style="display: flex; gap: 10px; align-items: center;">
-                <a href="LogIn.html" class="btn-auth-header">Accedi</a>
-                <a href="SignUp.html" class="btn-auth-header">Registrati</a>
-            </div>
-        `;
-    }
-
-    // Iniezione dell'HTML dell'header
-    headerPlaceholder.innerHTML = `
-        <header class="main-header" id="main-header">
-            <div class="header-logo">
-                <a href="HomePage.html">
-                    <span>🍋</span> FastFood
-                </a>
-            </div>
-            
-            <nav class="header-nav">
-                <ul>
-                    <li><a href="HomePage.html">Home</a></li>
-                    <li><a href="SearchRestaurants.html">Ristoranti</a></li>
-                    <li><a href="Piatti.html">Piatti</a></li>
-                </ul>
-            </nav>
-
-            ${authSection}
-        </header>
+        <div class="header-auth" id="authButtons">
+            <!-- I bottoni verranno inseriti qui via JS in base al login -->
+        </div>
+    </header>
     `;
 
-    // Gestione dello scroll
-    const handleScroll = () => {
-        const header = document.getElementById('main-header');
-        if (header) {
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        }
-    };
+    placeholder.innerHTML = headerHTML;
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Controllo iniziale se la pagina è già scrollata
+    // Gestione Scroll (effetto trasparenza/colore)
+    window.addEventListener("scroll", () => {
+        const header = document.getElementById("mainHeader");
+        if (window.scrollY > 50) {
+            header.classList.add("scrolled");
+        } else {
+            header.classList.remove("scrolled");
+        }
+    });
+
+    // Aggiorna i bottoni Login/Logout
+    updateAuthButtons(basePath);
 }
 
-/**
- * Funzione di Logout
- */
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = 'HomePage.html';
+function updateAuthButtons(basePath) {
+    const authContainer = document.getElementById("authButtons");
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('ruolo');
+
+    if (token) {
+        // UTENTE LOGGATO
+        let dashboardLink = '#';
+        if (role === 'Ristoratore') dashboardLink = isSubFolderCheck() ? 'DashboardRistoratore.html' : 'admin/DashboardRistoratore.html';
+        if (role === 'Cliente') dashboardLink = basePath + 'Profile.html'; // O ordini cliente
+
+        authContainer.innerHTML = `
+            <a href="${dashboardLink}" class="btn-auth-header" style="margin-right:10px;">
+                ${role === 'Ristoratore' ? 'Dashboard 👨‍🍳' : 'Profilo 👤'}
+            </a>
+            <a href="#" id="logoutBtn" class="btn-auth-header" style="border-color:#ff7675; color:#ff7675;">
+                Esci
+            </a>
+        `;
+
+        // Gestione Logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            window.location.href = basePath + 'LogIn.html';
+        });
+
+    } else {
+        // UTENTE OSPITE
+        authContainer.innerHTML = `
+            <a href="${basePath}LogIn.html" class="btn-auth-header">Accedi</a>
+            <a href="${basePath}SignUp.html" class="btn-auth-header" style="background:var(--white); color:#7ed991; margin-left:10px;">Registrati</a>
+        `;
+    }
+}
+
+// Helper semplice per capire se siamo in admin senza passare basePath ovunque
+function isSubFolderCheck() {
+    return window.location.pathname.includes('/admin/');
 }

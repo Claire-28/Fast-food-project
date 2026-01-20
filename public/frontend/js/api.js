@@ -26,7 +26,6 @@ async function callApi(endpoint, method = 'GET', data = null) {
     const config = {
         method,
         headers,
-        body: data ? JSON.stringify(data) : null,
     };
 
     try {
@@ -44,7 +43,9 @@ async function callApi(endpoint, method = 'GET', data = null) {
             return null;
         }
 
-        const responseData = await response.json();
+    try {
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        const data = await response.json();
 
         // Gestione errori restituiti dal backend (es. 400 Bad Request / 401 Wrong Password)
         // Modificato per leggere sia .error che .message in base alla risposta del server
@@ -54,7 +55,7 @@ async function callApi(endpoint, method = 'GET', data = null) {
             throw new Error(errorMsg);
         }
 
-        return responseData;
+        return data;
     } catch (error) {
         console.error('Errore nella chiamata API:', error.message);
         throw error;

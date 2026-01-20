@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
+
+// Importiamo il controller
 const mealsController = require('../controllers/mealsController');
-const verifyToken = require('../middlewares/verifyToken');
 
-router.get('/', verifyToken, mealsController.getAllPlates);
+// Rotta principale: GET /api/meals
+// Chiama la funzione getAllMeals del controller
+router.get('/', mealsController.getAllMeals);
 
-router.get('/common', verifyToken, mealsController.getCommonMeals);
-
-router.get('/search', verifyToken, mealsController.searchMeals);
+// Rotta dettaglio: GET /api/meals/:id
+// Chiama la funzione getMealById del controller
+router.get('/:id', mealsController.getMealById);
 
 module.exports = router;

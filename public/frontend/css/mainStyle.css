@@ -1,124 +1,193 @@
-/* Importazione Font Montserrat */
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+/* Importazione Font Montserrat (lo stesso della Home) */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
 
 :root {
-    /* Gradiente dell'header usato anche per le card principali */
-    --primary-gradient: linear-gradient(135deg, #f9f586 0%, #96fbc4 100%);
-    --bg-color: #faf9d2; /* Il colore richiesto */
-    --text-dark: #2d3436;
-    --text-muted: #636e72;
+    /* Variabili colori basate sulla Home Page */
+    --bg-color: #faf9d2; /* Giallo Pastello Sfondo */
+    --text-dark: #2d3436; /* Testo scuro */
     --white: #ffffff;
-    --accent: #2ecc71;
-    --radius-pill: 50px;
+    /* Gradiente LemonLime */
+    --primary-gradient: linear-gradient(135deg, #f9f586 0%, #96fbc4 100%);
+    /* Colori di accento */
+    --accent-green: #96fbc4;
+    --accent-yellow: #fcf76d;
+    /* Ombre morbide colorate */
+    --shadow-color: rgba(126, 217, 145, 0.4);
 }
 
+/* Reset e stile base */
 body {
-    margin: 0;
-    padding: 0;
     font-family: 'Montserrat', sans-serif;
-    background-color: #faf9d2;
+    background-color: var(--bg-color);
     color: var(--text-dark);
-    padding-top: 120px; /* Spazio per l'header fisso */
-    transition: background-color 0.3s ease;
+    margin: 0;
+    /* Importante: Spazio per l'header fisso */
+    padding-top: 110px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-/* Container principale */
-.content-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 25px 50px 25px;
-}
-
-/* Titoli spessi e tondeggianti */
-h1, h2, h3 {
+/* Headings */
+h1, h2, h3, h4 {
     font-weight: 800;
     letter-spacing: -0.5px;
+    color: var(--text-dark);
+    margin-top: 0;
 }
 
-.section-title {
-    text-align: center;
-    margin-bottom: 50px;
+/* Link */
+a {
+    color: var(--text-dark);
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.3s;
 }
 
-/* Card in stile Header (Gradiente con testo bianco) */
-.card-gradient {
-    background: var(--primary-gradient);
-    color: var(--white);
-    border-radius: 40px;
-    padding: 40px;
-    box-shadow: 0 20px 40px rgba(150, 251, 196, 0.3);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-/* Card Standard (Bianca) */
-.card {
-    background: var(--white);
-    border-radius: 35px;
-    padding: 30px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(0,0,0,0.02);
-    transition: transform 0.3s ease;
-}
-
-    .card:hover {
-        transform: translateY(-5px);
+    a:hover {
+        color: #00b894; /* Un verde un po' più scuro per hover */
     }
 
-/* Input Stilizzati */
+/* --- COMPONENTI SPECIFICI --- */
+
+/* Container centrale per Login/Signup/Admin */
+.auth-container, .catalog-container, .dashboard-container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Card / Form Style (Simile ai blob/contenitori della home) */
+.auth-form, .filter-bar, .meal-card, .dashboard-card {
+    background-color: var(--white);
+    border-radius: 20px; /* Bordi molto arrotondati */
+    box-shadow: 0 15px 35px var(--shadow-color); /* Ombra colorata */
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    padding: 30px;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+    /* Effetto hover sulle card */
+    .meal-card:hover, .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(126, 217, 145, 0.6);
+    }
+
+/* Form Inputs */
 .form-group {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
     .form-group label {
         display: block;
-        font-weight: 800;
-        margin-bottom: 10px;
-        padding-left: 15px;
+        margin-bottom: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        color: #636e72;
     }
 
-input {
+input, select, textarea {
     width: 100%;
-    padding: 18px 25px;
-    border-radius: 30px;
-    border: 2px solid #f1f1f1;
-    background-color: #fcfcfc;
+    padding: 15px;
+    border: 2px solid #dfe6e9;
+    border-radius: 12px; /* Arrotondati */
     font-family: 'Montserrat', sans-serif;
-    font-weight: 600;
-    font-size: 15px;
+    font-size: 1rem;
     box-sizing: border-box;
     transition: all 0.3s ease;
+    background-color: #fdfdfd;
 }
 
-    input:focus {
+    input:focus, select:focus, textarea:focus {
+        border-color: var(--accent-green);
         outline: none;
-        border-color: #96fbc4;
-        box-shadow: 0 0 15px rgba(150, 251, 196, 0.2);
+        background-color: var(--white);
+        box-shadow: 0 0 0 4px rgba(150, 251, 196, 0.3);
     }
 
-/* Bottoni Pill */
-.btn-main {
-    display: inline-block;
-    padding: 15px 35px;
-    border-radius: var(--radius-pill);
-    font-weight: 800;
-    text-decoration: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
+/* --- BOTTONI "CTA" STILE HOME PAGE --- */
 .btn-primary {
+    display: inline-block;
+    width: 100%;
+    padding: 15px 30px;
+    /* Il gradiente della Home */
     background: var(--primary-gradient);
     color: var(--text-dark);
-    box-shadow: 0 8px 20px rgba(150, 251, 196, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.6);
+    border-radius: 60px; /* Pill shape */
+
+    font-weight: 800;
+    font-size: 1rem;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 10px 25px var(--shadow-color);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.btn-white {
-    background-color: var(--white);
-    color: #4ae08d;
-}
-
-    .btn-white:hover {
-        transform: scale(1.05);
+    .btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 15px 35px rgba(126, 217, 145, 0.6);
+        background: linear-gradient(135deg, #f0eb60 0%, #7ed991 100%); /* Leggera variazione */
     }
+
+/* Link secondari (es. "Non sei registrato?") */
+.auth-footer {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+    .auth-footer a {
+        color: #00b894;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+    }
+
+/* Messaggi di Errore/Successo */
+.message-box {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+}
+
+    .message-box.error {
+        background-color: #fab1a0;
+        color: #d63031;
+        border: 2px solid #ff7675;
+    }
+
+    .message-box.success {
+        background-color: #b8e994;
+        color: #009432;
+        border: 2px solid #78e08f;
+    }
+
+/* Adattamenti specifici per la griglia dei piatti */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.meal-img {
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.meal-category {
+    background: var(--primary-gradient);
+    color: var(--text-dark);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    display: inline-block;
+    margin-bottom: 8px;
+}

@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fast Food - Registrati</title>
+    <title>LemonLime - Registrati</title>
 
-    <!-- CSS dell'header (Branch Main) -->
     <link rel="stylesheet" href="css/Header.css">
 
     <style>
@@ -223,15 +222,14 @@
 </head>
 <body>
 
+    <!-- SEGNAPOSTO HEADER -->
     <div id="header-placeholder"></div>
 
-    <div class="decoration blob-1"></div>
-    <div class="decoration blob-2"></div>
+    <div class="auth-container">
+        <form id="signupForm" class="auth-form">
+            <h2>Unisciti a noi</h2>
 
-    <div class="container">
-        <div class="auth-card">
-            <h2>Unisciti a noi! 🍕</h2>
-            <p>Crea il tuo profilo e inizia a ordinare.</p>
+            <div id="messageBox" class="message-box"></div>
 
             <div id="status-message"></div>
 
@@ -247,32 +245,36 @@
                     </label>
                 </div>
 
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Nome</label>
-                        <input type="text" class="auth-input" id="firstName" placeholder="Mario" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Cognome</label>
-                        <input type="text" class="auth-input" id="lastName" placeholder="Rossi" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Email</label>
-                        <input type="email" class="auth-input" id="email" placeholder="mario.rossi@mail.com" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Password</label>
-                        <input type="password" class="auth-input" id="password" placeholder="Almeno 8 caratteri" required>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" placeholder="latua@email.com" required>
+            </div>
 
-                <button type="submit" class="btn-auth">Crea Account</button>
-            </form>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Minimo 8 caratteri" required minlength="8" maxlength="20">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Conferma Password</label>
+                <input type="password" id="confirmPassword" placeholder="Ripeti la password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Sei un:</label>
+                <select id="role" required>
+                    <option value="" disabled selected>Seleziona il tuo ruolo</option>
+                    <option value="Cliente">Cliente (Voglio mangiare)</option>
+                    <option value="Ristoratore">Ristoratore (Voglio vendere)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-primary">Registrati 🍋</button>
 
             <div class="auth-footer">
-                Hai già un account? <a href="LogIn.html">Accedi</a>
+                <p>Hai già un account? <a href="LogIn.html">Accedi qui</a></p>
             </div>
-        </div>
+        </form>
     </div>
 
     <script src="js/api.js"></script>
