@@ -1,62 +1,71 @@
-const Plate = require('../models/plate');
+const fs = require('fs');
+const path = require('path');
 
-// Recupera tutti i piatti con filtri opzionali
-const getMeals = async (req, res) => {
+exports.getAllMeals = (req, res) => {
     try {
+        const dataPath = path.join(__dirname, '../data/meals.json');
+        const data = fs.readFileSync(dataPath, 'utf8');
+        let meals = JSON.parse(data);
+
+        // --- FILTRAGGIO DATI ---
         const { nome, tipologia, ingredienti, allergie } = req.query;
-        let query = {};
 
-        // Filtro per Nome (case insensitive)
+        // 1. Filtro per Nome
         if (nome) {
-            query.strMeal = { $regex: nome, $options: 'i' };
+            meals = meals.filter(meal =>
+                meal.strMeal.toLowerCase().includes(nome.toLowerCase())
+            );
         }
 
-        // Filtro per Categoria
+        // 2. Filtro per Categoria (Tipologia)
         if (tipologia) {
-            query.strCategory = { $regex: tipologia, $options: 'i' };
+            meals = meals.filter(meal =>
+                meal.strCategory && meal.strCategory.toLowerCase().includes(tipologia.toLowerCase())
+            );
         }
 
-        // Filtro per Ingredienti (cerca nell'array o stringa)
+        // 3. Filtro per Ingredienti (Cerca nell'array o nelle stringhe)
         if (ingredienti) {
-            // Assumiamo che ingredienti sia un array nel DB, usiamo $in o $regex su un campo array
-            query.ingredients = { $regex: ingredienti, $options: 'i' };
+            const searchIng = ingredienti.toLowerCase();
+            meals = meals.filter(meal => {
+                // Se esiste un array 'ingredients'
+                if (meal.ingredients && Array.isArray(meal.ingredients)) {
+                    return meal.ingredients.some(ing => ing.toLowerCase().includes(searchIng));
+                }
+                // Fallback: cerca in strIngredient1, strIngredient2...
+                // (Logica semplificata: controlliamo se la stringa JSON grezza contiene l'ingrediente)
+                return JSON.stringify(meal).toLowerCase().includes(searchIng);
+            });
         }
 
-        // Filtro per Allergeni
+        // 4. Filtro per Esclusione Allergeni (opzionale, se presente nel JSON)
         if (allergie) {
-            // Nota: verifica se nel tuo DB il campo si chiama 'allergens' o 'allergie'
-            // Basandoci sul codice precedente del frontend sembra essere 'allergens'
-            query.allergens = { $nin: [new RegExp(allergie, 'i')] }; // Esempio: Escludi piatti con questo allergene
-            // Oppure se vuoi CERCARE piatti con allergeni (ma di solito si filtrano via):
-            // query.allergens = { $regex: allergie, $options: 'i' };
+            const excludeAllergen = allergie.toLowerCase();
+            meals = meals.filter(meal => {
+                // Se il piatto ha una lista allergeni, escludilo se contiene quello cercato
+                if (meal.allergens) {
+                    return !meal.allergens.toLowerCase().includes(excludeAllergen);
+                }
+                return true; // Se non ha info, lo teniamo
+            });
         }
 
-        const meals = await Plate.find(query);
         res.status(200).json(meals);
+
     } catch (error) {
-        console.error("Errore nel recupero piatti:", error);
-        res.status(500).json({ message: error.message });
+        console.error("Errore lettura meals.json:", error);
+        res.status(500).json({ message: "Impossibile recuperare il menu." });
     }
 };
 
-// Recupera singolo piatto per ID
-const getMealById = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const meal = await Plate.findOne({ idMeal: id });
-        
-        if (!meal) {
-            return res.status(404).json({ message: 'Piatto non trovato' });
-        }
-        
-        res.status(200).json(meal);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
-
-// ESPORTAZIONE CORRETTA
-module.exports = {
-    getMeals,
-    getMealById
+// Funzione per singolo piatto
+exports.getMealById = (req, res) => {
+    const { id } = req.params;
+    fs.readFile(mealsFilePath, 'utf8', (err, data) => {
+        if (err) return res.status(500).json({ error: 'Errore server' });
+        const meals = JSON.parse(data);
+        const meal = meals.find(m => m.idMeal === id);
+        if (!meal) return res.status(404).json({ error: 'Piatto non trovato' });
+        res.json(meal);
+    });
 };

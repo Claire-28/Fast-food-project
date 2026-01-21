@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cerca Ristoranti</title>
+    <!-- Manteniamo i tuoi link CSS originali -->
     <link rel="stylesheet" href="css/Header.css">
     <style>
+        /* Stili originali preservati come richiesto */
         body {
             font-family: 'Montserrat', sans-serif;
-            background: #faf9d2;
+            background: #faf9d2; /* Giallo chiaro */
             padding-top: 100px;
+            margin: 0;
         }
 
         .container {
@@ -33,17 +36,23 @@
                 padding: 12px;
                 border: 1px solid #ddd;
                 border-radius: 8px;
+                outline-color: #7ed991;
             }
 
         .btn-search {
             padding: 12px 25px;
-            background: #7ed991;
+            background: #7ed991; /* Verde */
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
+            transition: background 0.3s;
         }
+
+            .btn-search:hover {
+                background: #6bc47e;
+            }
 
         .rest-grid {
             display: grid;
@@ -57,6 +66,7 @@
             padding: 15px;
             text-align: center;
             transition: transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
             .rest-card:hover {
@@ -69,7 +79,24 @@
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 10px;
+            background: #f0f0f0; /* Fallback visivo durante il caricamento */
         }
+
+        .btn-menu {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #f8f8f8;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+            .btn-menu:hover {
+                background: #e0e0e0;
+            }
     </style>
 </head>
 <body>
@@ -79,62 +106,82 @@
         <h1>Trova il tuo Ristorante 🍔</h1>
 
         <div class="search-box">
-            <input type="text" id="searchName" placeholder="Nome ristorante...">
-            <input type="text" id="searchPlace" placeholder="Città o Via...">
+            <input type="text" id="searchName" placeholder="Nome ristorante (es. Burger)...">
+            <input type="text" id="searchPlace" placeholder="Città (es. Milano)...">
             <button class="btn-search" onclick="searchRestaurants()">Cerca</button>
         </div>
 
         <div id="results" class="rest-grid">
-            <p style="grid-column: 1/-1; text-align: center;">Inserisci i filtri per cercare.</p>
+            <!-- I risultati verranno iniettati qui -->
         </div>
     </div>
 
+    <!-- Script originali -->
     <script src="js/api.js"></script>
     <script src="js/HeaderFunctions.js"></script>
+
     <script>
-        // Dati simulati per dimostrazione (In un progetto reale, fetch da /api/restaurants)
+        /**
+         * Logica di sistema:
+         * 1. Utilizzo di placehold.co (più stabile di via.placeholder)
+         * 2. Aggiunta di gestione errore immagine (fallback)
+         */
+
         const mockRestaurants = [
-            { id: 1, name: "Burger King", city: "Milano", img: "https://via.placeholder.com/300?text=Burger+King" },
-            { id: 2, name: "La Pizzeria Napoli", city: "Roma", img: "https://via.placeholder.com/300?text=Pizzeria" },
-            { id: 3, name: "Sushi Wok", city: "Milano", img: "https://via.placeholder.com/300?text=Sushi" },
-            { id: 4, name: "McDonalds", city: "Torino", img: "https://via.placeholder.com/300?text=McDonalds" }
+            { id: 1, name: "Burger King", city: "Milano", img: "https://placehold.co/300x150/7ed991/ffffff?text=Burger+King" },
+            { id: 2, name: "La Pizzeria Napoli", city: "Roma", img: "https://placehold.co/300x150/7ed991/ffffff?text=Pizzeria" },
+            { id: 3, name: "Sushi Wok", city: "Milano", img: "https://placehold.co/300x150/7ed991/ffffff?text=Sushi" },
+            { id: 4, name: "McDonalds", city: "Torino", img: "https://placehold.co/300x150/7ed991/ffffff?text=McDonalds" }
         ];
 
-        async function searchRestaurants() {
-            const name = document.getElementById('searchName').value.toLowerCase();
-            const place = document.getElementById('searchPlace').value.toLowerCase();
+        function searchRestaurants() {
+            const nameFilter = document.getElementById('searchName').value.trim().toLowerCase();
+            const placeFilter = document.getElementById('searchPlace').value.trim().toLowerCase();
             const container = document.getElementById('results');
 
-            container.innerHTML = '<p>Ricerca in corso...</p>';
+            container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Ricerca in corso...</p>';
 
-            // Simulazione filtro
-            // API Reale: await API.get(`/restaurants?name=${name}&city=${place}`);
+            // Filtriamo i dati simulati
             const results = mockRestaurants.filter(r => {
-                const matchName = name ? r.name.toLowerCase().includes(name) : true;
-                const matchPlace = place ? r.city.toLowerCase().includes(place) : true;
+                const matchName = !nameFilter || r.name.toLowerCase().includes(nameFilter);
+                const matchPlace = !placeFilter || r.city.toLowerCase().includes(placeFilter);
                 return matchName && matchPlace;
             });
 
+            // Pulizia container
             container.innerHTML = '';
-            if(results.length === 0) {
-                container.innerHTML = '<p>Nessun ristorante trovato.</p>';
+
+            if (results.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Nessun ristorante trovato con questi filtri.</p>';
                 return;
             }
 
+            // Generazione card
             results.forEach(r => {
-                container.innerHTML += `
-                    <div class="rest-card">
-                        <img src="${r.img}" class="rest-img">
+                const card = document.createElement('div');
+                card.className = 'rest-card';
+                card.innerHTML = `
+                        <img src="${r.img}"
+                             alt="${r.name}"
+                             class="rest-img"
+                             onerror="this.src='https://placehold.co/300x150/cccccc/666666?text=Immagine+Non+Disponibile'">
                         <h3>${r.name}</h3>
-                        <p><i class="fas fa-map-marker-alt"></i> ${r.city}</p>
-                        <button style="margin-top:10px; padding:8px 15px; background:#eee; border:none; border-radius:5px; cursor:pointer;" onclick="location.href='Piatti.html'">Vedi Menu</button>
-                    </div>
-                `;
+                        <p style="color: #666;"><i class="fas fa-map-marker-alt"></i> ${r.city}</p>
+                        <button class="btn-menu" onclick="goToMenu(${r.id})">Vedi Menu</button>
+                    `;
+                container.appendChild(card);
             });
         }
 
-        // Carica tutti all'avvio
-        document.addEventListener('DOMContentLoaded', searchRestaurants);
+        function goToMenu(id) {
+            // Logica per navigare alla pagina piatti passando l'ID se necessario
+            window.location.href = `Piatti.html?id=${id}`;
+        }
+
+        // Caricamento iniziale
+        document.addEventListener('DOMContentLoaded', () => {
+            searchRestaurants();
+        });
     </script>
 </body>
 </html>

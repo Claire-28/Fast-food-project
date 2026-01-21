@@ -285,12 +285,12 @@
             // Immagine
             const imgUrl = meal.strMealThumb || 'https://via.placeholder.com/600x600?text=No+Image';
 
-            // Istruzioni (Priorità a strInstructions, fallback su description)
+            // Istruzioni (Prioritï¿½ a strInstructions, fallback su description)
             // Sostituiamo \r\n con <br> per la formattazione
             let instructions = meal.strInstructions || meal.description || 'Nessuna istruzione disponibile.';
             instructions = instructions.replace(/\r\n/g, '\n').replace(/\n/g, '<br><br>');
 
-            // Tags (strTags è una stringa separata da virgole es: "Tart,Baking")
+            // Tags (strTags ï¿½ una stringa separata da virgole es: "Tart,Baking")
             let tagsHtml = '';
             if (meal.strTags) {
                 const tags = meal.strTags.split(',');

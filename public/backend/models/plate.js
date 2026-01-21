@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const restaurant = require('./restaurant');
 
 const plateSchema = new mongoose.Schema({
-    mealId: { type: String, required: true }, 
+    mealId: { type: String, required: true },
     nome: { type: String, required: true },
     //nomeAlternativo: String,
     categoria: String,
@@ -21,7 +21,7 @@ const plateSchema = new mongoose.Schema({
             return this.isCommon === false;
         }
     },
-    isCommon: { type: Boolean, default: false}
+    isCommon: { type: Boolean, default: false }
 });
 
 plateSchema.index({ restaurant: 1, mealId: 1 }, { unique: true });
