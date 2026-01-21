@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" href="css/Header.css">
 
-    <!-- Stili inline per il layout (basati sulla tua richiesta) -->
+    <!-- Stili inline per il layout -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
 
@@ -96,12 +96,52 @@
             padding: 15px;
             border: 2px solid transparent;
             transition: 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
         }
 
             .meal-card:hover {
                 border-color: #96fbc4;
                 transform: translateY(-5px);
             }
+
+        .meal-info {
+            padding: 10px 5px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        /* Stile pulsante carrello piccolo in alto */
+        .btn-cart-mini {
+            width: fit-content !important;
+            padding: 4px 12px !important;
+            font-size: 0.7rem !important;
+            margin-bottom: 8px;
+            align-self: flex-end;
+        }
+
+        /* Stile pulsante ristoranti in basso */
+        .btn-find-bottom {
+            margin-top: auto;
+            background: white !important;
+            border: 2px solid #eee !important;
+            color: #2d3436 !important;
+            font-weight: 600 !important;
+            font-size: 0.85rem !important;
+            padding: 10px !important;
+        }
+
+        /* Stile per sezione ristoratore */
+        .ristoratore-actions {
+            margin-top: auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
 
         .message-box {
             padding: 15px;
@@ -110,16 +150,6 @@
             display: none;
             font-weight: bold;
         }
-
-            .message-box.success {
-                background: #d4edda;
-                color: #155724;
-            }
-
-            .message-box.error {
-                background: #f8d7da;
-                color: #721c24;
-            }
 
         @media (max-width: 768px) {
             .filter-bar {
@@ -134,6 +164,7 @@
 </head>
 <body>
 
+    <!-- Placeholder principale per l'header -->
     <div id="header-placeholder"></div>
 
     <div class="catalog-container">
@@ -173,16 +204,23 @@
     <!-- SCRIPTS -->
     <script src="js/api.js"></script>
     <script src="js/HeaderFunctions.js"></script>
+    <script src="js/cart.js"></script>
 
     <script>
         let currentUserRole = null;
+        let allMeals = [];
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Inizializza l'header
+            if (typeof initHeader === 'function') {
+                initHeader();
+            }
+
             if (!API.isLoggedIn()) {
                 window.location.href = 'LogIn.html';
                 return;
             }
-            // Leggiamo il ruolo dal localStorage (salvato in api.js al login)
+
             const user = API.getUser();
             currentUserRole = user ? user.role : 'cliente';
 
@@ -191,35 +229,34 @@
 
         async function loadMeals() {
             const grid = document.getElementById('mealsGrid');
-            const name = document.getElementById('searchName').value;
-            const cat = document.getElementById('searchCategory').value;
-            const ing = document.getElementById('searchIng').value;
-            const alg = document.getElementById('searchAllergen').value;
+            const nameV = document.getElementById('searchName').value;
+            const catV = document.getElementById('searchCategory').value;
+            const ingV = document.getElementById('searchIng').value;
+            const algV = document.getElementById('searchAllergen').value;
 
-            // Creiamo oggetto filtri
             const filters = {};
-            if (name) filters.nome = name;
-            if (cat) filters.tipologia = cat;
-            if (ing) filters.ingredienti = ing;
-            if (alg) filters.allergie = alg;
+            if (nameV) filters.nome = nameV;
+            if (catV) filters.tipologia = catV;
+            if (ingV) filters.ingredienti = ingV;
+            if (algV) filters.allergie = algV;
 
             grid.innerHTML = '<p style="text-align:center; width:100%; grid-column: 1/-1;">Spremendo i limoni... 🍋</p>';
 
             try {
-                // Usiamo la funzione centralizzata API.getMeals
-                const meals = await API.getMeals(filters);
+                allMeals = await API.getMeals(filters);
 
-                if (!meals || meals.length === 0) {
+                if (!allMeals || allMeals.length === 0) {
                     grid.innerHTML = '<p style="text-align:center; width:100%; grid-column: 1/-1;">Nessun piatto trovato.</p>';
                     return;
                 }
 
                 grid.innerHTML = '';
-                meals.forEach(meal => {
+                allMeals.forEach(meal => {
                     grid.appendChild(createMealCard(meal));
                 });
 
             } catch (error) {
+                console.error("Errore loadMeals:", error);
                 grid.innerHTML = `<p style="color:red; text-align:center; grid-column: 1/-1;">Errore: ${error.message}</p>`;
             }
         }
@@ -228,57 +265,128 @@
             const div = document.createElement('div');
             div.className = 'meal-card';
 
+            // Reindirizzamento al dettaglio cliccando sulla card
+            div.addEventListener('click', (e) => {
+                if (e.target.closest('button') || e.target.closest('input')) return;
+                window.location.href = `DettaglioPiatto.html?id=${meal.idMeal}`;
+            });
+
             const imgUrl = meal.strMealThumb || 'https://via.placeholder.com/300x200?text=No+Image';
 
-            // Gestione sicura degli ingredienti (se array o stringa)
             let ingredientsList = 'N/D';
             if (meal.ingredients && Array.isArray(meal.ingredients)) {
-                ingredientsList = meal.ingredients.slice(0, 3).join(', ') + '...';
+                ingredientsList = meal.ingredients.slice(0, 3).join(', ') + (meal.ingredients.length > 3 ? '...' : '');
             }
 
-            let actionHtml = '';
+            const mealInfo = document.createElement('div');
+            mealInfo.className = 'meal-info';
 
-            // Mostra azioni diverse in base al ruolo
             if (currentUserRole === 'ristoratore') {
-                actionHtml = `
-                        <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                            <input type="number" id="price-${meal.idMeal}" value="10.00" min="0" step="0.5" style="width: 70px; padding:5px; border-radius:5px; border:1px solid #ddd;">
-                            <button class="btn-primary" style="width: auto; padding: 5px 15px; font-size:0.9rem;" onclick="addToMyMenu('${meal.idMeal}', '${meal.strMeal.replace(/'/g, "\\'")}', '${meal.strCategory}')">
-                                Aggiungi +
-                            </button>
+                // Layout Ristoratore
+                const catTag = document.createElement('div');
+                catTag.style.marginBottom = "5px";
+                catTag.innerHTML = `<span style="font-size:0.7rem; background:#eee; padding:2px 6px; border-radius:8px; color:#666;">${meal.strCategory}</span>`;
+
+                const title = document.createElement('h3');
+                title.style.cssText = "font-size:1.1rem; margin:0 0 10px 0; color:#2d3436;";
+                title.textContent = meal.strMeal;
+
+                const ingr = document.createElement('p');
+                ingr.style.cssText = "font-size:0.85rem; color:#666; margin: 0 0 15px 0;";
+                ingr.textContent = `Ingr: ${ingredientsList}`;
+
+                const restActions = document.createElement('div');
+                restActions.className = 'ristoratore-actions';
+                restActions.innerHTML = `
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <label style="font-size:0.65rem; font-weight:bold;">Prezzo (€)</label>
+                            <input type="number" id="price-${meal.idMeal}" value="10.00" min="0" step="0.5" style="width: 60px; padding:5px; border-radius:5px; border:1px solid #ddd;">
                         </div>
+                        <button class="btn-primary btn-add-menu" style="font-size:0.8rem; padding: 10px;">Aggiungi al Menù</button>
                     `;
+
+                restActions.querySelector('.btn-add-menu').onclick = (e) => {
+                    e.stopPropagation();
+                    const price = document.getElementById(`price-${meal.idMeal}`).value;
+                    alert(`Piatto "${meal.strMeal}" aggiunto al tuo menù a €${price}!`);
+                };
+
+                mealInfo.appendChild(catTag);
+                mealInfo.appendChild(title);
+                mealInfo.appendChild(ingr);
+                mealInfo.appendChild(restActions);
+
             } else {
-                // MODIFICA QUI: Pulsante "Trova Ristoranti"
-                actionHtml = `
-                         <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-                            <button class="btn-primary" style="background:var(--white); border: 2px solid #eee; color:#2d3436; font-weight:600;" onclick="findRestaurants('${meal.strMeal.replace(/'/g, "\\'")}')">
-                                Trova Ristoranti 📍
-                            </button>
-                        </div>
-                    `;
+                // Layout Cliente: Pulsante carrello in ALTO (prima della categoria)
+                const addBtn = document.createElement('button');
+                addBtn.className = 'btn-primary btn-cart-mini';
+                addBtn.innerHTML = 'Aggiungi 🛒';
+
+                addBtn.onclick = (e) => {
+                    e.stopPropagation();
+
+                    // Prepariamo l'oggetto come richiesto dalla funzione 'add' in cart.js
+                    const productToCart = {
+                        id: meal.idMeal,
+                        name: meal.strMeal,
+                        price: meal.price || 10.00,
+                        image: imgUrl
+                    };
+
+                    // Cerchiamo l'oggetto Cart o la funzione add globale
+                    if (typeof Cart !== 'undefined' && typeof Cart.add === 'function') {
+                        Cart.add(productToCart);
+                        feedbackAdd();
+                    } else if (typeof add === 'function') {
+                        add(productToCart);
+                        feedbackAdd();
+                    } else {
+                        console.error("Funzione di aggiunta carrello non trovata. Verifica cart.js");
+                    }
+
+                    function feedbackAdd() {
+                        const originalText = addBtn.innerHTML;
+                        addBtn.innerHTML = "Preso!";
+                        addBtn.style.background = "#2ecc71";
+                        setTimeout(() => {
+                            addBtn.innerHTML = originalText;
+                            addBtn.style.background = "";
+                        }, 1500);
+                    }
+                };
+
+                const catTag = document.createElement('div');
+                catTag.style.marginBottom = "5px";
+                catTag.innerHTML = `<span style="font-size:0.7rem; background:#eee; padding:2px 6px; border-radius:8px; color:#666;">${meal.strCategory}</span>`;
+
+                const title = document.createElement('h3');
+                title.style.cssText = "font-size:1.1rem; margin:0 0 10px 0; color:#2d3436;";
+                title.textContent = meal.strMeal;
+
+                const ingr = document.createElement('p');
+                ingr.style.cssText = "font-size:0.85rem; color:#666; margin: 0;";
+                ingr.textContent = `Ingr: ${ingredientsList}`;
+
+                const findBtn = document.createElement('button');
+                findBtn.className = 'btn-primary btn-find-bottom';
+                findBtn.innerHTML = 'Trova Ristoranti 📍';
+                findBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    window.location.href = `SearchRestaurants.html?piatto=${encodeURIComponent(meal.strMeal)}`;
+                };
+
+                // Append nell'ordine richiesto (Aggiungi -> Categoria -> Nome -> Ingr -> Trova Ristoranti)
+                mealInfo.appendChild(addBtn);
+                mealInfo.appendChild(catTag);
+                mealInfo.appendChild(title);
+                mealInfo.appendChild(ingr);
+                mealInfo.appendChild(findBtn);
             }
 
-            div.innerHTML = `
-                    <img src="${imgUrl}" alt="${meal.strMeal}" style="width:100%; height:180px; object-fit:cover; border-radius:12px;">
-                    <div style="padding:10px 5px;">
-                        <span style="font-size:0.8rem; background:#eee; padding:3px 8px; border-radius:10px; color:#666;">${meal.strCategory}</span>
-                        <h3 style="font-size:1.1rem; margin:10px 0; color:#2d3436;">${meal.strMeal}</h3>
-                        <p style="font-size:0.85rem; color:#666;">Ingr: ${ingredientsList}</p>
-                        ${actionHtml}
-                    </div>
-                `;
+            div.innerHTML = `<img src="${imgUrl}" alt="${meal.strMeal}" style="width:100%; height:180px; object-fit:cover; border-radius:12px;">`;
+            div.appendChild(mealInfo);
+
             return div;
-        }
-
-        async function addToMyMenu(id, name, category) {
-            alert(`Piatto "${name}" aggiunto al tuo menu! (Simulazione)`);
-        }
-
-        // NUOVA FUNZIONE: Reindirizza alla pagina di ricerca ristoranti
-        function findRestaurants(mealName) {
-            // Reindirizza l'utente a SearchRestaurants.html passando il nome del piatto come parametro 'piatto'
-            window.location.href = `SearchRestaurants.html?piatto=${encodeURIComponent(mealName)}`;
         }
     </script>
 </body>
