@@ -40,7 +40,7 @@ app.use(express.static(frontendPath));
 /**
  * 3. CONNESSIONE DATABASE
  */
-const mongoURI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/fastfood_db';
+const mongoURI = 'mongodb+srv://admin:1Qaz2Wsx3Edc@cluster1.ueo49rs.mongodb.net/?retryWrites=true&w=majority&appName=Cluster1' //process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/fastfood_db';
 
 mongoose.connect(mongoURI, {
     serverSelectionTimeoutMS: 5000,

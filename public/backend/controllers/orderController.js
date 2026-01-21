@@ -154,7 +154,7 @@ exports.updateOrderStatus = async (req, res) => {
         const { stato } = req.body;
         const ristoranteOwnerId = req.user.id;
 
-        if (req.user.ruolo !== 'Ristoratore') {
+        if (req.user.role !== 'Ristoratore') {
             return res.status(403).json({ error: `Accesso negato, solo i ristoratori possono aggiungere lo stato`});
         }
 
@@ -189,7 +189,7 @@ exports.updateOrderStatus = async (req, res) => {
 
 exports.getOrders = async (req, res) => {
     const userId = req.user.id;
-    const userRole = req.user.ruolo;
+    const userRole = req.user.role;
 
     try {
         let query = {};
@@ -211,7 +211,7 @@ exports.getOrders = async (req, res) => {
             populationPath = 'cliente'; //popola il riferimento al cliente
 
         } else {
-            return res.status(403).json({error: 'Ruolo non autorizzato alla visualizzazione ordini'});
+            return res.status(403).json({error: 'role non autorizzato alla visualizzazione ordini'});
         }
 
         const orders = await Order.find(query).sort({ dataOrdine: -1}).populate(populationPath, 'username email nome');

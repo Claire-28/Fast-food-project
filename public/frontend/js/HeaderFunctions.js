@@ -24,7 +24,7 @@ function loadHeader() {
         const token = localStorage.getItem('token');
         if (token) {
             isLoggedIn = true;
-            role = localStorage.getItem('ruolo'); 
+            role = localStorage.getItem('role'); 
             user = { name: 'Utente', role: role };
         }
     }

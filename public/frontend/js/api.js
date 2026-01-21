@@ -27,13 +27,13 @@ const API = {
         }
     },
 
-    // AGGIORNATO: Ora accetta anche il ruolo
+    // AGGIORNATO: Ora accetta anche il role
     register: async (name, email, password, role = 'cliente') => {
         try {
             const response = await fetch(`${BASE_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // Inviamo anche il ruolo scelto
+                // Inviamo anche il role scelto
                 body: JSON.stringify({ name, email, password, role })
             });
 

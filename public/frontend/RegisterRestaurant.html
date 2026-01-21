@@ -99,9 +99,9 @@
             
             // Verifica che l'utente sia un Ristoratore loggato
             const token = localStorage.getItem('token');
-            const ruolo = localStorage.getItem('ruolo');
+            const role = localStorage.getItem('role');
 
-            if (!token || ruolo !== 'Ristoratore') {
+            if (!token || role !== 'Ristoratore') {
                 displayMessage('Devi essere loggato come Ristoratore per registrare un ristorante.', false);
                 // Reindirizza se non autorizzato
                 setTimeout(() => window.location.href = '/LogIn.html', 2000); 
@@ -128,12 +128,12 @@
             }
         });
 
-        // Controlla il ruolo al caricamento della pagina
+        // Controlla il role al caricamento della pagina
         document.addEventListener('DOMContentLoaded', () => {
-             const ruolo = localStorage.getItem('ruolo');
+             const role = localStorage.getItem('role');
              const token = localStorage.getItem('token');
 
-             if (!token || ruolo !== 'Ristoratore') {
+             if (!token || role !== 'Ristoratore') {
                  alert('Accesso negato. Solo i Ristoratori possono registrare un ristorante.');
                  window.location.href = '/index.html'; // Torna alla home
              }

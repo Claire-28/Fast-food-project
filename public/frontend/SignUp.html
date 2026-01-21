@@ -215,7 +215,7 @@
             }
 
             try {
-                const result = await API.register(name, email, password);
+                const result = await API.register(name, email, password, role);
                 
                 if (result.success) {
                     alert('Registrazione avvenuta con successo! Effettua il login.');
