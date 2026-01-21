@@ -124,30 +124,38 @@
         }
 
         async function submitOrder() {
-            if(!API.isLoggedIn()) {
+            if (!API.isLoggedIn()) {
                 alert("Devi effettuare il login per ordinare!");
                 window.location.href = 'LogIn.html';
                 return;
             }
 
             const items = Cart.getItems();
-            if(items.length === 0) return alert("Carrello vuoto!");
+            if (items.length === 0) return alert("Carrello vuoto!");
 
+            // Prepariamo i dati ESATTAMENTE come li vuole il controller backend
             const orderData = {
-                products: items,
-                totalAmount: Cart.total(),
-                date: new Date().toISOString(),
-                status: 'In preparazione'
+                ristoranteId: items[0].restaurantId || "65a1234b56789c0123d4567e", // Recuperalo dinamicamente dal carrello o dalla sessione
+                carrello: items.map(item => ({
+                    mealId: item.id,
+                    quantita: item.quantity
+                })),
+                indirizzoConsegna: "Via Roma 1, Milano", // Prendi questo valore da un input nel form
+                tipoConsegna: "Consegna a domicilio", // O "Ritiro"
+                paymentMethod: "Carta di Credito"
             };
 
             try {
-                // Simulazione invio ordine (Sostituisci con fetch reale al backend)
-                // const res = await API.post('/orders', orderData);
+                // EFFETTUA LA CHIAMATA REALE
+                const res = await API.createOrder(orderData);
 
-                // Per il progetto singolo, spesso basta salvare in locale o simulare successo
-                alert("Ordine inviato con successo! Il ristorante sta preparando il tuo cibo.");
-                Cart.clear();
-                window.location.href = 'ClientOrders.html'; // Vai allo storico
+                if (res.success || res.message.includes("successo")) {
+                    alert("Ordine inviato con successo!");
+                    Cart.clear();
+                    window.location.href = 'ClientOrders.html';
+                } else {
+                    alert("Errore dal server: " + res.error);
+                }
             } catch (error) {
                 alert("Errore nell'invio ordine: " + error.message);
             }

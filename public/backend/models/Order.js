@@ -22,4 +22,4 @@ const orderSchema = new mongoose.Schema({
     totale: { type: Number, required: true}
 });
 
-module.exports = mongoose. model('Order', orderSchema);
+module.exports = mongoose.model('Order', orderSchema);

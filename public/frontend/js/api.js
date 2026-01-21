@@ -94,6 +94,49 @@ const API = {
         // Converte oggetto filtri in query string (es. ?nome=Pizza&tipologia=Main)
         const params = new URLSearchParams(filters).toString();
         return await API.request(`/meals?${params}`, 'GET');
+    },
+
+    getOrders: async () => {
+        try {
+            return await API.request('/orders', 'GET');
+        } catch (error) {
+            console.error("Errore recupero ordini:", error);
+            return [];
+        }
+    },
+
+    // Utile per creare l'ordine dal CheckOut
+    createOrder: async (orderData) => {
+        const token = localStorage.getItem('token'); // Recupera il token salvato al login
+
+        const response = await fetch('http://localhost:3019/api/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // <--- QUESTA RIGA È FONDAMENTALE
+            },
+            body: JSON.stringify(orderData)
+        });
+
+        return await response.json();
+    },
+
+    // --- RISTORANTE ---
+    createRestaurant: async (restaurantData) => {
+        return await API.request('/restaurants/me', 'POST', restaurantData);
+    },
+
+    getMyRestaurant: async () => {
+        try {
+            return await API.request('/restaurants/me', 'GET');
+        } catch (error) {
+            return null; // Ritorna null se il ristorante non esiste ancora
+        }
+    },
+
+    // --- MENU ---
+    addPlateToMenu: async (idMeal, prezzo) => {
+        return await API.request('/restaurants/menu', 'POST', { idMeal, prezzo });
     }
 };
 

@@ -4,20 +4,33 @@ const orderController = require('../controllers/orderController');
 const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 
-//crea nuovo ordine (solo clienti)
-router.post('/', verifyToken, checkRole(['Cliente']), orderController.createOrder);
+router.post('/', verifyToken, checkRole(['cliente']), (req, res) => {
+    /* #swagger.tags = ['Orders']
+       #swagger.summary = 'Crea un nuovo ordine'
+       #swagger.security = [{ "bearerAuth": [] }]
+       #swagger.parameters['obj'] = { in: 'body', schema: { $ref: '#/definitions/NuovoOrdine' } }
+    */
+    orderController.createOrder(req, res);
+});
 
-//visualizza ordini (ristoratore vede i propri, cliente vede i propri)
-router.get('/', verifyToken, orderController.getOrders);
+router.get('/', verifyToken, (req, res) => {
+    /* #swagger.tags = ['Orders']
+       #swagger.summary = 'Visualizza lo storico ordini (Cliente o Ristoratore)'
+       #swagger.security = [{ "bearerAuth": [] }]
+    */
+    orderController.getOrders(req, res);
+});
 
-//aggiorna stato degli ordini (solo ristoratore)
-router.put('/:id/status', verifyToken, checkRole(['Ristoratore']), orderController.updateOrderStatus);
-
-//conferma ricezione ordine da parte del cliente
-//router.put('/:id/confirm-receipt', verifyToken, checkRole(['Cliente']), orderController.confirmOrderReceipt);
-
-//router.post('/', verifyToken, checkRole(['Cliente']), orderController.createOrder);
-
-//router.get('/restaurant', verifyToken, orderController.getOrders);
+router.put('/:id/status', verifyToken, checkRole(['ristoratore']), (req, res) => {
+    /* #swagger.tags = ['Orders']
+       #swagger.summary = 'Aggiorna lo stato di un ordine'
+       #swagger.security = [{ "bearerAuth": [] }]
+       #swagger.parameters['obj'] = { 
+           in: 'body', 
+           schema: { stato: 'In Preparazione' } 
+       }
+    */
+    orderController.updateOrderStatus(req, res);
+});
 
 module.exports = router;

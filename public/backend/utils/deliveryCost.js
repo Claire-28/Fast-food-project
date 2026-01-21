@@ -24,8 +24,8 @@ function toRad(value) {
     return value * Math.PI / 180;
 }
 
-const calculateDeliveryConst = async (ristoranteAddress, clienteAddress) => {
-    try {
+const calculateDeliveryCost = async (ristoranteAddress, clienteAddress) => {
+    /*try {
         const resLocation = await geocodeAddress(ristoranteAddress);
         const cliLocation = await geocodeAddress(clienteAddress);
 
@@ -53,7 +53,9 @@ const calculateDeliveryConst = async (ristoranteAddress, clienteAddress) => {
         console.error('Errore nel calcolo del costo di consegna:', error);
         //in caso di errore o indirizzo non trovato di default costo di 10 euro
         return 10.00;
-    }
+    }*/
+
+    return 5.00;
 };
 
-module.exports = { calculateDeliveryConst };
+module.exports = { calculateDeliveryCost };

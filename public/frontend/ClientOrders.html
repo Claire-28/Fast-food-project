@@ -65,33 +65,37 @@
             const container = document.getElementById('orders-list');
 
             try {
-                // In un caso reale: const orders = await API.get('/orders/my-orders');
-                // Simuliamo dei dati per soddisfare il requisito di visualizzazione
-                const orders = [
-                    { id: '101', date: '2023-10-25', status: 'Consegnato', total: 25.50, items: 'Pizza Margherita, Coca Cola' },
-                    { id: '102', date: '2023-11-02', status: 'In Consegna', total: 12.00, items: 'Burger Classico' }
-                ];
+                const orders = await API.getOrders();
 
-                container.innerHTML = '';
-                if(orders.length === 0) {
+                if (!orders || orders.length === 0) {
                     container.innerHTML = '<p>Nessun ordine effettuato.</p>';
                     return;
                 }
 
                 orders.forEach(order => {
+                    // Creiamo la lista dei piatti formattata
+                    const piattiHtml = order.piatti.map(p =>
+                        `${p.quantita}x ${p.nome} (€${p.prezzoUnitario.toFixed(2)})`
+                    ).join(', ');
+
                     container.innerHTML += `
-                        <div class="order-card">
-                            <span class="total">€ ${order.total.toFixed(2)}</span>
-                            <div class="status">${order.status}</div>
-                            <div class="date">${new Date(order.date).toLocaleDateString()}</div>
-                            <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
-                            <p><strong>Piatti:</strong> ${order.items}</p>
-                        </div>
-                    `;
+                <div class="order-card">
+                    <span class="total">€ ${order.totale.toFixed(2)}</span>
+                    <div class="status">${order.stato}</div>
+                    <div class="date">${new Date(order.dataOrdine).toLocaleString('it-IT')}</div>
+                    <p style="margin: 5px 0; font-size: 0.85rem; color: #555;">
+                        <strong>Ristorante:</strong> ${order.ristorante ? order.ristorante.nome : 'N/D'}
+                    </p>
+                    <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+                    <p><strong>Piatti:</strong> ${piattiHtml}</p>
+                    <p style="font-size: 0.8rem; color: #777;">Tipo: ${order.tipoConsegna}</p>
+                </div>
+            `;
                 });
 
             } catch (e) {
-                container.innerHTML = '<p style="color:red">Errore nel caricamento ordini.</p>';
+                console.error(e);
+                container.innerHTML = '<p style="color:red">Errore nel caricamento ordini dal server.</p>';
             }
         });
     </script>

@@ -21,6 +21,6 @@ const restaurantSchema = new mongoose.Schema({
 
     piatti: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Plate'}],
     proprietario: {type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, unique: true}
-}, {timestamp: true});
+}, {timestamps: true});
 
 module.exports = mongoose.model('Restaurant', restaurantSchema);

@@ -4,40 +4,51 @@ const verifyToken = require('../middlewares/verifyToken');
 const checkRole = require('../middlewares/checkRole');
 const restaurantController = require('../controllers/restaurantController');
 
-// ROTTE PER RISTORATORE (Gestione del proprio ristorante)
-router.post( '/me', verifyToken, checkRole(['Ristoratore']), restaurantController.createRestaurant);
+router.post('/me', verifyToken, checkRole(['Ristoratore']), (req, res) => {
+    /* #swagger.tags = ['Restaurant - Admin']
+       #swagger.summary = 'Configura il proprio ristorante'
+       #swagger.security = [{ "bearerAuth": [] }]
+       #swagger.parameters['obj'] = {
+           in: 'body',
+           schema: { nome: "Da Mario", indirizzo: "Via Roma 1", telefono: "02123", partitaIVA: "12345678901" }
+       }
+    */
+    restaurantController.createRestaurant(req, res);
+});
 
-// GET /api/restaurants/me - Visualizza i dati del proprio ristorante
-router.get( '/me', verifyToken, checkRole(['Ristoratore']), restaurantController.getMyRestaurant);
+router.get('/me/stats', verifyToken, checkRole(['Ristoratore']), (req, res) => {
+    /* #swagger.tags = ['Restaurant - Admin']
+       #swagger.summary = 'Ottiene fatturato odierno e ordini pendenti'
+       #swagger.security = [{ "bearerAuth": [] }]
+    */
+    restaurantController.getRestaurantStats(req, res);
+});
 
-// PUT /api/restaurants/me - Modifica i dati del proprio ristorante 
-router.put('/me', verifyToken, checkRole(['Ristoratore']), restaurantController.updateRestaurant);
+// GESTIONE MENU
+router.post('/menu', verifyToken, checkRole(['Ristoratore']), (req, res) => {
+    /* #swagger.tags = ['Restaurant - Menu']
+       #swagger.summary = 'Aggiunge un piatto dalla lista comune al proprio menu'
+       #swagger.security = [{ "bearerAuth": [] }]
+       #swagger.parameters['obj'] = { in: 'body', schema: { $ref: '#/definitions/NuovoPiatto' } }
+    */
+    restaurantController.addPlateToMenu(req, res);
+});
 
-//GET /api/restaurants/me/stats - Ottiene le statistiche del ristorante
-router.get('/me/stats', verifyToken, checkRole(['Ristoratore']), restaurantController.getRestaurantStats);
+// RICERCA (Cliente)
+router.get('/search', verifyToken, (req, res) => {
+    /* #swagger.tags = ['Restaurant - Search']
+       #swagger.summary = 'Cerca ristoranti per nome o luogo'
+       #swagger.parameters['nome'] = { in: 'query' }
+       #swagger.parameters['luogo'] = { in: 'query' }
+    */
+    restaurantController.searchRestaurants(req, res);
+});
 
-// ROTTE PER CLIENTE/UTENTI LOGGATI (Ricerca/Visualizzazione)
-
-// GET /api/restaurants/search?nome=...&luogo=... - Ricerca dei ristoranti
-router.get( '/search', verifyToken, restaurantController.searchRestaurants);
-
-// GET /api/restaurants - Visualizza tutti i ristoranti (endpoint generico)
-router.get( '/', verifyToken, restaurantController.getAllRestaurant);
-
-// GET /api/restaurants/:id - Visualizza i dettagli (e il menu) di un singolo ristorante
-router.get('/:id', verifyToken, restaurantController.getRestaurantMenuDetails);
-
-// POST /api/restaurants/menu (Aggiunge un piatto dalla lista comune al menu)
-router.post('/menu', verifyToken, checkRole(['Ristoratore']), restaurantController.addPlateToMenu);
-
-// GET /api/restaurants/menu (Ottiene i piatti aggiunti al menu dal Ristoratore)
-router.get('/menu', verifyToken, checkRole(['Ristoratore']), restaurantController.getRestaurantMenu);
-
-router.delete('/menu/:plateId', verifyToken, checkRole(['Ristoratore']), restaurantController.removePlateFromMenu);
-
-router.put('/menu/:plateId', verifyToken, checkRole(['Ristoratore']), restaurantController.updatePlate);
-
-//GET /api/restaurants/:id/popular (visualizza la lista dei piatti più venduti per un ristorante)
-router.get('/:id/popular', verifyToken, restaurantController.getCommonPlates); // CORREZIONE: Usiamo /:id/popular
+router.get('/:id/popular', verifyToken, (req, res) => {
+    /* #swagger.tags = ['Restaurant - Search']
+       #swagger.summary = 'Ottiene i piatti più venduti di un ristorante'
+    */
+    restaurantController.getCommonPlates(req, res);
+});
 
 module.exports = router;

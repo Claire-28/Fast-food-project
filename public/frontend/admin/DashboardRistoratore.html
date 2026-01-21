@@ -6,15 +6,21 @@
     <link rel="stylesheet" href="../css/Header.css">
     <style>
         body {
-            font-family: sans-serif;
-            padding-top: 100px;
-            background: #f4f4f4;
+            font-family: 'Poppins', sans-serif; /* Font più moderno se lo usi altrove */
+            padding-top: 120px;
+            /* Sfondo identico alle altre pagine (bianco sporco/panna) */
+            background-color: #fdfdfd;
+            margin: 0;
         }
 
         .container {
             max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+        }
+
+        h1, h2 {
+            color: #2d3436;
         }
 
         .stats-grid {
@@ -26,28 +32,44 @@
 
         .stat-card {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 25px;
+            border-radius: 15px; /* Bordi più arrotondati */
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            /* Ombra più morbida e moderna */
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 1px solid #f1f1f1;
         }
 
         .stat-number {
-            font-size: 2rem;
+            font-size: 2.2rem;
             font-weight: bold;
-            color: #2ecc71;
+            color: #7ed991; /* Verde LemonLime per i numeri positivi */
             margin: 10px 0;
         }
 
         .action-btn {
             display: inline-block;
-            padding: 15px 30px;
-            background: #3498db;
-            color: white;
+            padding: 12px 25px;
+            /* Giallo LemonLime per richiamare l'header */
+            background: #f1c40f;
+            color: #2d3436;
             text-decoration: none;
-            border-radius: 5px;
-            margin-right: 10px;
+            border-radius: 25px; /* Pulsanti a pillola */
+            font-weight: bold;
+            margin-right: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
+
+            .action-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(241, 196, 15, 0.4);
+            }
+
+            .action-btn.secondary {
+                background: transparent;
+                border: 2px solid #2d3436;
+                color: #2d3436;
+            }
     </style>
 </head>
 <body>
@@ -56,7 +78,6 @@
     <div class="container">
         <h1>Dashboard Gestione</h1>
 
-        <!-- SEZIONE STATISTICHE -->
         <div class="stats-grid">
             <div class="stat-card">
                 <h3>Ordini Totali</h3>
@@ -73,8 +94,8 @@
         </div>
 
         <h2>Azioni Rapide</h2>
-        <a href="MenuCliente.html" class="action-btn">Gestisci Menu</a>
-        <a href="../ClientOrders.html" class="action-btn" style="background: #e67e22;">Vedi Tutti gli Ordini</a>
+        <a href="MenuCliente.html" class="action-btn">🍋 Gestisci Menu</a>
+        <a href="../ClientOrders.html" class="action-btn secondary">Vedi Tutti gli Ordini</a>
     </div>
 
     <script src="../js/api.js"></script>

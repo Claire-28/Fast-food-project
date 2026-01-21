@@ -1,0 +1,206 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "LemonLime API Documentation",
+    "description": "Sistema completo per la gestione di ordini, menu e ristoranti per il progetto LemonLime.",
+    "version": "1.0.0"
+  },
+  "host": "localhost:3019",
+  "basePath": "/",
+  "schemes": [
+    "http"
+  ],
+  "securityDefinitions": {
+    "bearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header",
+      "description": "Inserisci il token nel formato: Bearer <JWT>"
+    }
+  },
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Autenticazione"],
+        "summary": "Registra un nuovo utente",
+        "description": "Crea un nuovo profilo cliente o ristoratore. Il sistema verifica il dominio email.",
+        "parameters": [
+          { "name": "body", "in": "body", "schema": { "$ref": "#/definitions/Register" } }
+        ],
+        "responses": {
+          "201": { "description": "Utente creato con successo" },
+          "400": { "description": "Dati non validi o email già esistente" }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Autenticazione"],
+        "summary": "Effettua il login",
+        "description": "Verifica credenziali e restituisce il token JWT.",
+        "parameters": [
+          { "name": "body", "in": "body", "schema": { "$ref": "#/definitions/Login" } }
+        ],
+        "responses": {
+          "200": { "description": "Login effettuato", "schema": { "$ref": "#/definitions/LoginResponse" } }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "get": {
+        "tags": ["Autenticazione"],
+        "summary": "Logout utente",
+        "responses": { "200": { "description": "Logout effettuato" } }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["Autenticazione"],
+        "summary": "Ottieni profilo corrente",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "Dati profilo recuperati" } }
+      }
+    },
+    "/api/meals": {
+      "get": {
+        "tags": ["Meals"],
+        "summary": "Lista globale piatti",
+        "parameters": [
+          { "name": "nome", "in": "query", "type": "string" },
+          { "name": "tipologia", "in": "query", "type": "string" }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/meals/{id}": {
+      "get": {
+        "tags": ["Meals"],
+        "summary": "Dettaglio piatto comune",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "string" }],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/restaurants/search": {
+      "get": {
+        "tags": ["Restaurant - Search"],
+        "summary": "Cerca ristoranti",
+        "parameters": [
+          { "name": "nome", "in": "query", "type": "string" },
+          { "name": "luogo", "in": "query", "type": "string" }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/restaurants/me": {
+      "get": {
+        "tags": ["Restaurant - Admin"],
+        "summary": "Dati proprio ristorante",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Restaurant - Admin"],
+        "summary": "Crea ristorante",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "body", "in": "body", "schema": { "$ref": "#/definitions/Ristorante" } }],
+        "responses": { "201": { "description": "Creato" } }
+      }
+    },
+    "/api/restaurants/menu": {
+      "get": {
+        "tags": ["Restaurant - Menu"],
+        "summary": "Visualizza menu ristorante loggato",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Restaurant - Menu"],
+        "summary": "Aggiungi piatto al menu",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "body", "in": "body", "schema": { "$ref": "#/definitions/NuovoPiatto" } }],
+        "responses": { "201": { "description": "Aggiunto" } }
+      }
+    },
+    "/api/orders": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Storico ordini",
+        "security": [{ "bearerAuth": [] }],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Crea ordine",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [{ "name": "body", "in": "body", "schema": { "$ref": "#/definitions/NuovoOrdine" } }],
+        "responses": { "201": { "description": "Ordine creato" } }
+      }
+    },
+    "/api/orders/{id}/status": {
+      "put": {
+        "tags": ["Orders"],
+        "summary": "Aggiorna stato ordine",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "type": "string" },
+          { "name": "body", "in": "body", "schema": { "type": "object", "properties": { "stato": { "type": "string", "example": "In Preparazione" } } } }
+        ],
+        "responses": { "200": { "description": "Aggiornato" } }
+      }
+    }
+  },
+  "definitions": {
+    "Register": {
+      "type": "object",
+      "required": ["nome", "email", "password", "ruolo"],
+      "properties": {
+        "nome": { "type": "string", "example": "Mario Rossi" },
+        "email": { "type": "string", "example": "mario@esempio.it" },
+        "password": { "type": "string", "example": "Password123!" },
+        "ruolo": { "type": "string", "example": "cliente" }
+      }
+    },
+    "Login": {
+      "type": "object",
+      "required": ["email", "password"],
+      "properties": {
+        "email": { "type": "string", "example": "mario@test.it" },
+        "password": { "type": "string", "example": "password123" }
+      }
+    },
+    "LoginResponse": {
+      "type": "object",
+      "properties": {
+        "token": { "type": "string" },
+        "user": { "type": "object", "properties": { "nome": { "type": "string" }, "ruolo": { "type": "string" } } }
+      }
+    },
+    "Ristorante": {
+      "type": "object",
+      "properties": {
+        "nome": { "type": "string", "example": "Pizzeria Lemon" },
+        "indirizzo": { "type": "string", "example": "Via Roma 1, Milano" },
+        "telefono": { "type": "string", "example": "02123456" },
+        "partitaIVA": { "type": "string", "example": "12345678901" }
+      }
+    },
+    "NuovoPiatto": {
+      "type": "object",
+      "required": ["idMeal", "prezzo"],
+      "properties": {
+        "idMeal": { "type": "string", "example": "52772" },
+        "prezzo": { "type": "number", "example": 12.50 }
+      }
+    },
+    "NuovoOrdine": {
+      "type": "object",
+      "required": ["ristoranteId", "carrello", "tipoConsegna"],
+      "properties": {
+        "ristoranteId": { "type": "string", "example": "ID_RISTORANTE" },
+        "carrello": { "type": "array", "items": { "type": "object", "properties": { "mealId": { "type": "string" }, "quantita": { "type": "number" } } } },
+        "tipoConsegna": { "type": "string", "example": "Consegna a domicilio" },
+        "indirizzoConsegna": { "type": "string", "example": "Via Milano 20" }
+      }
+    }
+  }
+}

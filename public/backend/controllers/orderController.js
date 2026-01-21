@@ -9,32 +9,38 @@ exports.createOrder = async (req, res) =>  {
     const { ristoranteId, carrello, indirizzoConsegna, tipoConsegna, paymentMethod } = req.body;
     let { costoConsegna } = req.body;
 
-    if(!ristoranteId || !carrello || carrello.length === 0 || !indirizzoConsegna) {
-        return res.status(400).json({ error: 'Dati dello ordine incompleti (ristorante, carrello o indirizzo mancante)'});
+    if(!ristoranteId || !carrello || carrello.length === 0) {
+        return res.status(400).json({ error: 'Dati dello ordine incompleti'});
     }
 
     try {
-        const ristorante = await Restaurant.findById(ristoranteId);
+        let ristorante = await Restaurant.findById(ristoranteId);
         if (!ristorante) {
-            return res.status(404).json({ error: 'Ristorante non trovato'});
+            console.warn("⚠️ [TEST] Ristorante non trovato, uso dati di test");
+            ristorante = {
+                _id: ristoranteId,
+                indirizzo: "Via di Test 1, Milano", // Indirizzo finto per il geocoder
+                nome: "Ristorante di Prova"
+            };
         }
+
+        let indirizzoFinale;
 
         if (tipoConsegna === 'Ritiro') {
             costoConsegna = 0;
-            req.body.indirizzoConsegna = indirizzoConsegna || 'Ritiro in sede';
-        }
-        
-        if (tipoConsegna === 'Consegna a domicilio') {
+            indirizzoFinale = 'Ritiro in sede';
+        } else if (tipoConsegna === 'Consegna a domicilio') {
             if (!indirizzoConsegna) {
-                return res.status(400).json({ error: 'Indirizzo di consegna obbligatorio per la consegna a domicilio'});
+                return res.status(400).json({ error: 'Indirizzo di consegna obbligatorio per la consegna a domicilio' });
             }
+            indirizzoFinale = indirizzoConsegna;
 
-            //calcolo costo consegna
+            // Calcolo costo consegna
             try {
-                costoConsegna = await calculateDeliveryConst(ristorante.indirizzo, indirizzoConsegna);
+                costoConsegna = await calculateDeliveryCost(ristorante.indirizzo, indirizzoConsegna);
             } catch (error) {
                 console.warn("Errore nel calcolo del costo di consegna con geocoding. Usando costo fisso di 10.00€.");
-                costoConsegna = 10.00; // Fallback in caso di errore di geocoding
+                costoConsegna = 10.00; // Fallback
             }
 
         } else {
@@ -87,11 +93,11 @@ exports.createOrder = async (req, res) =>  {
             cliente: clientId,
             ristorante: ristoranteId,
             piatti: piattiOrdine,
-            indirizzoConsegna: req.body.indirizzoConsegna, //così se in sede mette il ritiro in sede, altrimenti q
+            indirizzoConsegna: indirizzoFinale,
             tipoConsegna: tipoConsegna,
             costoConsegna: costoConsegna,
             paymentMethod: paymentMethod,
-            totale: parseFloat(totaleOrdine).toFixed(2),
+            totale: Number(totaleOrdine.toFixed(2)),
             stato: 'Ordinato'
         });
 
@@ -158,7 +164,7 @@ exports.updateOrderStatus = async (req, res) => {
             return res.status(403).json({ error: `Accesso negato, solo i ristoratori possono aggiungere lo stato`});
         }
 
-        const ristorante = await Restaurant.findOne({ owner: ristoranteOwnerId });
+        const ristorante = await Restaurant.findOne({ proprietario: ristoranteOwnerId });
         if (!ristorante) {
             return res.status(403).json({ error: 'Non hai un ristorante associato a questo account'});
         }
@@ -188,42 +194,38 @@ exports.updateOrderStatus = async (req, res) => {
 };
 
 exports.getOrders = async (req, res) => {
-    const userId = req.user.id;
-    const userRole = req.user.role;
-
     try {
+        const userId = req.user.id;
+
+        // Protezione: se req.user.role non esiste, prova req.user.ruolo o metti un default
+        const rawRole = req.user.role || req.user.ruolo || '';
+        const userRole = rawRole.toLowerCase();
+
+        if (!userRole) {
+            return res.status(401).json({ error: "Ruolo utente non identificato nel token" });
+        }
+
         let query = {};
-        let populationPath = 'ristorante'; //se il cliente cerca mostra  i dettagli del ristorante
+        let populationPath = 'ristorante';
 
-        if (userRole === 'Cliente') {
-
-            query = { cliente: userId};
-            populationPath = 'ristorante'; //popola il riferimento al ristorante
-
-        } else if (userRole === 'Ristoratore') {
-            
-            const ristorante = await Restaurant.findOne({ owner: userId });
-            if (!ristorante) {
-                return res.status(404).json({ error: 'Nessun ristorante associato a questo utente'});
-            }
-
-            query = { ristorante: ristorante._id }; //ristoratore vede gli ordini destinati al suo ristorante
-            populationPath = 'cliente'; //popola il riferimento al cliente
-
-        } else {
-            return res.status(403).json({error: 'role non autorizzato alla visualizzazione ordini'});
+        if (userRole === 'cliente') {
+            query = { cliente: userId };
+            populationPath = 'ristorante';
+        } else if (userRole === 'ristoratore') {
+            const ristorante = await Restaurant.findOne({ proprietario: userId });
+            if (!ristorante) return res.status(404).json({ error: 'Ristorante non trovato' });
+            query = { ristorante: ristorante._id };
+            populationPath = 'cliente';
         }
 
-        const orders = await Order.find(query).sort({ dataOrdine: -1}).populate(populationPath, 'username email nome');
+        const orders = await Order.find(query)
+            .sort({ dataOrdine: -1 })
+            .populate(populationPath, 'username email nome');
 
-        if (orders.length === 0) {
-            return res.status(200).json({ message: 'Nessun ordine trovato'});
-        }
         res.status(200).json(orders);
-
     } catch (error) {
-        console.error('Errore durante il recupero degli ordini: ', error);
-        res.status(500).json({ error: 'Errore interno del server'});
+        console.error("Errore recupero ordini:", error);
+        res.status(500).json({ error: 'Errore nel recupero ordini' });
     }
 };
 

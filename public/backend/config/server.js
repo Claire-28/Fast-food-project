@@ -93,6 +93,20 @@ app.use('/api/restaurants', restaurantRoutes);
 app.use('/api/meals', mealsRoutes);
 app.use('/api/orders', orderRoutes);
 
+/**
+ * swagger
+ */
+const swaggerUi = require('swagger-ui-express');
+let swaggerFile;
+
+try {
+    // Proviamo a caricare il file generato
+    swaggerFile = require('../swagger-output.json');
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
+} catch (err) {
+    console.log("ℹ️ Nota: Documentazione Swagger non trovata. Esegui 'node public/backend/swagger.js' per generarla.");
+}
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(frontendPath, 'HomePage.html'));
 });

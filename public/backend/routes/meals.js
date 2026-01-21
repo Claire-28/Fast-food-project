@@ -4,12 +4,21 @@ const router = express.Router();
 // Importiamo il controller
 const mealsController = require('../controllers/mealsController');
 
-// Rotta principale: GET /api/meals
-// Chiama la funzione getAllMeals del controller
-router.get('/', mealsController.getAllMeals);
+router.get('/', (req, res) => {
+    /* #swagger.tags = ['Meals']
+       #swagger.summary = 'Ottiene la lista globale dei piatti'
+       #swagger.parameters['nome'] = { in: 'query', type: 'string' }
+       #swagger.parameters['tipologia'] = { in: 'query', type: 'string' }
+       #swagger.parameters['ingredienti'] = { in: 'query', type: 'string' }
+    */
+    mealsController.getAllMeals(req, res);
+});
 
-// Rotta dettaglio: GET /api/meals/:id
-// Chiama la funzione getMealById del controller
-router.get('/:id', mealsController.getMealById);
+router.get('/:id', (req, res) => {
+    /* #swagger.tags = ['Meals']
+       #swagger.summary = 'Dettaglio singolo piatto da database comune'
+    */
+    mealsController.getMealById(req, res);
+});
 
 module.exports = router;
