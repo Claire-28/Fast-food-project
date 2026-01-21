@@ -2,99 +2,500 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard Ristoratore</title>
+    <title>Dashboard Ristoratore - LemonLime</title>
+    <!-- Importazione Font Montserrat -->
     <link rel="stylesheet" href="../css/Header.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+        :root {
+            /* Variabili colori basate sulla Home Page */
+            --bg-color: #faf9d2; /* Giallo Pastello Sfondo */
+            --text-dark: #2d3436; /* Testo scuro */
+            --white: #ffffff;
+            /* Gradiente LemonLime */
+            --primary-gradient: linear-gradient(135deg, #f9f586 0%, #96fbc4 100%);
+            /* Colori di accento */
+            --accent-green: #96fbc4;
+            --accent-yellow: #fcf76d;
+            /* Ombre morbide colorate */
+            --shadow-color: rgba(126, 217, 145, 0.4);
+        }
+
+        /* Reset e stile base */
         body {
-            font-family: sans-serif;
-            padding-top: 100px;
-            background: #f4f4f4;
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding-top: 110px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
+        h1, h2, h3, h4 {
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-dark);
+            margin-top: 0;
+        }
+
+        a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+            a:hover {
+                color: #00b894;
+            }
+
+        /* --- CONTAINER --- */
+        .dashboard-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
             padding: 20px;
+            box-sizing: border-box;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+        /* --- CARDS --- */
+        .dashboard-card {
+            background-color: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px var(--shadow-color);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            padding: 30px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin-bottom: 30px;
         }
 
-        .stat-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            .dashboard-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(126, 217, 145, 0.6);
+            }
+
+        /* --- INPUTS & SELECTS --- */
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dfe6e9;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background-color: #fdfdfd;
         }
 
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #2ecc71;
-            margin: 10px 0;
-        }
+            input:focus, select:focus {
+                border-color: var(--accent-green);
+                outline: none;
+                background-color: var(--white);
+                box-shadow: 0 0 0 4px rgba(150, 251, 196, 0.3);
+            }
 
-        .action-btn {
+        /* --- BOTTONI --- */
+        .btn-primary {
             display: inline-block;
             padding: 15px 30px;
-            background: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-right: 10px;
+            background: var(--primary-gradient);
+            color: var(--text-dark);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 1rem;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: 0 10px 25px var(--shadow-color);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: none;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-3px) scale(1.02);
+                box-shadow: 0 15px 35px rgba(126, 217, 145, 0.6);
+                background: linear-gradient(135deg, #f0eb60 0%, #7ed991 100%);
+            }
+
+        /* Bottone piccolo per le liste */
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            width: auto;
+            min-width: 100px;
+        }
+
+        /* --- SPECIFICHE DASHBOARD --- */
+
+        /* Griglia Statistiche */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card-custom {
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            /* Decorazione background stat card */
+            .stat-card-custom::before {
+                content: '';
+                position: absolute;
+                top: -50px;
+                right: -50px;
+                width: 100px;
+                height: 100px;
+                background: var(--primary-gradient);
+                border-radius: 50%;
+                opacity: 0.3;
+            }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            /* Testo con gradiente */
+            background: linear-gradient(135deg, #2d3436 0%, #00b894 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 15px 0;
+        }
+
+        /* Lista Ordini e Menu */
+        .item-row {
+            border-bottom: 2px dashed #dfe6e9;
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+            .item-row:last-child {
+                border-bottom: none;
+            }
+
+        .item-info strong {
+            font-size: 1.1rem;
+            color: #2d3436;
+        }
+
+        .item-info small {
+            color: #636e72;
+            font-weight: 600;
+        }
+
+        .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Titolo Ristorante */
+        #restaurant-name {
+            font-weight: 400;
+            color: #636e72;
+            font-size: 0.7em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .item-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .item-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+                .item-actions select {
+                    flex-grow: 1;
+                }
         }
     </style>
 </head>
 <body>
+
     <div id="header-placeholder"></div>
 
-    <div class="container">
-        <h1>Dashboard Gestione</h1>
+    <div class="dashboard-container">
+        <h1>Dashboard Gestione <span id="restaurant-name"></span></h1>
 
         <!-- SEZIONE STATISTICHE -->
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="dashboard-card stat-card-custom">
                 <h3>Ordini Totali</h3>
                 <div class="stat-number" id="total-orders">0</div>
             </div>
-            <div class="stat-card">
-                <h3>Guadagno Totale</h3>
-                <div class="stat-number" id="total-revenue">€ 0</div>
+            <div class="dashboard-card stat-card-custom">
+                <h3>Guadagno</h3>
+                <div class="stat-number" id="total-revenue">€ 0.00</div>
             </div>
-            <div class="stat-card">
-                <h3>Piatti a Menu</h3>
+            <div class="dashboard-card stat-card-custom">
+                <h3>Piatti Menu</h3>
                 <div class="stat-number" id="total-dishes">0</div>
             </div>
         </div>
 
-        <h2>Azioni Rapide</h2>
-        <a href="MenuCliente.html" class="action-btn">Gestisci Menu</a>
-        <a href="../ClientOrders.html" class="action-btn" style="background: #e67e22;">Vedi Tutti gli Ordini</a>
+        <!-- SEZIONE GESTIONE ORDINI -->
+        <h2>Gestione Ordini</h2>
+        <div class="dashboard-card">
+            <div id="orders-list">
+                <p style="text-align: center; color: #636e72; font-weight: 600;">Caricamento ordini in corso...</p>
+            </div>
+        </div>
+
+        <!-- SEZIONE GESTIONE MENU -->
+        <h2>Gestione Menu</h2>
+        <div class="dashboard-card">
+            <!-- Box Aggiunta Piatto -->
+            <div style="background: #fdfdfd; border: 2px solid #f0f0f0; border-radius: 15px; padding: 20px; margin-bottom: 30px;">
+                <h3 style="margin-top: 0; color: #2d3436;">Aggiungi Piatto dal Catalogo</h3>
+                <p style="margin-bottom: 15px; color: #636e72; font-size: 0.9rem;">Seleziona un piatto predefinito per aggiungerlo al tuo ristorante.</p>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <select id="global-meals-select" style="flex: 1; min-width: 250px;">
+                        <option value="">-- Scegli un piatto --</option>
+                    </select>
+                    <button onclick="addMealToMenu()" class="btn-primary" style="flex: 0 0 auto; min-width: 150px;">Aggiungi +</button>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 20px;">Menu Attuale</h3>
+            <div id="menu-list">
+                <!-- Lista generata via JS -->
+            </div>
+        </div>
     </div>
 
+    <!-- Scripts -->
     <script src="../js/api.js"></script>
     <script src="../js/HeaderFunctions.js"></script>
     <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentRestaurantId = null;
+        let globalMeals = [];
+
         document.addEventListener('DOMContentLoaded', async () => {
-            // Simulazione calcolo statistiche
-            // In produzione: const stats = await API.get('/restaurant/stats');
-
-            // Dati Dummy
-            const stats = {
-                orders: 45,
-                revenue: 1250.50,
-                dishes: 12
-            };
-
-            document.getElementById('total-orders').innerText = stats.orders;
-            document.getElementById('total-revenue').innerText = '€ ' + stats.revenue.toFixed(2);
-            document.getElementById('total-dishes').innerText = stats.dishes;
+            await initDashboard();
         });
+
+        async function initDashboard() {
+            const token = localStorage.getItem('accessToken');
+            const userString = localStorage.getItem('user');
+
+            if (!token || !userString) {
+                window.location.href = '/frontend/LogIn.html';
+                return;
+            }
+
+            const user = JSON.parse(userString);
+
+            if (user.role !== 'ristoratore') {
+                alert("Accesso non autorizzato. Questa pagina è riservata ai ristoratori.");
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                // 1. Recupera Ristorante
+                const res = await fetch(`${API_URL}/restaurants`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const restaurants = await res.json();
+                const myRestaurant = restaurants.find(r => r.ownerId === user.id || r.ownerId === user._id);
+
+                if (myRestaurant) {
+                    currentRestaurantId = myRestaurant._id;
+                    document.getElementById('restaurant-name').innerText = `- ${myRestaurant.name}`;
+
+                    // 2. Carica Dati
+                    loadMenu(myRestaurant.menu || []);
+                    loadOrders();
+                    loadGlobalMeals();
+                } else {
+                    document.querySelector('.dashboard-container').innerHTML = `
+                            <h1>Benvenuto Ristoratore</h1>
+                            <div class="dashboard-card" style="text-align: center; padding: 50px;">
+                                <h2 style="color: #2d3436; margin-bottom: 20px;">Non hai ancora un ristorante!</h2>
+                                <p style="color: #636e72; margin-bottom: 30px;">Inizia subito registrando la tua attività per ricevere ordini.</p>
+                                <a href="/frontend/RegisterRestaurant.html" class="btn-primary">Crea il tuo Ristorante</a>
+                            </div>`;
+                }
+            } catch (err) {
+                console.error("Errore init:", err);
+            }
+        }
+
+        async function loadOrders() {
+            const token = localStorage.getItem('accessToken');
+            try {
+                const res = await fetch(`${API_URL}/orders/restaurant/${currentRestaurantId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!res.ok) throw new Error('Errore caricamento ordini');
+
+                const orders = await res.json();
+
+                // Calcolo Statistiche
+                const count = orders.length;
+                const revenue = orders.reduce((acc, o) => {
+                    const orderTotal = o.products.reduce((sum, p) => sum + (p.price * p.quantity), 0);
+                    return acc + orderTotal;
+                }, 0);
+
+                document.getElementById('total-orders').innerText = count;
+                document.getElementById('total-revenue').innerText = '€ ' + revenue.toFixed(2);
+
+                // Render Lista Ordini
+                const container = document.getElementById('orders-list');
+                container.innerHTML = '';
+
+                if (orders.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; color:#636e72;">Nessun ordine presente al momento.</p>';
+                    return;
+                }
+
+                // Ordina per data (più recenti prima)
+                orders.sort((a, b) => new Date(b.creationDate) - new Date(a.creationDate));
+
+                orders.forEach(order => {
+                    const total = order.products.reduce((sum, p) => sum + (p.price * p.quantity), 0).toFixed(2);
+                    const date = new Date(order.creationDate).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                    const items = order.products.map(p => `${p.quantity}x ${p.name}`).join(', ');
+
+                    const div = document.createElement('div');
+                    div.className = 'item-row';
+                    div.innerHTML = `
+                            <div class="item-info" style="flex: 2;">
+                                <div>
+                                    <strong>Ordine #${order._id.slice(-4)}</strong>
+                                    <span style="background: #f1f2f6; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; color: #636e72; margin-left: 8px;">${date}</span>
+                                </div>
+                                <div style="margin-top: 5px; font-size: 0.9rem; color: #636e72;">${items}</div>
+                                <div style="margin-top: 8px; font-weight: 800; color: #00b894;">Totale: €${total}</div>
+                            </div>
+
+                            <div class="item-actions" style="flex: 1; justify-content: flex-end;">
+                                <select id="status-${order._id}" style="padding: 10px; margin: 0; width: auto; font-size: 0.9rem;">
+                                    <option value="In elaborazione" ${order.status === 'In elaborazione' ? 'selected' : ''}>In elaborazione ⏳</option>
+                                    <option value="In preparazione" ${order.status === 'In preparazione' ? 'selected' : ''}>In preparazione 🍳</option>
+                                    <option value="Pronto" ${order.status === 'Pronto' ? 'selected' : ''}>Pronto 🥡</option>
+                                    <option value="Consegnato" ${order.status === 'Consegnato' ? 'selected' : ''}>Consegnato ✅</option>
+                                </select>
+                                <button onclick="updateStatus('${order._id}')" class="btn-primary btn-small">Salva</button>
+                            </div>
+                        `;
+                    container.appendChild(div);
+                });
+
+            } catch (err) { console.error(err); }
+        }
+
+        async function updateStatus(orderId) {
+            const token = localStorage.getItem('accessToken');
+            const status = document.getElementById(`status-${orderId}`).value;
+            try {
+                const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (res.ok) {
+                    alert("Stato aggiornato con successo!");
+                    loadOrders();
+                } else {
+                    alert("Errore nell'aggiornamento dello stato.");
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Errore di connessione.");
+            }
+        }
+
+        async function loadGlobalMeals() {
+            try {
+                const res = await fetch(`${API_URL}/meals`);
+                globalMeals = await res.json();
+                const select = document.getElementById('global-meals-select');
+
+                // Rimuovi opzioni esistenti tranne la prima
+                select.innerHTML = '<option value="">-- Scegli un piatto --</option>';
+
+                globalMeals.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id || m._id;
+                    opt.textContent = `${m.name} (€${m.price})`;
+                    select.appendChild(opt);
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function addMealToMenu() {
+            const mealId = document.getElementById('global-meals-select').value;
+            if (!mealId) return alert("Seleziona un piatto prima di aggiungere!");
+
+            const meal = globalMeals.find(m => (m.id == mealId || m._id == mealId));
+
+            const token = localStorage.getItem('accessToken');
+            try {
+                const res = await fetch(`${API_URL}/restaurants/${currentRestaurantId}/menu`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(meal)
+                });
+
+                if (res.ok) {
+                    alert("Piatto aggiunto correttamente al menu!");
+                    location.reload();
+                } else {
+                    const data = await res.json();
+                    alert(data.message || "Errore o piatto già presente.");
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function loadMenu(menu) {
+            document.getElementById('total-dishes').innerText = menu.length;
+            const container = document.getElementById('menu-list');
+            container.innerHTML = '';
+
+            if (menu.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#636e72;">Nessun piatto nel menu.</p>';
+                return;
+            }
+
+            menu.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item-row';
+                div.innerHTML = `
+                        <div class="item-info">
+                            <strong>${item.name}</strong>
+                        </div>
+                        <div style="font-weight:800; color:#2d3436; font-size: 1.1rem;">€ ${item.price}</div>
+                    `;
+                container.appendChild(div);
+            });
+        }
     </script>
 </body>
 </html>

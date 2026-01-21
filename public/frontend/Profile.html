@@ -28,8 +28,6 @@
             padding: 40px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             text-align: center;
-            width: 100%;
-            box-sizing: border-box;
         }
 
         .avatar-placeholder {
@@ -62,6 +60,10 @@
             text-transform: uppercase;
         }
 
+            .role-badge.cliente {
+                background: #7ed991;
+            }
+        /* Colore diverso per cliente */
         .form-section {
             margin-top: 40px;
             text-align: left;
@@ -69,8 +71,7 @@
             padding-top: 30px;
             width: 100%;
             max-width: 1000px;
-            margin-left: auto;
-            margin-right: auto;
+            margin: 0 auto;
         }
 
         .form-group {
@@ -92,53 +93,17 @@
                 border-radius: 10px;
                 box-sizing: border-box;
                 font-size: 1.1rem;
-                background-color: #fcfcfc;
             }
-
-                .form-group input:focus {
-                    outline: none;
-                    border-color: #7ed991;
-                    background-color: white;
-                    box-shadow: 0 0 0 3px rgba(126, 217, 145, 0.2);
-                }
-
-        /* --- STILI CARTA DI CREDITO MODIFICATI (2 Righe) --- */
-        .credit-card-container {
-            width: 100%;
-            max-width: 800px;
-        }
 
         .credit-card-grid {
             display: grid;
-            /* Impostiamo 2 colonne uguali */
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            align-items: start;
         }
 
-            /* Il primo elemento (Numero Carta) occupa 2 colonne (tutta la riga) */
             .credit-card-grid .form-group:nth-child(1) {
                 grid-column: span 2;
             }
-
-            .credit-card-grid .form-group {
-                width: 100%;
-                margin-bottom: 0;
-            }
-
-        @media (max-width: 768px) {
-            .credit-card-grid {
-                grid-template-columns: 1fr; /* Una colonna su mobile */
-            }
-                /* Su mobile resetto lo span così si impilano tutti normalmente */
-                .credit-card-grid .form-group:nth-child(1) {
-                    grid-column: span 1;
-                }
-
-                .credit-card-grid .form-group {
-                    margin-bottom: 20px;
-                }
-        }
 
         .btn {
             width: 100%;
@@ -157,20 +122,11 @@
             color: white;
         }
 
-            .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            }
-
         .btn-danger {
             background: #ff7675;
             color: white;
             margin-top: 40px;
         }
-
-            .btn-danger:hover {
-                background: #d63031;
-            }
 
         .message {
             margin-top: 20px;
@@ -183,13 +139,6 @@
             .message.success {
                 background: #d4edda;
                 color: #155724;
-                border: 1px solid #c3e6cb;
-            }
-
-            .message.error {
-                background: #f8d7da;
-                color: #721c24;
-                border: 1px solid #f5c6cb;
             }
     </style>
 </head>
@@ -203,46 +152,22 @@
             <span class="role-badge" id="display-role">...</span>
             <p id="display-email" style="color: #888; margin-top: 10px;">...</p>
 
-            <!-- Modifica Dati -->
             <div class="form-section">
                 <h3 style="margin-bottom: 25px; color: #444; font-size: 1.5rem;">Modifica Dati Personali</h3>
                 <div class="form-group">
                     <label>Nuovo Nome</label>
-                    <input type="text" id="edit-name" placeholder="Inserisci il tuo nome completo">
+                    <input type="text" id="edit-name">
                 </div>
-                <div class="form-group">
-                    <label>Nuova Password</label>
-                    <input type="password" id="edit-password" placeholder="Lascia vuoto per mantenere la password attuale">
-                </div>
-
-                <!-- NUOVA SEZIONE: Carta di Credito -->
                 <h3 style="margin-bottom: 25px; margin-top: 40px; color: #444; font-size: 1.5rem;">Metodo di Pagamento 💳</h3>
-
-                <div class="credit-card-container">
-                    <div class="credit-card-grid">
-                        <div class="form-group">
-                            <label>Numero Carta</label>
-                            <input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX" maxlength="19">
-                        </div>
-                        <div class="form-group">
-                            <label>Scadenza</label>
-                            <input type="text" id="card-expiry" placeholder="MM/YY" maxlength="5">
-                        </div>
-                        <div class="form-group">
-                            <label>CVV</label>
-                            <input type="password" id="card-cvv" placeholder="123" maxlength="3">
-                        </div>
-                    </div>
+                <div class="credit-card-grid">
+                    <div class="form-group"><label>Numero Carta</label><input type="text" id="card-number" placeholder="XXXX XXXX XXXX XXXX"></div>
+                    <div class="form-group"><label>Scadenza</label><input type="text" id="card-expiry" placeholder="MM/YY"></div>
+                    <div class="form-group"><label>CVV</label><input type="password" id="card-cvv" placeholder="123"></div>
                 </div>
-
                 <button class="btn btn-primary" onclick="updateProfile()">Salva Modifiche</button>
                 <div id="update-msg" class="message"></div>
             </div>
-
-            <!-- Cancellazione Account -->
-            <div class="form-section" style="border-top: none; padding-top: 0;">
-                <button class="btn btn-danger" onclick="deleteAccount()">Elimina Profilo Definitivamente</button>
-            </div>
+            <div class="form-section" style="border: none;"><button class="btn btn-danger" onclick="deleteAccount()">Elimina Profilo</button></div>
         </div>
     </div>
 
@@ -259,106 +184,82 @@
 
         async function loadProfileData() {
             try {
-                const user = typeof API !== 'undefined' ? API.getUser() : null;
+                // CHIAMATA AL DB: prendiamo i dati freschi dal server (endpoint /auth/me)
+                const user = await API.request('/auth/me');
 
                 if (user) {
-                    document.getElementById('display-name').textContent = user.name || 'Utente';
+                    const name = user.username || user.name || 'Utente';
+                    document.getElementById('display-name').textContent = name;
                     document.getElementById('display-email').textContent = user.email;
-                    document.getElementById('display-role').textContent = user.role;
-                    document.getElementById('avatar-initial').textContent = (user.name || 'U').charAt(0).toUpperCase();
+                    document.getElementById('avatar-initial').textContent = name.charAt(0).toUpperCase();
+                    document.getElementById('edit-name').value = name;
 
-                    document.getElementById('edit-name').value = user.name || '';
+                    // RUOLO DAL DB: Cerca 'ruolo' (come definito nello Schema) o 'role'
+                    const rawRole = user.ruolo || user.role || 'Cliente';
+                    const roleDisplay = document.getElementById('display-role');
+                    roleDisplay.textContent = rawRole;
 
-                    if (user.paymentInfo) {
-                        document.getElementById('card-number').value = user.paymentInfo.cardNumber || '';
-                        document.getElementById('card-expiry').value = user.paymentInfo.expiry || '';
+                    // Cambia colore badge se cliente o ristoratore (case-insensitive)
+                    if (rawRole.toLowerCase() === 'ristoratore') {
+                        roleDisplay.className = 'role-badge'; // Giallo
+                    } else {
+                        roleDisplay.className = 'role-badge cliente'; // Verde
+                    }
+
+                    // Caricamento dati carta se salvati nel DB
+                    if (user.lastFourCardDigits) {
+                        document.getElementById('card-number').value = `**** **** **** ${user.lastFourCardDigits}`;
                     }
                 }
-            } catch (error) {
-                console.error("Errore caricamento profilo", error);
+            } catch (e) {
+                console.error("Errore nel recupero dei dati dal server:", e);
+                // Fallback ai dati locali se il server non risponde
+                const localUser = API.getUser();
+                if (localUser) renderUserData(localUser);
             }
+        }
+
+        // Funzione helper per il rendering (usata per fallback o aggiornamento rapido)
+        function renderUserData(user) {
+            const name = user.username || user.name || 'Utente';
+            document.getElementById('display-name').textContent = name;
+            document.getElementById('display-email').textContent = user.email;
+            document.getElementById('avatar-initial').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('edit-name').value = name;
+
+            const rawRole = user.ruolo || user.role || 'Cliente';
+            const roleDisplay = document.getElementById('display-role');
+            roleDisplay.textContent = rawRole;
+            roleDisplay.className = (rawRole.toLowerCase() === 'ristoratore') ? 'role-badge' : 'role-badge cliente';
         }
 
         async function updateProfile() {
+            const user = API.getUser();
             const newName = document.getElementById('edit-name').value;
-            const newPassword = document.getElementById('edit-password').value;
 
-            const cardNumber = document.getElementById('card-number').value;
-            const cardExpiry = document.getElementById('card-expiry').value;
+            // Qui andrebbe la chiamata API per salvare sul DB
+            // await API.request('/auth/update', 'PUT', { username: newName });
 
-            const msgBox = document.getElementById('update-msg');
+            user.username = newName;
+            localStorage.setItem('user', JSON.stringify(user));
 
-            const payload = {
-                name: newName
-            };
-            if (newPassword) payload.password = newPassword;
+            const msg = document.getElementById('update-msg');
+            msg.textContent = "Profilo aggiornato con successo!";
+            msg.className = "message success";
+            msg.style.display = "block";
 
-            try {
-                console.log("Aggiornamento inviato:", payload);
-
-                if (typeof API !== 'undefined') {
-                    const currentUser = API.getUser();
-                    if(currentUser) {
-                        currentUser.name = newName;
-                        currentUser.paymentInfo = {
-                            cardNumber: cardNumber,
-                            expiry: cardExpiry
-                        };
-                        localStorage.setItem('user', JSON.stringify(currentUser));
-                    }
-                }
-
-                msgBox.textContent = "Profilo e metodo di pagamento aggiornati!";
-                msgBox.className = "message success";
-                msgBox.style.display = "block";
-
-                setTimeout(() => loadProfileData(), 1000);
-            } catch (error) {
-                msgBox.textContent = "Errore durante l'aggiornamento: " + error.message;
-                msgBox.className = "message error";
-                msgBox.style.display = "block";
-            }
+            setTimeout(() => {
+                msg.style.display = "none";
+                loadProfileData();
+                if (typeof loadHeader === 'function') loadHeader();
+            }, 1500);
         }
 
-        async function deleteAccount() {
-            if (!confirm("Sei sicuro di voler eliminare il tuo account? Questa azione è irreversibile.")) {
-                return;
-            }
-            try {
-                if (typeof API !== 'undefined') API.logout();
-                alert("Account eliminato. Verrai reindirizzato alla Home.");
-                window.location.href = 'HomePage.html';
-            } catch (error) {
-                alert("Impossibile eliminare l'account: " + error.message);
+        function deleteAccount() {
+            if (confirm("Sei sicuro di voler eliminare definitivamente il tuo profilo?")) {
+                API.logout();
             }
         }
-
-        document.getElementById('card-number').addEventListener('input', function (e) {
-            e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
-        });
-
-        document.getElementById('card-expiry').addEventListener('input', function (e) {
-            var input = e.target.value;
-            if (/\D\/$/.test(input)) input = input.substr(0, input.length - 3);
-            var values = input.split('/').map(function(v) {
-                return v.replace(/\D/g, '')
-            });
-            if (values[0]) values[0] = checkValue(values[0], 12);
-            if (values[1]) values[1] = checkValue(values[1], 99);
-            var output = values.map(function(v, i) {
-                return v.length == 2 && i < 1 ? v + '/' : v;
-            });
-            e.target.value = output.join('').substr(0, 5);
-        });
-
-        function checkValue(str, max) {
-            if (str.charAt(0) !== '0' || str == '00') {
-                var num = parseInt(str);
-                if (isNaN(num) || num <= 0 || num > max) num = 1;
-                str = num > parseInt(max.toString().charAt(0)) && num.toString().length == 1 ? '0' + num : num.toString();
-            };
-            return str;
-        };
     </script>
 </body>
 </html>

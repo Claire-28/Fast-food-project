@@ -1,12 +1,20 @@
 const jwt = require('jsonwebtoken');
-module.exports = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1];
-    if (!token) return res.status(401).json({ error: 'Token mancante' });
+
+const verifyToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1]; // Prende "Bearer TOKEN"
+
+    if (!token) {
+        return res.status(401).json({ message: "Accesso negato. Token mancante." });
+    }
+
     try {
-        const decoded = jwt.verify(token, 'supersecret');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_key');
         req.user = decoded;
         next();
-    } catch (err) {
-        return res.status(401).json({ error: 'Token non valido' });
+    } catch (error) {
+        return res.status(403).json({ message: "Token non valido." });
     }
 };
+
+module.exports = verifyToken;

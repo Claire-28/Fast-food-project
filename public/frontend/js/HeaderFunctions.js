@@ -1,4 +1,7 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿/**
+ * Ripristino dell'Header originale con logica Dashboard per Ristoratore
+ */
+document.addEventListener("DOMContentLoaded", () => {
     loadHeader();
 });
 
@@ -11,7 +14,7 @@ function loadHeader() {
     const isSubFolder = path.includes('/admin/');
     const basePath = isSubFolder ? '../' : '';
 
-    // 2. Controllo Login
+    // 2. Controllo Login tramite API o LocalStorage
     let isLoggedIn = false;
     let user = null;
     let role = null;
@@ -19,17 +22,21 @@ function loadHeader() {
     if (typeof API !== 'undefined' && API.isLoggedIn()) {
         isLoggedIn = true;
         user = API.getUser();
-        role = user ? user.role : null;
     } else {
         const token = localStorage.getItem('token');
-        if (token) {
+        const userStr = localStorage.getItem('user');
+        if (token && userStr) {
             isLoggedIn = true;
-            role = localStorage.getItem('ruolo'); 
-            user = { name: 'Utente', role: role };
+            user = JSON.parse(userStr);
         }
     }
 
-    // 3. HTML CON STRUTTURA ORIGINALE
+    // Estrazione Ruolo (Sincronizzata con lo schema User.js: 'ruolo')
+    if (user) {
+        role = user.ruolo || user.role || null;
+    }
+
+    // 3. HTML CON STRUTTURA CSS ORIGINALE (Per non "sminchiarlo")
     headerPlaceholder.innerHTML = `
     <header class="main-header" id="mainHeader">
         <div class="header-logo">
@@ -44,6 +51,11 @@ function loadHeader() {
                 <li><a href="${basePath}SearchRestaurants.html">Ristoranti</a></li>
                 <li><a href="${basePath}Piatti.html">Menu</a></li>
                 ${isLoggedIn ? `<li><a href="${basePath}ClientOrders.html">Ordini</a></li>` : ''}
+                
+                <!-- Link Dashboard visibile solo se il ruolo nel DB è Ristoratore -->
+                ${(role && role.toLowerCase() === 'ristoratore')
+            ? `<li><a href="${basePath}admin/DashboardRistoratore.html" style="color: #f1c40f; font-weight: 800;">Dashboard</a></li>`
+            : ''}
             </ul>
         </nav>
 
@@ -53,51 +65,33 @@ function loadHeader() {
                 <span id="cart-count" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold;">0</span>
             </a>
 
-            ${isLoggedIn 
-                ? `
+            ${isLoggedIn
+            ? `
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <a href="${basePath}Profile.html" style="text-decoration: none; color: inherit; font-weight: bold;">
-                        👤 ${user && user.name ? user.name : 'Profilo'}
+                        👤 ${user.username || user.name || 'Profilo'}
                     </a>
-                    
-                    ${(role === 'ristoratore' || role === 'Ristoratore') 
-                        ? `<a href="${isSubFolder ? 'DashboardRistoratore.html' : 'admin/DashboardRistoratore.html'}" style="font-size: 0.8rem; background: #f1c40f; color: white; padding: 4px 8px; border-radius: 5px; text-decoration: none;">Dash</a>` 
-                        : ''}
-
-                    <a href="#" id="logout-btn" style="color: #ff7675; text-decoration: none; font-size: 0.9rem; margin-left: 5px;">Esci</a>
+                    <a href="#" id="logout-btn" style="color: #ff7675; text-decoration: none; font-size: 0.9rem; font-weight: 600;">Esci</a>
                 </div>
-                ` 
-                : `
+                `
+            : `
                 <a href="${basePath}LogIn.html" class="btn-login" style="text-decoration: none; font-weight: bold; color: inherit;">Accedi</a>
                 <a href="${basePath}SignUp.html" class="btn-register" style="text-decoration: none; font-weight: bold; color: #7ed991; border: 1px solid #7ed991; padding: 5px 10px; border-radius: 15px; margin-left: 10px;">Registrati</a>
                 `
-            }
+        }
         </div>
     </header>
     `;
 
-    // 4. Gestione Scroll (Solo Classe CSS)
+    // 4. Gestione Scroll
     window.addEventListener("scroll", () => {
         const header = document.getElementById("mainHeader");
-        if (header) {
-            if (window.scrollY > 50) {
-                // Aggiunge SOLO la classe 'scrolled'.
-                // Usa questa classe nel tuo CSS (es. Header.css) per ridurre padding o altezza.
-                // Esempio CSS: .main-header.scrolled { padding: 5px 20px; }
-                header.classList.add("scrolled");
-                
-                // Rimosso qualsiasi cambio di background o box-shadow via JS
-                // header.style.background = ... (RIMOSSO)
-            } else {
-                header.classList.remove("scrolled");
-            }
-        }
+        if (header && window.scrollY > 50) header.classList.add("scrolled");
+        else if (header) header.classList.remove("scrolled");
     });
 
     // 5. Aggiornamento Badge Carrello
-    if (typeof Cart !== 'undefined') {
-        Cart.updateBadge();
-    }
+    if (typeof Cart !== 'undefined' && Cart.updateBadge) Cart.updateBadge();
 
     // 6. Logout
     const logoutBtn = document.getElementById('logout-btn');
@@ -105,8 +99,10 @@ function loadHeader() {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             if (typeof API !== 'undefined') API.logout();
-            else localStorage.clear();
-            window.location.href = basePath + 'LogIn.html';
+            else {
+                localStorage.clear();
+                window.location.href = basePath + 'LogIn.html';
+            }
         });
     }
 }

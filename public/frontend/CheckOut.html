@@ -1,155 +1,545 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - LemonLime</title>
+    <title>LemonLime - Checkout</title>
+
     <link rel="stylesheet" href="css/Header.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/mainStyle.css">
+
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap');
+
         body {
             font-family: 'Montserrat', sans-serif;
-            background: #faf9d2;
-            padding-top: 100px;
+            background-color: #faf9d2;
+            padding-top: 110px;
+            margin: 0;
+            color: #2d3436;
         }
 
-        .container {
+        .checkout-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2d3436;
+            font-size: 2.5rem;
+        }
+
+        /* LAYOUT: Colonna singola centrale */
+        .checkout-container {
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-        }
-
-        .cart-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
             display: flex;
-            align-items: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            flex-direction: column;
+            gap: 30px;
         }
 
-        .cart-img {
-            width: 80px;
-            height: 80px;
-            border-radius: 10px;
-            object-fit: cover;
-            margin-right: 20px;
+        .checkout-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 2px solid rgba(255,255,255,0.5);
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .cart-info {
-            flex-grow: 1;
+        /* Sezione Riepilogo (Evidenziata) */
+        .summary-section {
+            background: #fff;
+            border: 2px solid #7ed991; /* Bordo verde per evidenziare */
+            box-shadow: 0 15px 30px rgba(126, 217, 145, 0.2);
         }
 
-        .btn-remove {
-            color: red;
-            cursor: pointer;
-            border: none;
-            background: none;
-            font-size: 1.2rem;
-        }
-
-        .total-box {
-            text-align: right;
+        h2 {
+            color: #2d3436;
+            margin-top: 0;
+            border-bottom: 2px solid #fcf76d;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
             font-size: 1.5rem;
-            font-weight: bold;
-            margin: 20px 0;
+        }
+
+        /* Opzioni (Ritiro/Consegna) */
+        .option-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-card {
+            border: 2px solid #eee;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            background: #fff;
+        }
+
+            .option-card:hover {
+                transform: translateY(-2px);
+            }
+
+            .option-card.active {
+                border-color: #7ed991;
+                background-color: #f0fff4;
+                box-shadow: 0 5px 15px rgba(126, 217, 145, 0.2);
+            }
+
+            .option-card input {
+                display: none;
+            }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+                font-size: 0.9rem;
+                color: #636e72;
+            }
+
+            .form-group input, .form-group select {
+                width: 100%;
+                padding: 12px;
+                border-radius: 10px;
+                border: 1px solid #ddd;
+                box-sizing: border-box;
+                font-family: inherit;
+                background-color: #fcfcfc;
+            }
+
+                .form-group input:focus {
+                    border-color: #96fbc4;
+                    outline: none;
+                    background: #fff;
+                }
+
+        /* Riepilogo */
+        .summary-header {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #2d3436;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 1rem;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 10px;
+        }
+
+        .summary-totals {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #636e72;
+            font-size: 1.1rem;
+        }
+
+        .total-final {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #2d3436;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .btn-confirm {
-            width: 100%;
-            padding: 15px;
-            background: #7ed991;
-            color: white;
+            background: linear-gradient(135deg, #fcf76d 0%, #7ed991 100%);
             border: none;
-            font-size: 1.2rem;
-            border-radius: 10px;
+            color: #2d3436;
+            font-weight: 800;
             cursor: pointer;
+            width: 100%;
+            padding: 20px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            margin-top: 30px;
+            transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(126, 217, 145, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
             .btn-confirm:hover {
-                background: #6bc97e;
+                transform: translateY(-3px) scale(1.02);
             }
+
+            .btn-confirm:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+        .payment-method-badge {
+            background: #f1f2f6;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #2d3436;
+        }
+
+        #address-section, #card-payment-area, #cash-info-section, #payment-new-section {
+            display: none;
+        }
+
+        .message-box {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .error {
+            background: #ff7675;
+            color: white;
+        }
+
+        .success {
+            background: #55efc4;
+            color: #2d3436;
+        }
+
+        @media (max-width: 600px) {
+            .option-group {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
+
     <div id="header-placeholder"></div>
 
-    <div class="container">
-        <h1>Il tuo Carrello 🛒</h1>
-        <div id="cart-items"></div>
+    <h1 class="checkout-title">Checkout 🛍️</h1>
 
-        <div class="total-box">
-            Totale: € <span id="cart-total">0.00</span>
+    <div class="checkout-container">
+
+        <!-- SEZIONE 1: CONSEGNA -->
+        <div class="checkout-section">
+            <h2>1. Modalità Ricezione</h2>
+            <div class="option-group">
+                <label class="option-card active" id="label-pickup">
+                    <input type="radio" name="orderType" value="ritiro" checked onchange="toggleOrderType('ritiro')">
+                    <span style="font-size:1.5rem; display:block; margin-bottom:5px;">🏪</span>
+                    Ritiro in Negozio
+                </label>
+                <label class="option-card" id="label-delivery">
+                    <input type="radio" name="orderType" value="consegna" onchange="toggleOrderType('consegna')">
+                    <span style="font-size:1.5rem; display:block; margin-bottom:5px;">🛵</span>
+                    Consegna a Casa
+                </label>
+            </div>
+
+            <div id="address-section">
+                <div class="form-group">
+                    <label>Indirizzo Completo</label>
+                    <input type="text" id="deliveryAddress" placeholder="Via Roma 10">
+                </div>
+                <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                    <div>
+                        <label>Città</label>
+                        <input type="text" id="deliveryCity" placeholder="Milano">
+                    </div>
+                    <div>
+                        <label>Telefono</label>
+                        <input type="tel" id="deliveryPhone" placeholder="+39 ...">
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <button class="btn-confirm" onclick="submitOrder()">Conferma Ordine e Paga</button>
+        <!-- SEZIONE 2: PAGAMENTO -->
+        <div class="checkout-section">
+            <h2>2. Metodo di Pagamento</h2>
+            <div class="option-group">
+                <label class="option-card active" id="label-pay-card">
+                    <input type="radio" name="paymentType" value="carta" checked onchange="togglePaymentType('carta')">
+                    <span style="font-size:1.5rem; display:block; margin-bottom:5px;">💳</span>
+                    Carta Online
+                </label>
+                <label class="option-card" id="label-pay-cash">
+                    <input type="radio" name="paymentType" value="contanti" onchange="togglePaymentType('contanti')">
+                    <span style="font-size:1.5rem; display:block; margin-bottom:5px;">💵</span>
+                    Contanti
+                </label>
+            </div>
+
+            <!-- Area Carta -->
+            <div id="card-payment-area" style="display:block;">
+                <div id="payment-existing-section" style="display:none;">
+                    <div class="payment-method-badge">
+                        <span>✅</span>
+                        <span id="saved-card-text">Carta **** 1234</span>
+                    </div>
+                    <button onclick="showNewPayment()" style="background:none; border:none; color:#0984e3; cursor:pointer; text-decoration:underline; margin-top:5px;">Usa un'altra carta</button>
+                </div>
+
+                <div id="payment-new-section" style="display:block;">
+                    <div class="form-group">
+                        <label>Intestatario</label>
+                        <input type="text" id="cardHolder" placeholder="Mario Rossi">
+                    </div>
+                    <div class="form-group">
+                        <label>Numero Carta</label>
+                        <input type="text" id="cardNumber" placeholder="0000 0000 0000 0000">
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label>Scadenza</label>
+                            <input type="text" id="cardExpiry" placeholder="MM/AA">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label>CVV</label>
+                            <input type="text" id="cardCvv" placeholder="123">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="cash-info-section">
+                <p style="background:#fff3cd; padding:15px; border-radius:10px; color:#856404; text-align:center;">
+                    Pagherai direttamente alla cassa o al corriere.
+                </p>
+            </div>
+        </div>
+
+        <!-- SEZIONE 3: RIEPILOGO (ORA SOTTO) -->
+        <div class="checkout-section summary-section">
+            <div class="summary-header">Riepilogo Ordine</div>
+            <div id="checkout-items-list">
+                <p>Caricamento carrello...</p>
+            </div>
+
+            <div class="summary-totals">
+                <div class="summary-row">
+                    <span>Subtotale</span>
+                    <span id="subtotal-display">€ 0.00</span>
+                </div>
+                <div class="summary-row" id="delivery-row" style="display:none;">
+                    <span>Costo Consegna</span>
+                    <span>€ 2.50</span>
+                </div>
+                <div class="total-final">
+                    <span>TOTALE</span>
+                    <span id="total-display">€ 0.00</span>
+                </div>
+            </div>
+
+            <div id="message-box" class="message-box"></div>
+            <button id="btn-submit" class="btn-confirm" onclick="processOrder()">Conferma e Paga 🍋</button>
+            <p style="text-align:center; font-size:0.8rem; color:#999; margin-top:15px;">Transazioni sicure e crittografate</p>
+        </div>
+
     </div>
 
+    <!-- SCRIPTS -->
     <script src="js/api.js"></script>
     <script src="js/HeaderFunctions.js"></script>
     <script src="js/cart.js"></script>
+
     <script>
-        document.addEventListener('DOMContentLoaded', loadCart);
+        const DELIVERY_COST = 2.50;
+        let cartItems = [];
 
-        function loadCart() {
-            const items = Cart.getItems();
-            const container = document.getElementById('cart-items');
-            container.innerHTML = '';
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof setupHeader === 'function') setupHeader();
 
-            if(items.length === 0) {
-                container.innerHTML = '<p>Il carrello è vuoto.</p>';
-                return;
-            }
-
-            items.forEach(item => {
-                container.innerHTML += `
-                    <div class="cart-card">
-                        <img src="${item.image}" class="cart-img" onerror="this.src='https://via.placeholder.com/80'">
-                        <div class="cart-info">
-                            <h3>${item.name}</h3>
-                            <p>Quantità: ${item.quantity} x €${item.price.toFixed(2)}</p>
-                        </div>
-                        <button class="btn-remove" onclick="removeItem('${item.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-            });
-
-            document.getElementById('cart-total').innerText = Cart.total().toFixed(2);
-        }
-
-        function removeItem(id) {
-            Cart.remove(id);
-            loadCart();
-        }
-
-        async function submitOrder() {
-            if(!API.isLoggedIn()) {
-                alert("Devi effettuare il login per ordinare!");
+            if (!window.API.isLoggedIn()) {
                 window.location.href = 'LogIn.html';
                 return;
             }
 
-            const items = Cart.getItems();
-            if(items.length === 0) return alert("Carrello vuoto!");
+            loadCart();
+            checkSavedPayment();
+        });
 
-            const orderData = {
-                products: items,
-                totalAmount: Cart.total(),
-                date: new Date().toISOString(),
-                status: 'In preparazione'
-            };
+        function loadCart() {
+            if (typeof Cart !== 'undefined' && typeof Cart.getItems === 'function') {
+                cartItems = Cart.getItems();
+            } else {
+                cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            }
+
+            const container = document.getElementById('checkout-items-list');
+            const btn = document.getElementById('btn-submit');
+
+            container.innerHTML = '';
+
+            if (cartItems.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:#999;">Il carrello è vuoto.</p>';
+                btn.disabled = true;
+                updateTotals();
+                return;
+            }
+
+            cartItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'summary-item';
+                div.innerHTML = `
+                        <div>
+                            <span style="font-weight:bold;">${item.quantity}x</span> ${item.name}
+                        </div>
+                        <div>€ ${(item.price * item.quantity).toFixed(2)}</div>
+                    `;
+                container.appendChild(div);
+            });
+
+            updateTotals();
+        }
+
+        function updateTotals() {
+            const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            const isDelivery = document.querySelector('input[name="orderType"]:checked').value === 'consegna';
+            const total = isDelivery ? subtotal + DELIVERY_COST : subtotal;
+
+            document.getElementById('subtotal-display').innerText = `€ ${subtotal.toFixed(2)}`;
+            document.getElementById('total-display').innerText = `€ ${total.toFixed(2)}`;
+        }
+
+        function toggleOrderType(type) {
+            const addrSec = document.getElementById('address-section');
+            const delRow = document.getElementById('delivery-row');
+
+            document.getElementById('label-pickup').classList.toggle('active', type === 'ritiro');
+            document.getElementById('label-delivery').classList.toggle('active', type === 'consegna');
+
+            if (type === 'consegna') {
+                addrSec.style.display = 'block';
+                delRow.style.display = 'flex';
+                document.getElementById('label-pay-cash').style.display = 'none';
+                document.querySelector('input[name="paymentType"][value="carta"]').checked = true;
+                togglePaymentType('carta');
+            } else {
+                addrSec.style.display = 'none';
+                delRow.style.display = 'none';
+                document.getElementById('label-pay-cash').style.display = 'block';
+            }
+            updateTotals();
+        }
+
+        function togglePaymentType(type) {
+            document.getElementById('label-pay-card').classList.toggle('active', type === 'carta');
+            document.getElementById('label-pay-cash').classList.toggle('active', type === 'contanti');
+            document.getElementById('card-payment-area').style.display = type === 'carta' ? 'block' : 'none';
+            document.getElementById('cash-info-section').style.display = type === 'contanti' ? 'block' : 'none';
+        }
+
+        function checkSavedPayment() {
+            const user = window.API.getUser();
+            if (user && user.paymentMethod) {
+                document.getElementById('payment-existing-section').style.display = 'block';
+                document.getElementById('payment-new-section').style.display = 'none';
+                document.getElementById('saved-card-text').innerText = `Carta **** ${user.paymentMethod.lastFour}`;
+            }
+        }
+
+        function showNewPayment() {
+            document.getElementById('payment-existing-section').style.display = 'none';
+            document.getElementById('payment-new-section').style.display = 'block';
+        }
+
+        // --- FUNZIONE DI SALVATAGGIO ORDINE ---
+        async function processOrder() {
+            const msgBox = document.getElementById('message-box');
+            const btn = document.getElementById('btn-submit');
+
+            const orderType = document.querySelector('input[name="orderType"]:checked').value;
+            const addressVal = document.getElementById('deliveryAddress').value;
+            const cityVal = document.getElementById('deliveryCity').value;
+            const phoneVal = document.getElementById('deliveryPhone').value;
+
+            if (orderType === 'consegna' && (!addressVal || !cityVal || !phoneVal)) {
+                alert("Compila tutti i dati per la consegna.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Attendi...";
+            msgBox.style.display = 'none';
 
             try {
-                // Simulazione invio ordine (Sostituisci con fetch reale al backend)
-                // const res = await API.post('/orders', orderData);
+                // 1. TROVA IL RISTORANTE (Associa ordine al ristorante del primo piatto)
+                let assignedRestaurantId = null;
+                const restaurants = await window.API.getRestaurants();
 
-                // Per il progetto singolo, spesso basta salvare in locale o simulare successo
-                alert("Ordine inviato con successo! Il ristorante sta preparando il tuo cibo.");
-                Cart.clear();
-                window.location.href = 'ClientOrders.html'; // Vai allo storico
+                if (cartItems.length > 0) {
+                    const firstItemName = cartItems[0].name;
+                    // Cerca il ristorante che ha questo piatto nel menu
+                    const foundRest = restaurants.find(r => r.menu && r.menu.some(p => p.name === firstItemName));
+                    if (foundRest) assignedRestaurantId = foundRest._id;
+                }
+
+                // 2. PREPARA DATI
+                const user = window.API.getUser();
+                const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+                const total = orderType === 'consegna' ? subtotal + DELIVERY_COST : subtotal;
+
+                const orderData = {
+                    userId: user.id || user._id,
+                    products: cartItems.map(i => ({
+                        productId: i.id || i._id,
+                        name: i.name,
+                        quantity: i.quantity,
+                        price: i.price
+                    })),
+                    amount: total,
+                    address: {
+                        street: orderType === 'consegna' ? addressVal : 'Ritiro in Sede',
+                        city: orderType === 'consegna' ? cityVal : '-',
+                        phone: orderType === 'consegna' ? phoneVal : '-'
+                    },
+                    restaurantId: assignedRestaurantId, // Importante per la dashboard
+                    status: 'In elaborazione'
+                };
+
+                // 3. INVIA AL DATABASE
+                await window.API.createOrder(orderData);
+
+                // Successo
+                msgBox.className = "message-box success";
+                msgBox.innerText = "Ordine Confermato!";
+                msgBox.style.display = "block";
+
+                localStorage.removeItem('cart');
+                if (typeof Cart !== 'undefined') Cart.clear();
+
+                setTimeout(() => window.location.href = 'ClientOrders.html', 2000);
+
             } catch (error) {
-                alert("Errore nell'invio ordine: " + error.message);
+                console.error(error);
+                btn.disabled = false;
+                btn.innerText = "Riprova";
+                msgBox.className = "message-box error";
+                msgBox.innerText = "Errore: " + (error.message || "Errore sconosciuto");
+                msgBox.style.display = "block";
             }
         }
     </script>
