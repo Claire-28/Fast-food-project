@@ -150,87 +150,84 @@
 
     <div class="auth-card">
         <h2>Unisciti a noi! 🍋</h2>
-            <p>Crea il tuo account in pochi secondi.</p>
-            
-            <div id="error-message">Errore nella registrazione</div>
+        <p>Crea il tuo account in pochi secondi.</p>
 
-            <form id="signup-form">
-                <div class="form-group">
-                    <label>Nome Completo</label>
-                    <input type="text" class="auth-input" id="name" placeholder="Mario Rossi" required>
-                </div>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="auth-input" id="email" placeholder="esempio@mail.com" required>
-                </div>
+        <div id="error-message">Errore nella registrazione</div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" class="auth-input" id="password" placeholder="Minimo 8 caratteri" required minlength="8" maxlength="20">
-                </div>
-
-                <div class="form-group">
-                    <label for="confirmPassword">Conferma Password</label>
-                    <input type="password" class="auth-input" id="confirmPassword" placeholder="Ripeti la password" required>
-                </div>
-
-                <div class="form-group">
-                    <label>Chi sei?</label>
-                    <select id="role">
-                        <option value="Cliente">Cliente (Voglio ordinare)</option>
-                        <option value="Ristoratore">Ristoratore (Gestisco un locale)</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn-auth">Registrati</button>
-            </form>
-
-            <div class="auth-footer">
-                Hai già un account? <a href="LogIn.html">Accedi</a>
+        <form id="signup-form">
+            <div class="form-group">
+                <label>Nome Completo</label>
+                <input type="text" class="auth-input" id="name" placeholder="Mario Rossi" required>
             </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" class="auth-input" id="email" placeholder="esempio@mail.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="auth-input" id="password" placeholder="Minimo 8 caratteri" required minlength="8" maxlength="20">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Conferma Password</label>
+                <input type="password" class="auth-input" id="confirmPassword" placeholder="Ripeti la password" required>
+            </div>
+
+            <div class="form-group">
+                <label>Chi sei?</label>
+                <select id="role">
+                    <option value="Cliente">Cliente (Voglio ordinare)</option>
+                    <option value="Ristoratore">Ristoratore (Gestisco un locale)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-auth">Registrati</button>
+        </form>
+
+        <div class="auth-footer">
+            Hai già un account? <a href="LogIn.html">Accedi</a>
+        </div>
     </div>
 
     <script src="js/api.js"></script>
     <script src="js/HeaderFunctions.js"></script>
-    
+
+    <script src="js/api.js"></script>
     <script>
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const name = document.getElementById('name').value;
+
+            const nome = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
-            const role = document.getElementById('role').value;
+            const ruolo = document.getElementById('role').value.toLowerCase();
             const errorDiv = document.getElementById('error-message');
 
-            // Reset errori
-            errorDiv.style.display = 'none';
-
-            // Controllo se le password coincidono
             if (password !== confirmPassword) {
                 errorDiv.style.display = 'block';
-                errorDiv.textContent = "Le password non coincidono. Riprova.";
-                return; // Ferma l'invio
+                errorDiv.textContent = "Le password non coincidono.";
+                return;
             }
 
+            // Creiamo l'oggetto pulito da inviare
+            const userData = { nome, email, password, ruolo };
+
             try {
-                const result = await API.register(name, email, password);
-                
+                const result = await API.register(userData);
                 if (result.success) {
-                    alert('Registrazione avvenuta con successo! Effettua il login.');
+                    alert('Registrazione completata!');
                     window.location.href = 'LogIn.html';
                 } else {
                     errorDiv.style.display = 'block';
-                    errorDiv.textContent = result.message || "Errore durante la registrazione";
+                    errorDiv.textContent = result.message || "Errore nella registrazione";
                 }
             } catch (error) {
-                console.error(error);
                 errorDiv.style.display = 'block';
-                errorDiv.textContent = "Errore di connessione al server.";
+                errorDiv.textContent = "Errore di connessione.";
             }
         });
     </script>
 </body>
-</html>
 </html>
